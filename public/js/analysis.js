@@ -17,7 +17,7 @@ const COC_ANALYZER = {
     const equipmentAnalysis = this.analyzeEquipment(villageState.equipment || []);
     const buildersAnalysis = this.analyzeBuilders(villageState.buildings || [], villageState.helpers || [], timestamp);
     const armyAnalysis = this.analyzeArmy(villageState.units || [], villageState.spells || []);
-    const farmStrategy = this.generateFarmStrategy(heroesAnalysis, wallsAnalysis, armyAnalysis);
+    const strategies = this.generateStrategies(heroesAnalysis, wallsAnalysis, armyAnalysis);
     const bbAnalysis = this.analyzeBuilderBase(villageState.buildings2 || [], villageState.heroes2 || [], villageState.units2 || [], timestamp);
     const trajectory = this.generateTrajectoryData(villageState, heroesAnalysis, buildersAnalysis, armyAnalysis);
 
@@ -30,7 +30,8 @@ const COC_ANALYZER = {
       equipment: equipmentAnalysis,
       builders: buildersAnalysis,
       army: armyAnalysis,
-      farmStrategy: farmStrategy,
+      strategies: strategies,
+      farmStrategy: strategies.farm,
       builderBase: bbAnalysis,
       trajectory: trajectory,
       overallScore: this.calculateOverallScore(heroesAnalysis, wallsAnalysis, equipmentAnalysis)
@@ -409,37 +410,170 @@ const COC_ANALYZER = {
   },
 
   /**
-   * Génération de la stratégie de farm freemium (Super Gobelins)
+   * Génération du Hub Multi-Stratégies HDV 11 (Farm, GDC, Rush & Sans Héros)
    */
-  generateFarmStrategy(heroesAnalysis, wallsAnalysis, armyAnalysis) {
+  generateStrategies(heroesAnalysis, wallsAnalysis, armyAnalysis) {
     const isSneakyReady = armyAnalysis.sneakyGoblinsUnlocked;
 
-    return {
-      isSneakyReady,
+    // 1. FARM & PILLAGE
+    const farm = {
+      id: "farm",
+      title: "Farm & Pillage",
+      icon: "🌾",
+      subtitle: "Super Gobelins Sniping & Rush Ressources",
+      difficulty: "Facile",
+      expectedResult: "Pillage maximal (25-40k EN/h, 2-3.5M Or/h)",
+      isReady: isSneakyReady,
       recommendedArmy: {
         troops: [
           { count: 76, name: "Super Gobelins", icon: "💰", role: "Pillage éclair des extracteurs, mines, réserves et HDV" },
-          { count: 6, name: "Super Sapeurs (ou 10 Sapeurs)", icon: "💣", role: "Brèche immédiate dans le premier et deuxième anneau de remparts" }
+          { count: 6, name: "Super Sapeurs", icon: "💣", role: "Brèche immédiate dans les remparts extérieurs et intermédiaires" }
         ],
         spells: [
-          { count: 4, name: "Sorts de Saut", icon: "🟩", role: "Accès direct au compartiment central de l'Élixir Noir & HDV" },
-          { count: 3, name: "Sorts d'Invisibilité", icon: "🌫️", role: "Permet aux Super Gobelins de détruire l'HDV et la réserve de noir sous le feu des défenses" }
+          { count: 4, name: "Sorts de Saut", icon: "🟩", role: "Accès direct au compartiment central de l'EN & HDV" },
+          { count: 3, name: "Sorts d'Invisibilité", icon: "🌫️", role: "Protection pour détruire l'HDV et la réserve de noir sous le feu" }
         ],
-        clanCastle: "Dirigeable de combat ou Lance-bûches avec Super Gobelins"
+        clanCastle: "Dirigeable ou Lance-bûches + Super Gobelins"
       },
+      keyEquipments: "Flacon d'Invisibilité (Reine 24), Gantelet Géant (Roi 24)",
+      copyText: "76 Super Gobelins, 6 Super Sapeurs, 4 Sorts de Saut, 3 Sorts d'Invisibilité. CDC : Dirigeable ou Lance-bûches avec Super Gobelins. Objectif : Pillage extracteurs et HDV (1400-2200 trophées).",
+      tacticalPlan: [
+        "Pillage extérieur : Déposez 1 à 2 Super Gobelins par extracteur/mine plein pour récupérer 80% du butin sans griller l'armée.",
+        "Percée centrale : Ouvrez l'accès avec 1 Saut et 1 Sapeur vers la réserve d'élixir noir et l'Hôtel de Ville.",
+        "Sécurisation : Posez une Invisibilité sur les gobelins au centre pour raser l'HDV et garantir l'étoile de victoire sans perdre de trophées."
+      ],
       efficiencyMetrics: {
         darkElixirPerHour: "25 000 - 40 000 EN / heure",
         goldElixirPerHour: "2 000 000 - 3 500 000 Or & Rose / heure",
         estimatedHoursForHeroes: Math.round(heroesAnalysis.totalDarkElixirNeeded / 30000),
-        trophyRange: "Or II à Cristal I (1400 - 2200 trophées) : Concentration maximale de villages abandonnés (Dead Bases)"
-      },
-      tacticalAdvice: [
-        "Déposez 1 à 2 Super Gobelins par extracteur/mine extérieur plein : vous récupérez 80% du butin en 15 secondes sans consommer toute votre armée.",
-        "Dès que les réserves ou l'HDV sont sécurisés, sécurisez l'étoile (50% ou HDV) pour maintenir votre rang de trophées sans subir de pénalité de butin.",
-        "Activez l'Apprenti Ouvrier en priorité sur la Reine des Archères pour accélérer de 2h à 4h quotidiennes son indisponibilité.",
-        "Investissez le surplus massif d'Or et d'Élixir rose directement dans les 106 remparts restants (niveau 11 -> 12) pour éviter de vous faire piller pendant que vos héros dorment."
-      ]
+        trophyRange: "Or II à Cristal I (1400 - 2200 trophées) : Concentration maximale de villages inactifs"
+      }
     };
+
+    // 2. GUERRE DE CLANS (GDC)
+    const gdc = {
+      id: "gdc",
+      title: "Guerre de Clans (GDC)",
+      icon: "⚔️",
+      subtitle: "Zap Witch (Golems + Sorcières + ZapQuake)",
+      difficulty: "Intermédiaire",
+      expectedResult: "3 étoiles garanties sur tout HDV 11",
+      isReady: true,
+      recommendedArmy: {
+        troops: [
+          { count: 3, name: "Golems", icon: "🪨", role: "Tanks principaux absorbant le feu des défenses lourdes" },
+          { count: 14, name: "Sorcières", icon: "🧙‍♀️", role: "Génération continue de squelettes submergeant le village" },
+          { count: 4, name: "Sapeurs", icon: "💣", role: "Ouverture initiale du premier compartiment" },
+          { count: 2, name: "Sorciers", icon: "🔥", role: "Nettoyage des bâtiments extérieurs restants" }
+        ],
+        spells: [
+          { count: 8, name: "Sorts de Foudre", icon: "⚡", role: "4 Foudres sur chaque Tour de l'Enfer pour les détruire d'entrée" },
+          { count: 2, name: "Sorts de Séisme", icon: "🌋", role: "1 Séisme par Tour de l'Enfer pour achever la destruction" },
+          { count: 1, name: "Sort de Gel", icon: "❄️", role: "Gel d'urgence sur l'Aigle Artilleur ou le CDC adverse" }
+        ],
+        clanCastle: "Lance-bûches (Log Launcher) + Yéti/Boulistes + 1 Rage + 1 Gel"
+      },
+      keyEquipments: "Gantelet Géant (Roi 24), Flacon d'Invisibilité (Reine 24), Tome Éternel (Gardien 10)",
+      copyText: "GDC HDV 11 (Zap Witch) : 3 Golems, 14 Sorcières, 4 Sapeurs, 2 Sorciers. Sorts : 8 Foudres, 2 Séismes, 1 Gel. CDC : Lance-bûches + Yéti/Boulistes + 1 Rage + 1 Gel.",
+      tacticalPlan: [
+        "ZapQuake initial : Déposez 4 Foudres + 1 Séisme sur chacune des deux Tours de l'Enfer pour les anéantir avant le déploiement.",
+        "Ligne de front : Étalez les 3 Golems sur le flanc côté Aigle Artilleur, suivis immédiatement d'une ligne continue de 14 Sorcières.",
+        "Percée centrale : Lancez le Lance-bûches et vos Héros au centre. Déclenchez le Tome Éternel du Gardien dès l'approche de l'Aigle et du CDC adverse."
+      ],
+      efficiencyMetrics: {
+        darkElixirPerHour: "Objectif 100% 3 Étoiles",
+        goldElixirPerHour: "Spam contrôlé insensible aux multi-TDE",
+        estimatedHoursForHeroes: "Idéal ligues de guerre & guerres classiques",
+        trophyRange: "Cible : Tout HDV 11 maxé ou semi-maxé"
+      }
+    };
+
+    // 3. CLASSÉ / RUSH TROPHÉES
+    const rush = {
+      id: "rush",
+      title: "Classé / Rush Trophées",
+      icon: "🏆",
+      subtitle: "Electro-Dragons & Blimp Snipe HDV",
+      difficulty: "Facile / Fiable",
+      expectedResult: "2 étoiles sécurisées sur n'importe quel HDV (même HDV 12/13)",
+      isReady: true,
+      recommendedArmy: {
+        troops: [
+          { count: 7, name: "Electro-Dragons", icon: "⚡🐉", role: "Dégâts de chaîne massifs et grattage rapide du 50%" },
+          { count: 10, name: "Ballons", icon: "🎈", role: "Éclaireurs de pièges et ciblage des défenses antiaériennes" },
+          { count: 4, name: "Bébés Dragons", icon: "🐲", role: "Nettoyage précis des bâtiments extérieurs non défendus" }
+        ],
+        spells: [
+          { count: 3, name: "Sorts de Rage", icon: "🟣", role: "Accélération furieuse des E-Drags et des troupes CDC sur l'HDV" },
+          { count: 5, name: "Sorts de Gel", icon: "❄️", role: "Neutralisation de l'Aigle Artilleur, Souffleurs et TDE multi" }
+        ],
+        clanCastle: "Dirigeable de combat (Battle Blimp) + Super Gobelins ou Super Sorciers + 1 Rage + 1 Invisibilité"
+      },
+      keyEquipments: "Tome Éternel (Gardien 10), Flacon d'Invisibilité (Reine 24)",
+      copyText: "Rush HDV 11 : 7 Electro-Dragons, 10 Ballons, 4 Bébés Dragons. Sorts : 3 Rages, 5 Gels. CDC : Dirigeable + Super Gobelins + 1 Rage + 1 Invisibilité.",
+      tacticalPlan: [
+        "Traversée protégée : Lancez le Dirigeable avec le Grand Gardien derrière et activez le Tome Éternel pour qu'il traverse indemne jusqu'à l'HDV central.",
+        "Sniping HDV : Dès l'impact du Dirigeable sur l'HDV, posez Rage + Invisibilité pour faire tomber l'HDV en 2 secondes (1ère étoile garantie).",
+        "Grattage 50% : Déployez les Electro-Dragons et Bébés Dragons en ligne sur l'extérieur pour dépasser rapidement 50% de destruction (2e étoile validée)."
+      ],
+      efficiencyMetrics: {
+        darkElixirPerHour: "Gain de trophées constant et garanti",
+        goldElixirPerHour: "Plafond de victoires : Master, Champion & Titan",
+        estimatedHoursForHeroes: "Sécurise 2 étoiles face à des HDV 12/13 en CWL",
+        trophyRange: "Ligue Master I à Titan III (2800 - 4200+ trophées)"
+      }
+    };
+
+    // 4. SANS HÉROS (EN AMÉLIORATION)
+    const noheroes = {
+      id: "noheroes",
+      title: "Sans Héros (En amélioration)",
+      icon: "🛠️",
+      subtitle: "Zap Dragons Aériens & Pillage Continu",
+      difficulty: "Facile",
+      expectedResult: "Perfs et farm maintenus sans aucun temps mort d'ouvrier",
+      isReady: true,
+      recommendedArmy: {
+        troops: [
+          { count: 11, name: "Dragons", icon: "🐉", role: "Force d'attaque principale autonome sans besoin de funnel de héros" },
+          { count: 8, name: "Ballons", icon: "🎈", role: "Soutien et déclenchement des pièges antiaériens" },
+          { count: 2, name: "Bébés Dragons", icon: "🐲", role: "Découpe des coins extérieurs pour canaliser les dragons" }
+        ],
+        spells: [
+          { count: 9, name: "Sorts de Foudre", icon: "⚡", role: "3 Foudres par DAA : rase 3 Défenses Antiaériennes sur 4" },
+          { count: 1, name: "Sort de Séisme", icon: "🌋", role: "Aide à affaiblir les bâtiments adjacents à la dernière DAA" },
+          { count: 1, name: "Sort de Gel", icon: "❄️", role: "Contrôle du souffleur ou de l'Aigle Artilleur" }
+        ],
+        clanCastle: "Dirigeable ou Lanceur de pierres + Ballons + 1 Foudre + 1 Gel"
+      },
+      keyEquipments: "Non requis (Vos héros sont en amélioration chez les ouvriers)",
+      copyText: "Sans Héros HDV 11 : 11 Dragons, 8 Ballons, 2 Bébés Dragons. Sorts : 9 Foudres, 1 Séisme, 1 Gel. CDC : Dirigeable + Ballons + 1 Foudre + 1 Gel.",
+      tacticalPlan: [
+        "Destruction antiaérienne : Envoyez 3 Foudres sur chaque DAA adverse pour en raser 3 sur 4 dès la première seconde.",
+        "Entonnoir aérien : Posez 1 Bébé Dragon aux deux extrémités du flanc d'attaque pour éviter l'éparpillement.",
+        "Déploiement massif : Lâchez tous les Dragons en ligne avec les Ballons derrière. Le Dirigeable va chercher l'HDV ou la dernière défense clé."
+      ],
+      efficiencyMetrics: {
+        darkElixirPerHour: "Zéro dépendance aux héros pour performer",
+        goldElixirPerHour: "Ouvriers 100% occupés sur les héros sans frustration",
+        estimatedHoursForHeroes: "Assure 2 à 3 étoiles en guerre & ligue sans Roi/Reine",
+        trophyRange: "Toutes ligues de farm et guerres de clans standard"
+      }
+    };
+
+    return {
+      farm,
+      gdc,
+      rush,
+      noheroes
+    };
+  },
+
+  /**
+   * Alias rétrocompatible
+   */
+  generateFarmStrategy(heroesAnalysis, wallsAnalysis, armyAnalysis) {
+    return this.generateStrategies(heroesAnalysis, wallsAnalysis, armyAnalysis).farm;
   },
 
   /**

@@ -190,18 +190,18 @@
     <!-- 3. TRAJECTOIRE & PRÉVISIONS -->
     <section id="trajectory-section" class="panel-minimal p-6 sm:p-8 space-y-6">
       
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-zinc-800/80 gap-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.08] gap-3">
         <div>
           <h3 class="text-base font-semibold text-zinc-100 flex items-center gap-2">
             <span>Trajectoire & Prévisions</span>
           </h3>
-          <p class="text-xs text-zinc-400 mt-0.5">Historique sur 180 jours et modélisation prédictive vers le seuil HDV 12 sain.</p>
+          <p class="text-xs text-zinc-400 mt-0.5">Historique 180j & modélisation vers le seuil HDV 12 sain.</p>
         </div>
 
         <div class="flex items-center gap-3 text-xs text-zinc-400">
           <span class="inline-flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            <span>Farm Super Gobelins actif</span>
+            <span>Farm actif</span>
           </span>
           <span class="text-zinc-700">•</span>
           <span id="trajectory-builders-badge" class="text-zinc-300 font-mono font-medium">5 Ouvriers</span>
@@ -212,35 +212,35 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         
         <div class="card-minimal p-4 flex flex-col justify-between">
-          <div class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Passage HDV 12 Recommandé</div>
+          <div class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Seuil HDV 12 Sain</div>
           <div class="mt-2">
             <div id="forecast-kpi-countdown" class="text-3xl font-semibold text-zinc-100 font-mono tracking-tight">58 jours</div>
-            <p class="text-xs text-emerald-400 mt-1">Scénario A : 2 ouvriers dédiés aux héros</p>
+            <p class="text-xs text-emerald-400 mt-1">2 ouvriers dédiés aux héros</p>
           </div>
-          <div class="mt-3 pt-2.5 border-t border-zinc-800/80 text-[11px] text-zinc-400">
+          <div class="mt-3 pt-2.5 border-t border-white/[0.08] text-[11px] text-zinc-400">
             Date estimée : <strong id="forecast-target-date-str" class="text-zinc-200 font-medium">17 Novembre 2026</strong>
           </div>
         </div>
 
         <div class="card-minimal p-4 flex flex-col justify-between">
-          <div class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Temps Ouvrier Héros Restant</div>
+          <div class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Temps Ouvrier Héros</div>
           <div class="mt-2">
             <div id="forecast-metric-builder-days" class="text-3xl font-semibold text-amber-400 font-mono tracking-tight">232 j</div>
-            <p class="text-xs text-zinc-400 mt-1">Pour seuil 45/45/18 (300j pour 100% max)</p>
+            <p class="text-xs text-zinc-400 mt-1">Objectif 45 / 45 / 18 (300j pour 100%)</p>
           </div>
-          <div class="mt-3 pt-2.5 border-t border-zinc-800/80 text-[11px] text-zinc-400">
-            Objectif : Roi 45+ • Reine 45+ • Gardien 18+
+          <div class="mt-3 pt-2.5 border-t border-white/[0.08] text-[11px] text-zinc-400">
+            Roi 45 • Reine 45 • Gardien 18
           </div>
         </div>
 
         <div class="card-minimal p-4 flex flex-col justify-between">
-          <div class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Scénario B (Rythme Standard)</div>
+          <div class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Rythme Standard</div>
           <div class="mt-2">
             <div id="forecast-metric-standard-days" class="text-3xl font-semibold text-zinc-300 font-mono tracking-tight">118 j</div>
-            <p class="text-xs text-zinc-400 mt-1">Avec 35% de temps d'arrêt des ouvriers</p>
+            <p class="text-xs text-zinc-400 mt-1">Avec latence ouvriers (-35%)</p>
           </div>
-          <div class="mt-3 pt-2.5 border-t border-zinc-800/80 text-[11px] text-zinc-400">
-            Laboratoire restant : <span id="forecast-metric-lab-days" class="text-zinc-300 font-mono font-medium">~58 j</span>
+          <div class="mt-3 pt-2.5 border-t border-white/[0.08] text-[11px] text-zinc-400">
+            Labo restant : <span id="forecast-metric-lab-days" class="text-zinc-300 font-mono font-medium">~58 j</span>
           </div>
         </div>
 
@@ -253,8 +253,8 @@
         <div class="card-minimal p-5 space-y-4">
           <div class="flex items-center justify-between">
             <div>
-              <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Historique de Progression (180 jours)</h4>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Montée HDV 1 à 11 vs Niveaux cumulés des héros</p>
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Progression (180 jours)</h4>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Niveau HDV vs Niveaux cumulés des héros</p>
             </div>
             <span class="text-[11px] font-mono text-zinc-400">J-180 → J0</span>
           </div>
@@ -267,8 +267,8 @@
         <div class="card-minimal p-5 space-y-4">
           <div class="flex items-center justify-between">
             <div>
-              <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Projection Prévisionnelle de Maxage</h4>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Scénario Optimal (J+58) vs Scénario Standard (J+118)</p>
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Projection de Maxage</h4>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Scénario Optimal (J+58) vs Standard (J+118)</p>
             </div>
             <span class="text-[11px] font-mono text-zinc-400">J0 → J+150</span>
           </div>
@@ -283,12 +283,12 @@
 
     <!-- 4. CHANTIERS & OUVRIERS EN COURS -->
     <section class="panel-minimal p-6 sm:p-8 space-y-6">
-      <div class="flex items-center justify-between pb-4 border-b border-zinc-800/80">
+      <div class="flex items-center justify-between pb-4 border-b border-white/[0.08]">
         <div>
-          <h3 class="text-base font-semibold text-zinc-100">Chantiers & Recherches Actives</h3>
-          <p class="text-xs text-zinc-400 mt-0.5">Comptes à rebours synchronisés à la seconde.</p>
+          <h3 class="text-base font-semibold text-zinc-100">Chantiers & Recherches</h3>
+          <p class="text-xs text-zinc-400 mt-0.5">5 comptes à rebours en direct.</p>
         </div>
-        <span class="text-xs font-mono text-zinc-400">5 Chantiers en direct</span>
+        <span class="text-xs font-mono text-zinc-400">5 actifs</span>
       </div>
 
       <div id="active-upgrades-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -298,10 +298,10 @@
 
     <!-- 5. ÉQUIPEMENTS DE HÉROS & PALIERS MULTIPLES DE 3 -->
     <section class="panel-minimal p-6 sm:p-8 space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-zinc-800/80 gap-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.08] gap-3">
         <div>
-          <h3 class="text-base font-semibold text-zinc-100">Équipements de Héros</h3>
-          <p class="text-xs text-zinc-400 mt-0.5">Optimisation des paliers multiples de 3 (niveaux 3, 6, 9, 12, 15, 18).</p>
+          <h3 class="text-base font-semibold text-zinc-100">Équipements</h3>
+          <p class="text-xs text-zinc-400 mt-0.5">Paliers d'aptitude multiples de 3 (x3).</p>
         </div>
 
         <!-- Filtres Minimalistes -->
@@ -325,10 +325,10 @@
       
       <!-- Graphique Héros -->
       <div class="lg:col-span-2 panel-minimal p-6 space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-zinc-800/80">
+        <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
           <div>
-            <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Niveaux Actuels vs Plafond HDV 11</h4>
-            <p class="text-[11px] text-zinc-400 mt-0.5">Capacité maximale de chaque héros</p>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Héros vs Plafond HDV 11</h4>
+            <p class="text-[11px] text-zinc-400 mt-0.5">Caps officiels</p>
           </div>
           <span class="text-xs font-mono text-rose-400">Déficit : -62 niveaux</span>
         </div>
@@ -339,7 +339,7 @@
 
       <!-- Graphique Remparts -->
       <div class="panel-minimal p-6 space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-zinc-800/80">
+        <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
           <div>
             <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Remparts</h4>
             <p class="text-[11px] text-zinc-400 mt-0.5">Répartition des 300 murs</p>
@@ -355,10 +355,10 @@
 
     <!-- 7. ARMÉE & RECHERCHES DU LABORATOIRE -->
     <section class="panel-minimal p-6 sm:p-8 space-y-6">
-      <div class="flex items-center justify-between pb-4 border-b border-zinc-800/80">
+      <div class="flex items-center justify-between pb-4 border-b border-white/[0.08]">
         <div>
-          <h3 class="text-base font-semibold text-zinc-100">Armée & Niveaux de Laboratoire</h3>
-          <p class="text-xs text-zinc-400 mt-0.5">Troupes et sorts débloqués dans le village.</p>
+          <h3 class="text-base font-semibold text-zinc-100">Laboratoire & Armée</h3>
+          <p class="text-xs text-zinc-400 mt-0.5">Niveaux actuels et caps HDV 11.</p>
         </div>
       </div>
 
@@ -377,53 +377,47 @@
       </div>
     </section>
 
-    <!-- 8. STRATÉGIE DE FARM (SUPER GOBELINS) -->
+    <!-- 8. HUB MULTI-STRATÉGIES (GDC, CLASSÉ/RUSH, FARM & SANS HÉROS) -->
     <section id="farm-strategy-section" class="panel-minimal p-6 sm:p-8 space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-zinc-800/80 gap-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.08] gap-4">
         <div>
-          <div class="flex items-center gap-2">
-            <h3 class="text-base font-semibold text-zinc-100">Stratégie de Farm : Super Gobelins</h3>
-            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-zinc-900 text-emerald-400 border border-zinc-800">Débloqué ✓</span>
+          <div class="flex items-center gap-2.5">
+            <h3 class="text-base font-semibold text-zinc-100 tracking-tight">Hub Tactique HDV 11</h3>
+            <span id="strategy-badge-difficulty" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Facile</span>
           </div>
-          <p class="text-xs text-zinc-400 mt-0.5">Méthode la plus efficace pour financer l'élixir noir des héros.</p>
+          <p id="strategy-subtitle" class="text-xs text-zinc-400 mt-0.5">Compositions et plans d'action adaptés aux mécaniques HDV 11.</p>
         </div>
-        <button id="btn-copy-army" class="btn-minimal text-xs py-1.5 px-3 self-start sm:self-auto min-h-[38px]">
+
+        <!-- Bouton Copier Compo -->
+        <button id="btn-copy-army" class="btn-minimal text-xs py-1.5 px-3.5 self-start sm:self-auto min-h-[38px]">
           <i data-lucide="copy" class="w-3.5 h-3.5 text-zinc-400"></i>
-          <span>Copier la compo</span>
+          <span id="btn-copy-army-text">Copier la compo</span>
         </button>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="space-y-3">
-          <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Composition (240-260 places)</h4>
-          <div id="farm-army-troops" class="space-y-2"></div>
-          <div id="farm-army-spells" class="space-y-2 mt-3"></div>
-        </div>
+      <!-- Sélecteur d'Onglets Minimaliste (Segmented Control) -->
+      <div class="flex p-1 bg-zinc-900/60 backdrop-blur-md rounded-xl border border-white/[0.08] overflow-x-auto gap-1">
+        <button class="strategy-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-lg text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 active bg-white/10 text-white shadow-sm" data-tab="farm">
+          <span>🌾</span>
+          <span>Farm & Pillage</span>
+        </button>
+        <button class="strategy-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-lg text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 text-zinc-400 hover:text-zinc-200" data-tab="gdc">
+          <span>⚔️</span>
+          <span>GDC (3 Étoiles)</span>
+        </button>
+        <button class="strategy-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-lg text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 text-zinc-400 hover:text-zinc-200" data-tab="rush">
+          <span>🏆</span>
+          <span>Classé / Rush</span>
+        </button>
+        <button class="strategy-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-lg text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 text-zinc-400 hover:text-zinc-200" data-tab="noheroes">
+          <span>🛠️</span>
+          <span>Sans Héros</span>
+        </button>
+      </div>
 
-        <div class="space-y-3">
-          <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Rendement Moyen</h4>
-          <div class="space-y-2.5">
-            <div class="card-minimal p-3.5">
-              <div class="text-[11px] text-zinc-400">Élixir Noir / heure :</div>
-              <div id="farm-metric-de" class="text-base font-mono font-semibold text-zinc-100 mt-0.5">25 000 - 40 000 EN</div>
-            </div>
-            <div class="card-minimal p-3.5">
-              <div class="text-[11px] text-zinc-400">Or & Rose / heure :</div>
-              <div id="farm-metric-gold" class="text-base font-mono font-semibold text-zinc-100 mt-0.5">2M - 3.5M Or & Rose</div>
-            </div>
-            <div class="card-minimal p-3.5">
-              <div class="text-[11px] text-zinc-400">Ligue conseillée :</div>
-              <div id="farm-metric-league" class="text-xs font-medium text-zinc-300 mt-0.5">Or II à Cristal I (1400 - 2200 trophées)</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="space-y-3">
-          <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Consignes de Déploiement</h4>
-          <div class="card-minimal p-4">
-            <ul id="farm-tactical-advice" class="space-y-2.5"></ul>
-          </div>
-        </div>
+      <!-- Conteneur Dynamique de la Stratégie -->
+      <div id="strategy-content-container">
+        <!-- Rendu dynamique par renderStrategySection() dans app.js -->
       </div>
     </section>
 

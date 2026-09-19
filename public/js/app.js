@@ -8,7 +8,8 @@ let appState = {
   timers: [],
   timerInterval: null,
   charts: {},
-  apiStatus: "fallback" // 'online' | 'fallback' | 'loading'
+  apiStatus: "fallback", // 'online' | 'fallback' | 'loading'
+  currentStrategy: "farm"
 };
 
 // Initialisation dès le chargement du DOM
@@ -128,20 +129,37 @@ function setupEventListeners() {
     });
   });
 
-  // Copier la composition de farm
+  // Sélecteur d'onglets du Hub Multi-Stratégies
+  const strategyTabBtns = document.querySelectorAll(".strategy-tab-btn");
+  strategyTabBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      strategyTabBtns.forEach(b => {
+        b.classList.remove("active", "bg-white/10", "text-white", "shadow-sm");
+        b.classList.add("text-zinc-400");
+      });
+      btn.classList.add("active", "bg-white/10", "text-white", "shadow-sm");
+      btn.classList.remove("text-zinc-400");
+      appState.currentStrategy = btn.dataset.tab;
+      renderActiveStrategy(appState.currentStrategy);
+    });
+  });
+
+  // Copier la composition de la stratégie active
   const btnCopyArmy = document.getElementById("btn-copy-army");
   if (btnCopyArmy) {
     btnCopyArmy.addEventListener("click", () => {
-      const text = "76 Super Gobelins, 6 Super Sapeurs, 4 Sorts de Saut, 3 Sorts d'Invisibilité. Cible : 1400-2200 trophées (Gold/Cristal). Pillage extracteurs et HDV.";
+      const currentKey = appState.currentStrategy || "farm";
+      const strat = appState.analysis?.strategies?.[currentKey] || appState.analysis?.farmStrategy;
+      const text = strat?.copyText || "Composition non trouvée";
       navigator.clipboard.writeText(text).then(() => {
-        showToast("Composition copiée dans le presse-papiers !", "success");
+        showToast(`Compo « ${strat?.title || 'Stratégie'} » copiée !`, "success");
       });
     });
   }
 
   // Feedback tactile élastique Anime.js v4 (Spring juicy physics)
   document.addEventListener("pointerdown", (e) => {
-    const target = e.target.closest(".btn-minimal, .filter-pill, #btn-sync-api, #btn-copy-army, #btn-paste-modal");
+    const target = e.target.closest(".btn-minimal, .filter-pill, .strategy-tab-btn, #btn-sync-api, #btn-copy-army, #btn-paste-modal");
     if (target && window.anime && window.anime.animate) {
       const { animate, spring } = window.anime;
       animate(target, {
@@ -262,7 +280,7 @@ function loadVillageData(data) {
 
   renderKPIs(appState.analysis);
   renderAntiRushAlert(appState.analysis.heroes);
-  renderFarmStrategy(appState.analysis.farmStrategy);
+  renderActiveStrategy(appState.currentStrategy || "farm");
   renderTrajectorySection(appState.analysis);
   renderTimers(appState.analysis.builders, appState.analysis.army.labActiveResearch, appState.analysis.builderBase);
   renderEquipmentList("all");
@@ -398,64 +416,148 @@ function renderAntiRushAlert(heroes) {
 }
 
 /**
- * Rendu de la stratégie de farm Super Gobelins
+ * Rendu du Hub Multi-Stratégies HDV 11 (Farm, GDC, Rush, Sans Héros)
  */
+function renderActiveStrategy(strategyKey = "farm") {
+  const container = document.getElementById("strategy-content-container");
+  if (!container || !appState.analysis) return;
+
+  const strategies = appState.analysis.strategies || {};
+  const strat = strategies[strategyKey] || appState.analysis.farmStrategy || strategies.farm;
+  if (!strat) return;
+
+  // Mise à jour de l'en-tête de la section
+  const subtitleEl = document.getElementById("strategy-subtitle");
+  if (subtitleEl) subtitleEl.textContent = strat.subtitle;
+
+  const badgeEl = document.getElementById("strategy-badge-difficulty");
+  if (badgeEl) {
+    badgeEl.textContent = strat.difficulty;
+    badgeEl.className = strat.difficulty === "Facile"
+      ? "px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
+      : strat.difficulty.includes("Facile")
+      ? "px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-sky-500/10 text-sky-300 border border-sky-500/20"
+      : "px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20";
+  }
+
+  // Construction du contenu dynamique en 3 cartes minimalistes
+  container.innerHTML = `
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Carte 1 : Composition (Troupes, Sorts & CDC) -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Armée & Sorts</h4>
+          <span class="text-[11px] font-mono text-zinc-500">260 places</span>
+        </div>
+
+        <!-- Troupes -->
+        <div class="space-y-2">
+          ${strat.recommendedArmy.troops.map(t => `
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="text-lg flex-shrink-0">${t.icon}</span>
+                <div class="min-w-0">
+                  <div class="text-xs font-medium text-zinc-200 truncate">${t.name}</div>
+                  <div class="text-[10px] text-zinc-500 truncate">${t.role}</div>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded font-mono font-medium text-xs bg-zinc-800 text-zinc-300 border border-zinc-700/60 flex-shrink-0 ml-2">x${t.count}</span>
+            </div>
+          `).join("")}
+        </div>
+
+        <!-- Sorts -->
+        <div class="space-y-2 pt-1">
+          ${strat.recommendedArmy.spells.map(s => `
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="text-lg flex-shrink-0">${s.icon}</span>
+                <div class="min-w-0">
+                  <div class="text-xs font-medium text-zinc-200 truncate">${s.name}</div>
+                  <div class="text-[10px] text-zinc-500 truncate">${s.role}</div>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded font-mono font-medium text-xs bg-zinc-800 text-zinc-300 border border-zinc-700/60 flex-shrink-0 ml-2">x${s.count}</span>
+            </div>
+          `).join("")}
+        </div>
+
+        <!-- Château de Clan (CDC) -->
+        ${strat.recommendedArmy.clanCastle ? `
+          <div class="p-3 rounded-lg bg-indigo-500/[0.06] border border-indigo-500/20 flex items-start gap-2.5 text-xs">
+            <span class="text-indigo-400 font-bold">🏰</span>
+            <div>
+              <span class="text-[11px] font-semibold text-indigo-300 uppercase tracking-wider block">Renforts CDC conseillés</span>
+              <span class="text-zinc-300 text-xs mt-0.5 block">${strat.recommendedArmy.clanCastle}</span>
+            </div>
+          </div>
+        ` : ""}
+      </div>
+
+      <!-- Carte 2 : Profil Tactique & Rendement -->
+      <div class="space-y-3">
+        <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Profil & Équipements</h4>
+        
+        <div class="space-y-2.5">
+          <div class="card-minimal p-3.5">
+            <div class="text-[11px] text-zinc-400">Résultat attendu :</div>
+            <div class="text-sm font-semibold text-zinc-100 mt-1 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>${strat.expectedResult}</span>
+            </div>
+          </div>
+
+          <div class="card-minimal p-3.5">
+            <div class="text-[11px] text-zinc-400">Équipements de héros clés :</div>
+            <div class="text-xs font-medium text-zinc-200 mt-1">${strat.keyEquipments}</div>
+          </div>
+
+          <div class="card-minimal p-3.5">
+            <div class="text-[11px] text-zinc-400">Zone d'efficacité / Ligue :</div>
+            <div class="text-xs font-mono text-zinc-300 mt-1">${strat.efficiencyMetrics.trophyRange || strat.efficiencyMetrics.darkElixirPerHour}</div>
+          </div>
+
+          <div class="card-minimal p-3.5">
+            <div class="text-[11px] text-zinc-400">Rentabilité / Spécificité :</div>
+            <div class="text-xs text-zinc-300 mt-1">${strat.efficiencyMetrics.goldElixirPerHour || strat.efficiencyMetrics.estimatedHoursForHeroes}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte 3 : Plan d'Action en 3 Étapes -->
+      <div class="space-y-3">
+        <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Plan d'Attaque (3 Étapes)</h4>
+        
+        <div class="card-minimal p-4 space-y-3">
+          ${strat.tacticalPlan.map((step, idx) => `
+            <div class="flex items-start gap-3 text-xs">
+              <span class="w-5 h-5 rounded-full bg-white/10 text-white font-mono font-bold text-[11px] flex items-center justify-center flex-shrink-0 mt-0.5 border border-white/20">
+                ${idx + 1}
+              </span>
+              <p class="text-zinc-300 leading-relaxed">${step}</p>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+
+    </div>
+  `;
+
+  // Animation Anime.js v4 d'apparition fluide
+  if (window.anime && window.anime.animate) {
+    const { animate } = window.anime;
+    animate("#strategy-content-container", {
+      opacity: [0, 1],
+      translateY: [8, 0],
+      duration: 300,
+      ease: "outQuad"
+    });
+  }
+}
+
 function renderFarmStrategy(farm) {
-  const armyTroopsContainer = document.getElementById("farm-army-troops");
-  const armySpellsContainer = document.getElementById("farm-army-spells");
-  const tacticalList = document.getElementById("farm-tactical-advice");
-
-  if (armyTroopsContainer) {
-    armyTroopsContainer.innerHTML = farm.recommendedArmy.troops.map(t => `
-      <div class="flex items-center justify-between p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
-        <div class="flex items-center gap-3">
-          <span class="text-xl">${t.icon}</span>
-          <div>
-            <div class="text-xs font-medium text-zinc-200">${t.name}</div>
-            <div class="text-[11px] text-zinc-400">${t.role}</div>
-          </div>
-        </div>
-        <span class="px-2 py-0.5 rounded font-mono font-medium text-xs bg-zinc-800 text-zinc-300 border border-zinc-700/60">x${t.count}</span>
-      </div>
-    `).join("");
-  }
-
-  if (armySpellsContainer) {
-    armySpellsContainer.innerHTML = farm.recommendedArmy.spells.map(s => `
-      <div class="flex items-center justify-between p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
-        <div class="flex items-center gap-3">
-          <span class="text-xl">${s.icon}</span>
-          <div>
-            <div class="text-xs font-medium text-zinc-200">${s.name}</div>
-            <div class="text-[11px] text-zinc-400">${s.role}</div>
-          </div>
-        </div>
-        <span class="px-2 py-0.5 rounded font-mono font-medium text-xs bg-zinc-800 text-zinc-300 border border-zinc-700/60">x${s.count}</span>
-      </div>
-    `).join("");
-  }
-
-  if (tacticalList) {
-    tacticalList.innerHTML = farm.tacticalAdvice.map(advice => `
-      <li class="flex items-start gap-2.5 text-xs text-zinc-300 leading-relaxed">
-        <span class="text-zinc-500 font-mono mt-0.5">―</span>
-        <span>${advice}</span>
-      </li>
-    `).join("");
-  }
-
-  // Métriques de rentabilité
-  const deEl = document.getElementById("farm-metric-de");
-  if (deEl) deEl.textContent = farm.efficiencyMetrics.darkElixirPerHour;
-
-  const goldEl = document.getElementById("farm-metric-gold");
-  if (goldEl) goldEl.textContent = farm.efficiencyMetrics.goldElixirPerHour;
-
-  const hoursEl = document.getElementById("farm-metric-hours");
-  if (hoursEl) hoursEl.textContent = `~${farm.efficiencyMetrics.estimatedHoursForHeroes} h`;
-
-  const leagueEl = document.getElementById("farm-metric-league");
-  if (leagueEl) leagueEl.textContent = farm.efficiencyMetrics.trophyRange;
+  renderActiveStrategy("farm");
 }
 
 /**
