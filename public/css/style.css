@@ -436,10 +436,26 @@ button, input, select, textarea, a {
 }
 
 /* ==========================================================================
-   RESPONSIVE CANVAS & TOUCH ERGONOMICS (Mobile / Desktop)
+   RESPONSIVE CANVAS & CHART CONTAINERS (Fix Mobile Zero-Height Bug)
    ========================================================================== */
-canvas {
-  max-width: 100% !important;
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  min-height: 260px;
+}
+
+@media (min-width: 640px) {
+  .chart-container {
+    height: 290px;
+    min-height: 290px;
+  }
+}
+
+.chart-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
   touch-action: pan-y;
 }
 

@@ -157,9 +157,48 @@ function setupEventListeners() {
     });
   }
 
+  // Accordéon / Toggle Laboratoire & Armée (Fermable / Ouvrable)
+  const btnToggleArmyLab = document.getElementById("btn-toggle-army-lab");
+  const headerArmyLab = document.getElementById("army-lab-header");
+  const contentArmyLab = document.getElementById("army-lab-content");
+  const textToggleArmyLab = document.getElementById("army-lab-toggle-text");
+  const iconToggleArmyLab = document.getElementById("army-lab-toggle-icon");
+
+  let isArmyLabOpen = true;
+
+  const toggleArmyLab = () => {
+    isArmyLabOpen = !isArmyLabOpen;
+    if (isArmyLabOpen) {
+      contentArmyLab.classList.remove("hidden");
+      if (textToggleArmyLab) textToggleArmyLab.textContent = "Masquer";
+      if (iconToggleArmyLab) {
+        iconToggleArmyLab.setAttribute("data-lucide", "chevron-up");
+        iconToggleArmyLab.style.transform = "rotate(0deg)";
+      }
+    } else {
+      contentArmyLab.classList.add("hidden");
+      if (textToggleArmyLab) textToggleArmyLab.textContent = "Afficher";
+      if (iconToggleArmyLab) {
+        iconToggleArmyLab.setAttribute("data-lucide", "chevron-down");
+        iconToggleArmyLab.style.transform = "rotate(180deg)";
+      }
+    }
+    initLucide();
+  };
+
+  if (btnToggleArmyLab) {
+    btnToggleArmyLab.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleArmyLab();
+    });
+  }
+  if (headerArmyLab) {
+    headerArmyLab.addEventListener("click", toggleArmyLab);
+  }
+
   // Feedback tactile élastique Anime.js v4 (Spring juicy physics)
   document.addEventListener("pointerdown", (e) => {
-    const target = e.target.closest(".btn-minimal, .filter-pill, .strategy-tab-btn, #btn-sync-api, #btn-copy-army, #btn-paste-modal");
+    const target = e.target.closest(".btn-minimal, .filter-pill, .strategy-tab-btn, #btn-sync-api, #btn-copy-army, #btn-paste-modal, #btn-toggle-army-lab");
     if (target && window.anime && window.anime.animate) {
       const { animate, spring } = window.anime;
       animate(target, {
@@ -968,17 +1007,22 @@ function renderTrajectorySection(analysis) {
   // 2. Initialisation des Graphiques Chart.js
   if (typeof Chart === "undefined") return;
 
-    // A. Graphique Historique de Progression (Combo Bar + Line)
+  const isMobile = window.innerWidth < 640;
+
+  // A. Graphique Historique de Progression (Combo Bar + Line)
   const ctxHistory = document.getElementById("chart-progression-history");
   if (ctxHistory) {
     if (appState.charts.progressionHistory) appState.charts.progressionHistory.destroy();
 
     const hist = traj.history;
+    const historyLabels = isMobile 
+      ? ["M1", "M2", "M3", "M4", "M5", "M6", "J0"] 
+      : hist.labels;
 
     appState.charts.progressionHistory = new Chart(ctxHistory, {
       type: "bar",
       data: {
-        labels: hist.labels,
+        labels: historyLabels,
         datasets: [
           {
             type: "line",
@@ -989,7 +1033,7 @@ function renderTrajectorySection(analysis) {
             pointBackgroundColor: "#38bdf8",
             pointBorderColor: "#09090b",
             pointBorderWidth: 2,
-            pointRadius: 4,
+            pointRadius: isMobile ? 3 : 4,
             pointHoverRadius: 6,
             borderWidth: 2,
             tension: 0.2,
@@ -1003,7 +1047,7 @@ function renderTrajectorySection(analysis) {
             borderColor: "#10b981",
             borderDash: [3, 3],
             pointBackgroundColor: "#10b981",
-            pointRadius: 3,
+            pointRadius: isMobile ? 2.5 : 3,
             borderWidth: 1.5,
             tension: 0.2,
             yAxisID: "y-heroes",
@@ -1017,7 +1061,7 @@ function renderTrajectorySection(analysis) {
             stack: "heroes",
             yAxisID: "y-heroes",
             borderRadius: 3,
-            barPercentage: 0.6,
+            barPercentage: 0.65,
             order: 3
           },
           {
@@ -1028,7 +1072,7 @@ function renderTrajectorySection(analysis) {
             stack: "heroes",
             yAxisID: "y-heroes",
             borderRadius: 3,
-            barPercentage: 0.6,
+            barPercentage: 0.65,
             order: 4
           },
           {
@@ -1039,7 +1083,7 @@ function renderTrajectorySection(analysis) {
             stack: "heroes",
             yAxisID: "y-heroes",
             borderRadius: 3,
-            barPercentage: 0.6,
+            barPercentage: 0.65,
             order: 5
           }
         ]
@@ -1055,9 +1099,9 @@ function renderTrajectorySection(analysis) {
           legend: {
             position: "top",
             labels: {
-              boxWidth: 8,
-              boxHeight: 8,
-              font: { size: 10 },
+              boxWidth: isMobile ? 6 : 8,
+              boxHeight: isMobile ? 6 : 8,
+              font: { size: isMobile ? 9 : 10 },
               color: "#71717a"
             }
           },
@@ -1069,6 +1113,10 @@ function renderTrajectorySection(analysis) {
             borderWidth: 1,
             padding: 10,
             callbacks: {
+              title: (tooltipItems) => {
+                const idx = tooltipItems[0].dataIndex;
+                return hist.labels[idx] || tooltipItems[0].label;
+              },
               afterBody: (tooltipItems) => {
                 const idx = tooltipItems[0].dataIndex;
                 const totalHeros = hist.cumulativeHeroes[idx];
@@ -1082,7 +1130,7 @@ function renderTrajectorySection(analysis) {
             stacked: true,
             grid: { display: false },
             ticks: {
-              font: { size: window.innerWidth < 640 ? 8.5 : 10 },
+              font: { size: isMobile ? 9 : 10 },
               color: "#71717a",
               maxRotation: 0,
               autoSkip: true
@@ -1095,13 +1143,17 @@ function renderTrajectorySection(analysis) {
             beginAtZero: true,
             max: 65,
             title: {
-              display: window.innerWidth >= 640,
+              display: !isMobile,
               text: "Niveaux Héros",
               color: "#71717a",
               font: { size: 10 }
             },
             grid: { color: "rgba(255, 255, 255, 0.03)" },
-            ticks: { font: { size: window.innerWidth < 640 ? 8.5 : 10 }, color: "#71717a" }
+            ticks: { 
+              font: { size: isMobile ? 9 : 10 }, 
+              color: "#71717a",
+              maxTicksLimit: isMobile ? 5 : 8
+            }
           },
           "y-th": {
             type: "linear",
@@ -1110,15 +1162,16 @@ function renderTrajectorySection(analysis) {
             min: 1,
             max: 12,
             title: {
-              display: window.innerWidth >= 640,
+              display: !isMobile,
               text: "Hôtel de Ville",
               color: "#38bdf8",
               font: { size: 10 }
             },
             ticks: {
               stepSize: 2,
-              font: { size: window.innerWidth < 640 ? 8.5 : 10 },
+              font: { size: isMobile ? 9 : 10 },
               color: "#38bdf8",
+              maxTicksLimit: isMobile ? 5 : 6,
               callback: (v) => `HDV ${v}`
             },
             grid: { display: false }
@@ -1135,11 +1188,14 @@ function renderTrajectorySection(analysis) {
 
     const fc = traj.forecasting;
     const count = fc.labels.length;
+    const forecastLabels = isMobile
+      ? ["J0", "+15", "+30", "+45", "+53", "+70", "+77", "+95", "+108", "+130", "+150"]
+      : fc.labels;
 
     appState.charts.forecasting = new Chart(ctxForecast, {
       type: "line",
       data: {
-        labels: fc.labels,
+        labels: forecastLabels,
         datasets: [
           {
             label: "Scénario A (Freemium Optimal)",
@@ -1209,9 +1265,9 @@ function renderTrajectorySection(analysis) {
           legend: {
             position: "top",
             labels: {
-              boxWidth: 8,
-              boxHeight: 8,
-              font: { size: window.innerWidth < 640 ? 9 : 10 },
+              boxWidth: isMobile ? 6 : 8,
+              boxHeight: isMobile ? 6 : 8,
+              font: { size: isMobile ? 9 : 10 },
               color: "#71717a"
             }
           },
@@ -1223,6 +1279,10 @@ function renderTrajectorySection(analysis) {
             borderWidth: 1,
             padding: 10,
             callbacks: {
+              title: (tooltipItems) => {
+                const idx = tooltipItems[0].dataIndex;
+                return fc.labels[idx] || tooltipItems[0].label;
+              },
               label: (context) => {
                 const val = context.parsed.y;
                 return `${context.dataset.label}: ${val}%`;
@@ -1246,7 +1306,7 @@ function renderTrajectorySection(analysis) {
           x: {
             grid: { display: false },
             ticks: {
-              font: { size: window.innerWidth < 640 ? 8.5 : 10 },
+              font: { size: isMobile ? 9 : 10 },
               color: "#71717a",
               maxRotation: 0,
               autoSkip: true
@@ -1257,12 +1317,13 @@ function renderTrajectorySection(analysis) {
             min: 40,
             max: 105,
             ticks: {
-              font: { size: window.innerWidth < 640 ? 8.5 : 10 },
+              font: { size: isMobile ? 9 : 10 },
               color: "#71717a",
+              maxTicksLimit: isMobile ? 6 : 8,
               callback: (v) => `${v}%`
             },
             title: {
-              display: window.innerWidth >= 640,
+              display: !isMobile,
               text: "% Complétion HDV 11",
               color: "#71717a",
               font: { size: 10 }
@@ -1459,31 +1520,30 @@ function playLiquidEntranceAnimations(analysis) {
 
   const { animate, spring, stagger, waapi } = window.anime;
 
-  // 1. MOTEUR WAAPI (waapi.animate) : Apparition élastique & organique des cartes
-  // Compositor thread 60/120 FPS (zéro saccade, performance maximale)
+  // 1. MOTEUR WAAPI (waapi.animate) : Apparition fluide des sections de premier niveau
+  // (Évite les conflits de re-rasterisation GPU/WebKit qui effaçaient les canvas sur smartphone)
   try {
-    const cards = document.querySelectorAll(".card-minimal, .panel-minimal");
-    if (cards.length > 0) {
+    const topSections = document.querySelectorAll("main > section, main > div");
+    if (topSections.length > 0) {
       if (waapi && waapi.animate) {
-        waapi.animate(cards, {
+        waapi.animate(topSections, {
           opacity: [0, 1],
-          transform: ["translateY(16px) scale(0.98)", "translateY(0px) scale(1)"],
-          duration: 480,
-          delay: stagger(30, { from: "start" }),
+          transform: ["translateY(14px)", "translateY(0px)"],
+          duration: 450,
+          delay: stagger(35, { from: "start" }),
           ease: "cubic-bezier(0.16, 1, 0.3, 1)"
         });
       } else {
-        animate(cards, {
+        animate(topSections, {
           opacity: [0, 1],
-          translateY: [16, 0],
-          scale: [0.98, 1],
-          delay: stagger(30, { from: "start" }),
-          ease: spring({ bounce: 0.35, stiffness: 140, damping: 14 })
+          translateY: [14, 0],
+          delay: stagger(35, { from: "start" }),
+          ease: spring({ bounce: 0.3, stiffness: 140, damping: 14 })
         });
       }
     }
   } catch (err) {
-    console.debug("Anime.js WAAPI entrance notice:", err);
+    console.debug("Anime.js entrance notice:", err);
   }
 
   // 2. MOTEUR JS (animate) : Compteurs numériques fluides pour les KPIs clés

@@ -258,7 +258,7 @@
             </div>
             <span class="text-[11px] font-mono text-zinc-400">J-180 → J0</span>
           </div>
-          <div class="h-64 sm:h-72 w-full relative">
+          <div class="chart-container">
             <canvas id="chart-progression-history"></canvas>
           </div>
         </div>
@@ -272,7 +272,7 @@
             </div>
             <span class="text-[11px] font-mono text-zinc-400">J0 → J+150</span>
           </div>
-          <div class="h-64 sm:h-72 w-full relative">
+          <div class="chart-container">
             <canvas id="chart-forecasting"></canvas>
           </div>
         </div>
@@ -353,7 +353,7 @@
           </div>
           <span class="text-xs font-mono text-rose-400">Déficit : -62 niveaux</span>
         </div>
-        <div class="h-64 w-full relative">
+        <div class="chart-container">
           <canvas id="chart-heroes"></canvas>
         </div>
       </div>
@@ -367,23 +367,33 @@
           </div>
           <span class="text-xs font-mono text-sky-400">64.7% Niv. 12</span>
         </div>
-        <div class="h-64 w-full relative flex items-center justify-center">
+        <div class="chart-container flex items-center justify-center">
           <canvas id="chart-walls"></canvas>
         </div>
       </div>
 
     </section>
 
-    <!-- 7. ARMÉE & RECHERCHES DU LABORATOIRE -->
-    <section class="panel-minimal p-6 sm:p-8 space-y-6">
-      <div class="flex items-center justify-between pb-4 border-b border-white/[0.08]">
+    <!-- 7. ARMÉE & RECHERCHES DU LABORATOIRE (OUVRABLE / FERMABLE) -->
+    <section id="army-lab-section" class="panel-minimal p-6 sm:p-8 space-y-6">
+      <div id="army-lab-header" class="flex items-center justify-between pb-4 border-b border-white/[0.08] cursor-pointer select-none group">
         <div>
-          <h3 class="text-base font-semibold text-zinc-100">Laboratoire & Armée</h3>
+          <div class="flex items-center gap-2.5">
+            <h3 class="text-base font-semibold text-zinc-100 group-hover:text-cyan-300 transition-colors">Laboratoire & Armée</h3>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-zinc-900 text-zinc-400 border border-zinc-800">
+              19 unités • 12 sorts
+            </span>
+          </div>
           <p class="text-xs text-zinc-400 mt-0.5">Niveaux actuels et caps HDV 11.</p>
         </div>
+
+        <button id="btn-toggle-army-lab" type="button" class="btn-minimal text-xs py-1.5 px-3 min-h-[38px] flex items-center gap-1.5" title="Afficher / Masquer">
+          <span id="army-lab-toggle-text">Masquer</span>
+          <i id="army-lab-toggle-icon" data-lucide="chevron-up" class="w-3.5 h-3.5 text-zinc-400 transition-transform duration-200"></i>
+        </button>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div id="army-lab-content" class="grid grid-cols-1 lg:grid-cols-2 gap-6 transition-all duration-300">
         <!-- Troupes -->
         <div class="space-y-3">
           <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Troupes</h4>
