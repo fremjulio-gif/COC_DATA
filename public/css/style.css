@@ -259,16 +259,9 @@ button, input, select, textarea, a {
               box-shadow 0.2s ease;
 }
 
-.btn-minimal:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--glass-border-highlight);
-  box-shadow: 
-    0 6px 16px rgba(0, 0, 0, 0.35),
-    inset 0 1px 1px rgba(255, 255, 255, 0.3);
-}
-
 .btn-minimal:active {
   transform: scale(0.96);
+  opacity: 0.9;
 }
 
 .btn-primary-minimal {
@@ -280,12 +273,22 @@ button, input, select, textarea, a {
     inset 0 1px 1px rgba(255, 255, 255, 0.4);
 }
 
-.btn-primary-minimal:hover {
-  background: linear-gradient(135deg, rgba(2, 132, 199, 0.95) 0%, rgba(79, 70, 229, 0.95) 100%);
-  border-color: rgba(255, 255, 255, 0.45);
-  box-shadow: 
-    0 10px 28px rgba(14, 165, 233, 0.5),
-    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+@media (hover: hover) and (pointer: fine) {
+  .btn-minimal:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--glass-border-highlight);
+    box-shadow: 
+      0 6px 16px rgba(0, 0, 0, 0.35),
+      inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  }
+
+  .btn-primary-minimal:hover {
+    background: linear-gradient(135deg, rgba(2, 132, 199, 0.95) 0%, rgba(79, 70, 229, 0.95) 100%);
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow: 
+      0 10px 28px rgba(14, 165, 233, 0.5),
+      inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  }
 }
 
 /* ==========================================================================
@@ -320,10 +323,17 @@ button, input, select, textarea, a {
     inset 0 1px 1px rgba(255, 255, 255, 0.35);
 }
 
-.filter-pill:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-primary);
-  border-color: var(--glass-border);
+@media (hover: hover) and (pointer: fine) {
+  .filter-pill:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    border-color: var(--glass-border);
+  }
+}
+
+.filter-pill:active {
+  transform: scale(0.96);
+  opacity: 0.9;
 }
 
 /* ==========================================================================
@@ -373,16 +383,26 @@ button, input, select, textarea, a {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.dropzone-minimal:hover, .dropzone-minimal.dragover {
+.dropzone-minimal.dragover {
   border-color: var(--liquid-cyan);
-  background: rgba(56, 189, 248, 0.05);
+  background: rgba(56, 189, 248, 0.08);
   box-shadow: 
     0 8px 24px rgba(56, 189, 248, 0.15),
     inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .dropzone-minimal:hover {
+    border-color: var(--liquid-cyan);
+    background: rgba(56, 189, 248, 0.05);
+    box-shadow: 
+      0 8px 24px rgba(56, 189, 248, 0.15),
+      inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  }
+}
+
 /* ==========================================================================
-   SCROLLBARS APPLE STYLE
+   SCROLLBARS APPLE STYLE & NO-SCROLLBAR UTILITY
    ========================================================================== */
 ::-webkit-scrollbar {
   width: 6px;
@@ -400,6 +420,62 @@ button, input, select, textarea, a {
   background-clip: content-box;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.28);
+@media (hover: hover) and (pointer: fine) {
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.28);
+  }
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ==========================================================================
+   RESPONSIVE CANVAS & TOUCH ERGONOMICS (Mobile / Desktop)
+   ========================================================================== */
+canvas {
+  max-width: 100% !important;
+  touch-action: pan-y;
+}
+
+#toast-container {
+  bottom: max(1.5rem, calc(var(--sab) + 0.75rem));
+  right: max(1.5rem, calc(var(--sar) + 0.75rem));
+  left: auto;
+  max-width: calc(100vw - 2rem);
+}
+
+@media (max-width: 640px) {
+  :root {
+    --radius-panel: 18px;
+    --radius-card: 14px;
+  }
+
+  .panel-minimal {
+    padding: 1.25rem;
+  }
+
+  .filter-pill {
+    min-height: 38px;
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+
+  .strategy-tab-btn {
+    min-width: 105px;
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  #toast-container {
+    left: 1rem;
+    right: 1rem;
+    bottom: max(1rem, calc(var(--sab) + 0.5rem));
+    align-items: center;
+  }
 }
