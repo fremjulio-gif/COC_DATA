@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>CoC Optimizer - Tableau de Bord Freemium #GUQLRP8LV</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#070b14',
+              surface: '#0f172a',
+              card: '#182234',
+              blue: '#38bdf8',
+              gold: '#f59e0b',
+              purple: '#a855f7',
+              darkElixir: '#6366f1',
+              rose: '#f43f5e',
+              emerald: '#10b981'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Styles personnalisés Liquid Glass -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Modal Coller JSON -->
+  <div id="modal-paste" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-md p-3 sm:p-4">
+    <div class="glass-panel w-full max-w-2xl p-4 sm:p-6 rounded-2xl border border-slate-700 shadow-2xl mx-2 sm:mx-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-700/80">
+        <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="file-code" class="w-5 h-5 text-sky-400"></i>
+          <span>Coller un état JSON de village</span>
+        </h3>
+        <button id="btn-close-modal" class="btn-glass p-2 min-h-[44px] min-w-[44px] text-slate-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <p class="text-xs text-slate-400 mt-3">
+        Collez ici la structure JSON brute exportée depuis le jeu ou l'API pour recalculer instantanément l'intégralité du tableau de bord.
+      </p>
+      <textarea id="textarea-json" rows="10" class="w-full mt-3 p-3 bg-slate-950/80 border border-slate-800 rounded-xl font-mono text-xs text-sky-300 focus:outline-none focus:border-sky-500 transition-colors" placeholder="{ 'tag': '#...', 'buildings': [...] }"></textarea>
+      <div class="flex items-center justify-end gap-3 mt-4">
+        <button id="btn-apply-paste" class="btn-glass btn-primary-blue px-5 py-2.5 text-xs font-semibold rounded-lg min-h-[44px]">
+          Appliquer et Recalculer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Navigation -->
+  <header class="sticky top-0 z-40 backdrop-blur-xl bg-slate-950/80 border-b border-white/10 w-full" style="padding-top: env(safe-area-inset-top);">
+    <div class="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-16 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/25 border border-sky-400/40 flex-shrink-0">
+          <span class="text-lg sm:text-xl">⚡</span>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <h1 class="text-xs sm:text-sm font-bold text-white tracking-tight truncate">CoC Freemium Optimizer</h1>
+            <span class="px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30 flex-shrink-0">#GUQLRP8LV</span>
+          </div>
+          <p id="last-update-time" class="text-[10px] sm:text-[11px] text-slate-400 truncate">Chargement de l'état du village...</p>
+        </div>
+      </div>
+
+      <!-- Action & Status Bar -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- API Status Badge -->
+        <div id="api-status-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-amber-500/10 border border-amber-500/30 text-amber-400">
+          <span id="api-status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span id="api-status-text" class="truncate max-w-[140px] sm:max-w-none">Mode Local</span>
+        </div>
+
+        <button id="btn-sync-api" class="btn-glass text-xs py-2 px-3 min-h-[44px]">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Synchroniser API</span>
+        </button>
+
+        <button id="btn-paste-modal" class="btn-glass text-xs py-2 px-3 min-h-[44px]">
+          <i data-lucide="clipboard-paste" class="w-4 h-4 text-sky-400"></i>
+          <span class="hidden sm:inline">Coller JSON</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Container -->
+  <main class="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
+
+    <!-- TOP KPI CARDS (grid-cols-2 sur mobile, grid-cols-4 sur desktop) -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      
+      <!-- KPI 1 : Hôtel de Ville -->
+      <div class="glass-card p-3.5 sm:p-4 rounded-2xl border-sky-500/20 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">Hôtel de Ville</span>
+          <span class="text-lg sm:text-xl">🏛️</span>
+        </div>
+        <div class="mt-2 flex items-baseline gap-1.5">
+          <h2 id="kpi-th-level" class="text-xl sm:text-2xl font-black text-white">HDV 11</h2>
+          <span class="text-[10px] sm:text-xs text-sky-400 font-medium truncate">Gardien OK</span>
+        </div>
+        <div class="mt-2 sm:mt-3 text-[10px] sm:text-xs text-slate-400 flex items-center justify-between">
+          <span>Principal</span>
+          <span class="font-mono text-slate-300">300 Murs</span>
+        </div>
+      </div>
+
+      <!-- KPI 2 : Ouvriers Actifs -->
+      <div class="glass-card p-3.5 sm:p-4 rounded-2xl border-amber-500/20 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">Ouvriers Actifs</span>
+          <span class="text-lg sm:text-xl">🔨</span>
+        </div>
+        <div class="mt-2 flex items-baseline gap-1.5">
+          <h2 id="kpi-builders-count" class="text-xl sm:text-2xl font-black text-amber-300">5 / 5</h2>
+          <span class="text-[10px] sm:text-xs text-amber-400/80 font-medium truncate">100%</span>
+        </div>
+        <div id="kpi-builders-status" class="text-[10px] sm:text-xs text-amber-400 mt-1 truncate">
+          Tous occupés !
+        </div>
+      </div>
+
+      <!-- KPI 3 : Remparts -->
+      <div class="glass-card p-3.5 sm:p-4 rounded-2xl border-indigo-500/20 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">Remparts Niv. 12</span>
+          <span id="kpi-walls-pct" class="text-[11px] sm:text-xs font-bold text-sky-400">64.7%</span>
+        </div>
+        <div class="mt-2 flex items-baseline gap-1.5">
+          <h2 id="kpi-walls-progress" class="text-xl sm:text-2xl font-black text-white">194 / 300</h2>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-1.5 sm:h-2 mt-2 overflow-hidden">
+          <div id="kpi-walls-bar" class="bg-gradient-to-r from-sky-500 to-indigo-500 h-full rounded-full transition-all duration-500" style="width: 64.7%"></div>
+        </div>
+        <div id="kpi-walls-sub" class="text-[10px] sm:text-[11px] text-slate-400 mt-2 truncate">
+          106 à passer niv. 12
+        </div>
+      </div>
+
+      <!-- KPI 4 : Index de Force Héros -->
+      <div class="glass-card p-3.5 sm:p-4 rounded-2xl border-rose-500/20 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">Hero Power Index</span>
+          <span id="kpi-hero-badge" class="px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40">CRITIQUE</span>
+        </div>
+        <div class="mt-2 flex items-baseline gap-1.5">
+          <h2 id="kpi-hero-index" class="text-xl sm:text-2xl font-black text-rose-400">48%</h2>
+          <span class="text-[10px] sm:text-xs text-rose-300/80 truncate">Retard majeur</span>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-1.5 sm:h-2 mt-2 overflow-hidden">
+          <div id="kpi-hero-bar" class="bg-gradient-to-r from-rose-500 to-amber-500 h-full rounded-full transition-all duration-500" style="width: 48%"></div>
+        </div>
+        <div class="text-[10px] sm:text-[11px] text-rose-300/80 mt-2 truncate">
+          Roi 24 • Reine 24 • Gardien 10
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SECTION 1 : BANNIÈRE D'ALERTE ROUGE ANTI-RUSH -->
+    <div id="anti-rush-alert-container"></div>
+
+    <!-- SECTION 2 : STRATÉGIE DE FARM OPTIMISÉE - SUPER GOBELINS -->
+    <section id="farm-strategy-section" class="glass-panel p-6 border-amber-500/30">
+      <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-700/80 gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-xl">
+            💰
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-bold text-white">Recommandation d'Optimisation Freemium : Farm Super Gobelins</h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Débloqué ✓</span>
+            </div>
+            <p class="text-xs text-slate-400">La méthode mathématiquement la plus rapide pour financer les 5.7M d'Élixir Noir requis pour vos héros.</p>
+          </div>
+        </div>
+        <button id="btn-copy-army" class="btn-glass text-xs font-semibold py-2 px-3 self-start md:self-auto">
+          <i data-lucide="copy" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Copier la Composition</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <!-- Composition recommandée -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="swords" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>Composition d'Armée (240-260 places)</span>
+          </h4>
+          <div id="farm-army-troops" class="space-y-2"></div>
+          <div id="farm-army-spells" class="space-y-2 mt-3"></div>
+        </div>
+
+        <!-- Rentabilité & Métriques -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-sky-400"></i>
+            <span>Métriques de Rentabilité Freemium</span>
+          </h4>
+          <div class="grid grid-cols-1 gap-2.5">
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div class="text-[11px] text-slate-400">Rendement Élixir Noir / heure :</div>
+              <div id="farm-metric-de" class="text-lg font-mono font-black text-indigo-300 mt-0.5">25 000 - 40 000 EN</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div class="text-[11px] text-slate-400">Rendement Or & Élixir Rose / heure :</div>
+              <div id="farm-metric-gold" class="text-lg font-mono font-black text-amber-300 mt-0.5">2M - 3.5M Or & Rose</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div class="text-[11px] text-slate-400">Temps estimé pour rattraper le Roi & la Reine :</div>
+              <div id="farm-metric-hours" class="text-lg font-mono font-black text-emerald-400 mt-0.5">~190 heures de farm</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <div class="text-[11px] text-slate-400">Ligue de Farm Optimale :</div>
+              <div id="farm-metric-league" class="text-xs font-semibold text-sky-300 mt-0.5">Or II à Cristal I (1400 - 2200 trophées)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conseils tactiques -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Consignes Tactiques de Déploiement</span>
+          </h4>
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+            <ul id="farm-tactical-advice" class="space-y-3"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3 : TIMELINE DES CHANTIERS EN COURS & COMPTES À REBOURS -->
+    <section class="glass-panel p-6">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-700/80">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400 text-xl">
+            ⏱️
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Chantiers & Améliorations en Cours</h3>
+            <p class="text-xs text-slate-400">Comptes à rebours interactifs et synchronisés à la seconde.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="active-upgrades-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+        <!-- Injecté dynamiquement par app.js -->
+      </div>
+    </section>
+
+    <!-- SECTION 4 : ÉQUIPEMENTS DE HÉROS & PALIERS MULTIPLES DE 3 -->
+    <section class="glass-panel p-6 border-purple-500/20">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-700/80 gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 text-xl">
+            💎
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Audit des Équipements : Paliers Multiples de 3</h3>
+            <p class="text-xs text-slate-400">Les équipements ne débloquent des bonus substantiels qu'aux niveaux 3, 6, 9, 12, 15 et 18.</p>
+          </div>
+        </div>
+
+        <!-- Filtres -->
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button class="equip-filter-btn active px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/40 transition-all" data-filter="all">Tous</button>
+          <button class="equip-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800/80 text-slate-300 border border-slate-700 transition-all hover:bg-slate-700" data-filter="quick-wins">Quick Wins (-1)</button>
+          <button class="equip-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800/80 text-slate-300 border border-slate-700 transition-all hover:bg-slate-700" data-filter="top-tier">Top-Tier Meta</button>
+          <button class="equip-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800/80 text-slate-300 border border-slate-700 transition-all hover:bg-slate-700" data-filter="king">Roi</button>
+          <button class="equip-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800/80 text-slate-300 border border-slate-700 transition-all hover:bg-slate-700" data-filter="queen">Reine</button>
+          <button class="equip-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800/80 text-slate-300 border border-slate-700 transition-all hover:bg-slate-700" data-filter="warden">Gardien</button>
+        </div>
+      </div>
+
+      <div id="equipment-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-6">
+        <!-- Injecté dynamiquement par app.js -->
+      </div>
+    </section>
+
+    <!-- SECTION 5 : TRAJECTOIRE & PRÉVISIONS (PROGRESSION & FORECASTING) -->
+    <section id="trajectory-section" class="glass-panel p-6 border-sky-500/30">
+      <!-- En-tête de section -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-700/80 gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500/20 to-purple-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400 text-xl shadow-lg shadow-sky-500/10">
+            📈
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-bold text-white">Trajectoire & Prévisions</h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-sky-500/20 to-purple-500/20 text-sky-300 border border-sky-500/30">Analyse Temporelle</span>
+            </div>
+            <p class="text-xs text-slate-400">Rétrospective sur 180 jours d'ascension et modélisation prédictive d'atterrissage HDV 12 sain.</p>
+          </div>
+        </div>
+
+        <!-- Badges d'état rapide -->
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700/80 text-xs flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-slate-400">Farm Super Gobelins :</span>
+            <span class="font-bold text-emerald-300">Actif 100%</span>
+          </div>
+          <div class="px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700/80 text-xs flex items-center gap-2">
+            <span class="text-amber-400">🔨</span>
+            <span class="text-slate-400">Ouvriers :</span>
+            <span id="trajectory-builders-badge" class="font-bold text-amber-300">5 Actifs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI BOX DÉDIÉE : COMPTE À REBOURS ET ATTERRISSAGE HDV 12 -->
+      <div class="mt-6 p-5 rounded-2xl bg-gradient-to-br from-slate-900/90 via-slate-900/60 to-slate-950/90 border border-sky-500/30 shadow-2xl relative overflow-hidden">
+        <!-- Glow décoratif en arrière-plan -->
+        <div class="absolute -right-12 -top-12 w-48 h-48 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10 items-center">
+          
+          <!-- Compte à rebours principal -->
+          <div class="lg:col-span-5 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800 pb-5 lg:pb-0 lg:pr-6">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-400/30 flex items-center gap-1.5">
+                <i data-lucide="target" class="w-3 h-3 text-sky-400"></i>
+                <span>Objectif de Transition</span>
+              </span>
+              <span class="text-xs text-slate-400 font-medium">Seuil Sain HDV 12</span>
+            </div>
+
+            <div class="mt-3">
+              <div class="text-xs font-semibold uppercase tracking-wider text-slate-400">Passage HDV 12 recommandé dans :</div>
+              <div class="flex items-baseline gap-3 mt-1">
+                <span id="forecast-kpi-countdown" class="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-teal-300 to-emerald-400 font-mono tracking-tight">58 jours</span>
+                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Scénario A</span>
+              </div>
+              <p id="forecast-kpi-target-date" class="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
+                <i data-lucide="calendar" class="w-3.5 h-3.5 text-sky-400"></i>
+                <span>Date d'atterrissage estimée : <strong id="forecast-target-date-str" class="text-white font-semibold">17 Novembre 2026</strong></span>
+              </p>
+            </div>
+
+            <!-- Cibles Requises -->
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-2 text-xs">
+              <span class="text-slate-400 text-[11px]">Cibles requises :</span>
+              <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold font-mono">👑 Roi 45+</span>
+              <span class="px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30 font-semibold font-mono">🏹 Reine 45+</span>
+              <span class="px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 border border-sky-500/30 font-semibold font-mono">📖 Gardien 18+</span>
+            </div>
+          </div>
+
+          <!-- Métriques comparatives et charges de travail -->
+          <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            
+            <!-- Carte 1 : Temps ouvrier héros restant -->
+            <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-semibold text-slate-400 uppercase">Temps Ouvrier Héros</span>
+                  <span class="text-amber-400 text-sm">🔨</span>
+                </div>
+                <div id="forecast-metric-builder-days" class="text-xl font-bold font-mono text-amber-300 mt-1">232 j</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">cumulés pour le seuil 45/45/18 (300j pour 100% max)</div>
+              </div>
+              <div class="mt-2.5 pt-2 border-t border-slate-800 text-[10px] text-amber-400/90 font-medium">
+                2 ouvriers dédiés 24h/24
+              </div>
+            </div>
+
+            <!-- Carte 2 : Temps laboratoire restant -->
+            <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-semibold text-slate-400 uppercase">Temps Laboratoire</span>
+                  <span class="text-purple-400 text-sm">🔬</span>
+                </div>
+                <div id="forecast-metric-lab-days" class="text-xl font-bold font-mono text-purple-300 mt-1">~58 j</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">pour les recherches de troupes & sorts clés</div>
+              </div>
+              <div class="mt-2.5 pt-2 border-t border-slate-800 text-[10px] text-purple-400/90 font-medium">
+                Apprenti Labo Niv. 3 actif
+              </div>
+            </div>
+
+            <!-- Carte 3 : Comparatif Scénario B -->
+            <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-semibold text-slate-400 uppercase">Scénario Standard</span>
+                  <span class="text-slate-400 text-sm">⏳</span>
+                </div>
+                <div id="forecast-metric-standard-days" class="text-xl font-bold font-mono text-slate-300 mt-1">118 j</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">avec ~35% de temps d'arrêt des ouvriers</div>
+              </div>
+              <div class="mt-2.5 pt-2 border-t border-slate-800 text-[10px] text-rose-400/90 font-medium">
+                +60 jours de retard (+103%)
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- LES DEUX GRAPHIQUES INTERACTIFS -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        
+        <!-- GRAPHIQUE 1 : HISTORIQUE DE PROGRESSION (6 DERNIERS MOIS) -->
+        <div class="glass-card p-5 rounded-xl border border-slate-700/60 flex flex-col justify-between">
+          <div>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-2">
+              <div class="flex items-center gap-2">
+                <i data-lucide="history" class="w-4 h-4 text-sky-400"></i>
+                <h4 class="text-sm font-bold text-white">Historique de Progression (180 derniers jours)</h4>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/10 text-sky-300 border border-sky-500/30 self-start sm:self-auto">HDV 1 → HDV 11</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-2">
+              Évolution du niveau d'Hôtel de Ville (courbe cyan) comparée aux niveaux cumulés des héros (barres empilées Roi, Reine, Gardien).
+            </p>
+          </div>
+
+          <div class="h-64 sm:h-80 md:h-96 w-full relative">
+            <canvas id="chart-progression-history"></canvas>
+          </div>
+
+          <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>Rythme moyen : <strong class="text-emerald-300 font-semibold">~11 améliorations / mois</strong></span>
+            </span>
+            <span class="text-slate-400 font-mono text-[10px]">Création : il y a ~180j</span>
+          </div>
+        </div>
+
+        <!-- GRAPHIQUE 2 : COURBE PRÉVISIONNELLE DE MAXAGE (FORECASTING) -->
+        <div class="glass-card p-5 rounded-xl border border-slate-700/60 flex flex-col justify-between">
+          <div>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-2">
+              <div class="flex items-center gap-2">
+                <i data-lucide="trending-up" class="w-4 h-4 text-purple-400"></i>
+                <h4 class="text-sm font-bold text-white">Courbe Prévisionnelle de Maxage & Transition</h4>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/10 text-purple-300 border border-purple-500/30 self-start sm:self-auto">Projection J0 → J+150</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-2">
+              Modélisation comparative : <span class="text-sky-300 font-medium">Scénario A (Freemium Optimal)</span> vs <span class="text-purple-300 font-medium">Scénario B (Rythme Standard)</span>.
+            </p>
+          </div>
+
+          <div class="h-64 sm:h-80 md:h-96 w-full relative">
+            <canvas id="chart-forecasting"></canvas>
+          </div>
+
+          <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+              <span>Seuil HDV 12 sain : <strong class="text-sky-300 font-semibold">J+58 (Optimal)</strong> vs <strong class="text-purple-300 font-semibold">J+118 (Standard)</strong></span>
+            </span>
+            <span class="text-amber-400 font-semibold">Max HDV 11 : J+84</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 6 : GRAPHIQUES & VISUALISATIONS STATISTIQUES -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Graphique Héros -->
+      <div class="lg:col-span-2 glass-panel p-6">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-700/80">
+          <div class="flex items-center gap-2">
+            <i data-lucide="bar-chart-3" class="w-4 h-4 text-sky-400"></i>
+            <h4 class="text-sm font-bold text-white">Niveau des Héros vs Cap HDV 11</h4>
+          </div>
+          <span class="text-xs text-rose-400 font-bold">Déficit moyen : -20.6 niveaux</span>
+        </div>
+        <div class="h-64 sm:h-80 md:h-96 w-full relative">
+          <canvas id="chart-heroes"></canvas>
+        </div>
+      </div>
+
+      <!-- Graphique Remparts -->
+      <div class="glass-panel p-6">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-700/80">
+          <div class="flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-400"></i>
+            <h4 class="text-sm font-bold text-white">Répartition des Remparts</h4>
+          </div>
+          <span class="text-xs text-sky-400 font-bold">300 Total</span>
+        </div>
+        <div class="h-64 sm:h-80 md:h-96 w-full relative flex items-center justify-center">
+          <canvas id="chart-walls"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SECTION 6 : ARMÉE & RECHERCHES DU LABORATOIRE -->
+    <section class="glass-panel p-6">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-700/80">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 text-xl">
+            ⚔️
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Inventaire Militaire & Niveaux de Laboratoire</h3>
+            <p class="text-xs text-slate-400">Troupes et sorts avec niveau actuel et cap maximum HDV 11.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <!-- Troupes -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+            <i data-lucide="users" class="w-3.5 h-3.5 text-sky-400"></i>
+            <span>Troupes Débloquées</span>
+          </h4>
+          <div id="army-units-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-96 overflow-y-auto pr-1"></div>
+        </div>
+
+        <!-- Sorts -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-400"></i>
+            <span>Sorts Débloqués</span>
+          </h4>
+          <div id="army-spells-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-96 overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7 : ZONE DE TÉLÉVERSEMENT DRAG & DROP -->
+    <section class="glass-panel p-6 border-slate-700/60">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-8 h-8 rounded-lg bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400">
+          <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-white">Actualiser l'état du village sans recharger</h4>
+          <p class="text-xs text-slate-400">Glissez-déposez votre nouveau fichier .json pour mettre à jour instantanément les timers et calculs.</p>
+        </div>
+      </div>
+
+      <div id="dropzone" class="dropzone rounded-2xl p-6 sm:p-8 text-center flex flex-col items-center justify-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-slate-800/80 flex items-center justify-center text-slate-300">
+          <i data-lucide="file-up" class="w-6 h-6 text-sky-400"></i>
+        </div>
+        <div>
+          <div class="text-sm font-semibold text-white">Glissez et déposez votre fichier village_state.json ici</div>
+          <div class="text-xs text-slate-400 mt-1">ou touchez le bouton ci-dessous pour importer facilement</div>
+        </div>
+        <!-- Bouton tactile mobile natif d'import (min 48px de haut) -->
+        <button type="button" id="btn-touch-upload" class="btn-glass btn-primary-blue btn-mobile-touch-import text-xs sm:text-sm font-semibold rounded-xl mt-2 shadow-lg flex items-center justify-center gap-2">
+          <i data-lucide="upload" class="w-4 h-4"></i>
+          <span>Sélectionner un fichier .json</span>
+        </button>
+        <input type="file" id="file-input" accept=".json" class="hidden">
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-xs text-slate-400 border-t border-slate-800/60 mt-12">
+    <p>Tableau de bord d'optimisation Clash of Clans • Développé pour le joueur <span class="text-sky-400 font-mono">#GUQLRP8LV</span></p>
+    <p class="mt-1 text-[11px] text-slate-400">Ce contenu n'est pas affilié à, sponsorisé ou spécifiquement approuvé par Supercell.</p>
+  </footer>
+
+  <!-- Données par défaut intégrées (Permet un fonctionnement 100% autonome même sans serveur) -->
+  <script>
+    window.EMBEDDED_VILLAGE_DATA = {
+      "tag": "#GUQLRP8LV",
+      "timestamp": 1789857035,
+      "helpers": [
+        { "data": 93000000, "lvl": 2, "helper_cooldown": 39323 },
+        { "data": 93000001, "lvl": 3, "helper_cooldown": 39323 }
+      ],
+      "buildings": [
+        { "data": 1000006, "lvl": 12, "timer": 213650 },
+        { "data": 1000000, "lvl": 8, "timer": 76464, "helper_recurrent": true },
+        { "data": 1000008, "lvl": 15, "gear_up": 1 },
+        { "data": 1000012, "lvl": 7, "timer": 174470 },
+        { "data": 1000021, "lvl": 4, "timer": 132638 },
+        { "data": 1000097, "types": [
+          { "data": 103000011, "modules": [{ "data": 102000033, "lvl": 1 }, { "data": 102000034, "lvl": 1 }, { "data": 102000035, "lvl": 1 }] },
+          { "data": 103000012, "modules": [{ "data": 102000036, "lvl": 1 }, { "data": 102000037, "lvl": 1 }, { "data": 102000038, "lvl": 1 }] },
+          { "data": 103000013, "modules": [{ "data": 102000039, "lvl": 1 }, { "data": 102000040, "lvl": 1 }, { "data": 102000041, "lvl": 1 }] }
+        ]},
+        { "data": 1000000, "lvl": 9, "cnt": 3 },
+        { "data": 1000001, "lvl": 11, "cnt": 1 },
+        { "data": 1000002, "lvl": 14, "cnt": 7 },
+        { "data": 1000003, "lvl": 12, "cnt": 4 },
+        { "data": 1000004, "lvl": 14, "cnt": 7 },
+        { "data": 1000005, "lvl": 12, "cnt": 4 },
+        { "data": 1000007, "lvl": 9, "cnt": 1 },
+        { "data": 1000008, "lvl": 14, "cnt": 3 },
+        { "data": 1000008, "lvl": 15, "cnt": 3 },
+        { "data": 1000009, "lvl": 13, "cnt": 3 },
+        { "data": 1000009, "lvl": 14, "cnt": 4 },
+        { "data": 1000009, "lvl": 15, "cnt": 1 },
+        { "data": 1000010, "lvl": 11, "cnt": 106 },
+        { "data": 1000010, "lvl": 12, "cnt": 194 },
+        { "data": 1000011, "lvl": 8, "cnt": 5 },
+        { "data": 1000012, "lvl": 7, "cnt": 2 },
+        { "data": 1000012, "lvl": 8, "cnt": 1 },
+        { "data": 1000013, "lvl": 7, "cnt": 1 },
+        { "data": 1000013, "lvl": 8, "cnt": 3 },
+        { "data": 1000014, "lvl": 7, "cnt": 1 },
+        { "data": 1000015, "lvl": 1, "cnt": 4 },
+        { "data": 1000019, "lvl": 5, "cnt": 2 },
+        { "data": 1000019, "lvl": 6, "cnt": 1 },
+        { "data": 1000019, "lvl": 9, "cnt": 1 },
+        { "data": 1000020, "lvl": 6, "cnt": 1 },
+        { "data": 1000021, "lvl": 3, "cnt": 2 },
+        { "data": 1000021, "lvl": 5, "cnt": 1 },
+        { "data": 1000023, "lvl": 4, "cnt": 2 },
+        { "data": 1000023, "lvl": 5, "cnt": 1 },
+        { "data": 1000024, "lvl": 6, "cnt": 1 },
+        { "data": 1000026, "lvl": 7, "cnt": 1 },
+        { "data": 1000027, "lvl": 3, "cnt": 2 },
+        { "data": 1000028, "lvl": 5, "cnt": 2 },
+        { "data": 1000029, "lvl": 5, "cnt": 1 },
+        { "data": 1000031, "lvl": 2, "cnt": 1 },
+        { "data": 1000032, "lvl": 3, "cnt": 2 },
+        { "data": 1000070, "lvl": 4, "cnt": 1 },
+        { "data": 1000071, "lvl": 5, "cnt": 1 },
+        { "data": 1000093, "lvl": 1, "cnt": 1 }
+      ],
+      "traps": [
+        { "data": 12000000, "lvl": 8, "cnt": 6 },
+        { "data": 12000001, "lvl": 6, "cnt": 6 },
+        { "data": 12000002, "lvl": 5, "cnt": 5 },
+        { "data": 12000005, "lvl": 5, "cnt": 5 },
+        { "data": 12000006, "lvl": 3, "cnt": 5 },
+        { "data": 12000008, "lvl": 4, "cnt": 3 },
+        { "data": 12000016, "lvl": 2, "cnt": 1 }
+      ],
+      "decos": [
+        { "data": 18000001, "cnt": 4 }, { "data": 18000003, "cnt": 1 }, { "data": 18000005, "cnt": 4 },
+        { "data": 18000006, "cnt": 4 }, { "data": 18000007, "cnt": 1 }, { "data": 18000008, "cnt": 1 },
+        { "data": 18000009, "cnt": 1 }, { "data": 18000010, "cnt": 1 }, { "data": 18000033, "cnt": 1 },
+        { "data": 18000133, "cnt": 1 }, { "data": 18000172, "cnt": 1 }, { "data": 18000175, "cnt": 2 },
+        { "data": 18000193, "cnt": 1 }, { "data": 18000209, "cnt": 1 }, { "data": 18000210, "cnt": 1 },
+        { "data": 18000214, "cnt": 1 }, { "data": 18000217, "cnt": 1 }, { "data": 18000234, "cnt": 1 },
+        { "data": 18000236, "cnt": 1 }, { "data": 18000237, "cnt": 1 }, { "data": 18000239, "cnt": 1 }
+      ],
+      "obstacles": [
+        { "data": 8000004, "cnt": 1 }, { "data": 8000009, "cnt": 6 }, { "data": 8000023, "cnt": 1 },
+        { "data": 8000114, "cnt": 12 }, { "data": 8000130, "cnt": 5 }, { "data": 8000138, "cnt": 2 }
+      ],
+      "units": [
+        { "data": 4000000, "lvl": 8 }, { "data": 4000001, "lvl": 8 }, { "data": 4000002, "lvl": 7 },
+        { "data": 4000003, "lvl": 8 }, { "data": 4000004, "lvl": 7 }, { "data": 4000005, "lvl": 7 },
+        { "data": 4000006, "lvl": 8 }, { "data": 4000007, "lvl": 5 }, { "data": 4000008, "lvl": 6 },
+        { "data": 4000009, "lvl": 7 }, { "data": 4000010, "lvl": 6 }, { "data": 4000011, "lvl": 7 },
+        { "data": 4000012, "lvl": 6 }, { "data": 4000013, "lvl": 6 }, { "data": 4000015, "lvl": 4 },
+        { "data": 4000017, "lvl": 3, "timer": 66672, "helper_recurrent": true },
+        { "data": 4000022, "lvl": 3 }, { "data": 4000023, "lvl": 5 }, { "data": 4000024, "lvl": 4 }
+      ],
+      "siege_machines": [],
+      "heroes": [
+        { "data": 28000000, "lvl": 24 },
+        { "data": 28000001, "lvl": 24 },
+        { "data": 28000002, "lvl": 10 },
+        { "data": 28000006, "lvl": 24 }
+      ],
+      "spells": [
+        { "data": 26000000, "lvl": 8 }, { "data": 26000001, "lvl": 7 }, { "data": 26000002, "lvl": 5 },
+        { "data": 26000003, "lvl": 3 }, { "data": 26000005, "lvl": 6 }, { "data": 26000009, "lvl": 4 },
+        { "data": 26000010, "lvl": 5 }, { "data": 26000011, "lvl": 5 }, { "data": 26000016, "lvl": 3 },
+        { "data": 26000017, "lvl": 3 }, { "data": 26000028, "lvl": 3 }, { "data": 26000035, "lvl": 1 }
+      ],
+      "pets": [],
+      "equipment": [
+        { "data": 90000000, "lvl": 7 }, { "data": 90000001, "lvl": 12 }, { "data": 90000002, "lvl": 9 },
+        { "data": 90000003, "lvl": 12 }, { "data": 90000004, "lvl": 12 }, { "data": 90000005, "lvl": 7 },
+        { "data": 90000006, "lvl": 1 }, { "data": 90000007, "lvl": 1 }, { "data": 90000008, "lvl": 12 },
+        { "data": 90000010, "lvl": 13 }, { "data": 90000011, "lvl": 8 }, { "data": 90000013, "lvl": 1 },
+        { "data": 90000014, "lvl": 1 }, { "data": 90000015, "lvl": 15 }, { "data": 90000016, "lvl": 1 },
+        { "data": 90000017, "lvl": 12 }, { "data": 90000019, "lvl": 1 }, { "data": 90000022, "lvl": 1 },
+        { "data": 90000024, "lvl": 12 }, { "data": 90000032, "lvl": 1 }, { "data": 90000035, "lvl": 1 },
+        { "data": 90000039, "lvl": 1 }, { "data": 90000040, "lvl": 1 }, { "data": 90000041, "lvl": 1 },
+        { "data": 90000042, "lvl": 9 }, { "data": 90000043, "lvl": 11 }, { "data": 90000044, "lvl": 11 },
+        { "data": 90000048, "lvl": 6 }, { "data": 90000049, "lvl": 1 }, { "data": 90000050, "lvl": 1 },
+        { "data": 90000051, "lvl": 5 }, { "data": 90000052, "lvl": 1 }, { "data": 90000053, "lvl": 1 },
+        { "data": 90000057, "lvl": 1 }, { "data": 90000060, "lvl": 1 }, { "data": 90000061, "lvl": 1 }
+      ],
+      "house_parts": [82000000, 82000001, 82000002, 82000008, 82000009, 82000010, 82000011, 82000013, 82000014, 82000015, 82000016, 82000017, 82000048, 82000049, 82000053, 82000058, 82000059, 82000060, 82000061, 82000062, 82000063, 82000064, 82000084],
+      "skins": [52000287, 52000133],
+      "sceneries": [60000088],
+      "buildings2": [
+        { "data": 1000057, "lvl": 2, "timer": 202812 },
+        { "data": 1000033, "lvl": 1, "cnt": 26 }, { "data": 1000033, "lvl": 2, "cnt": 12 },
+        { "data": 1000033, "lvl": 3, "cnt": 65 }, { "data": 1000033, "lvl": 4, "cnt": 35 },
+        { "data": 1000033, "lvl": 5, "cnt": 1 }, { "data": 1000033, "lvl": 7, "cnt": 1 },
+        { "data": 1000034, "lvl": 7, "cnt": 1 }, { "data": 1000035, "lvl": 7, "cnt": 2 },
+        { "data": 1000036, "lvl": 7, "cnt": 2 }, { "data": 1000037, "lvl": 7, "cnt": 2 },
+        { "data": 1000038, "lvl": 7, "cnt": 2 }, { "data": 1000039, "lvl": 7, "cnt": 1 },
+        { "data": 1000040, "lvl": 9, "cnt": 1 }, { "data": 1000041, "lvl": 5, "cnt": 2 },
+        { "data": 1000042, "lvl": 1, "cnt": 6 }, { "data": 1000043, "lvl": 5, "cnt": 3 },
+        { "data": 1000044, "lvl": 6, "cnt": 3 }, { "data": 1000045, "lvl": 6, "cnt": 1 },
+        { "data": 1000046, "lvl": 7, "cnt": 1 }, { "data": 1000048, "lvl": 5, "cnt": 3 },
+        { "data": 1000049, "lvl": 1, "cnt": 1 }, { "data": 1000050, "lvl": 5, "cnt": 3 },
+        { "data": 1000051, "lvl": 4, "cnt": 1 }, { "data": 1000053, "lvl": 1, "cnt": 1 },
+        { "data": 1000054, "lvl": 5, "cnt": 1 }, { "data": 1000055, "lvl": 5, "cnt": 1 },
+        { "data": 1000055, "lvl": 7, "cnt": 1 }, { "data": 1000056, "lvl": 3, "cnt": 1 },
+        { "data": 1000058, "lvl": 7, "cnt": 1 }, { "data": 1000078, "lvl": 4, "cnt": 1 },
+        { "data": 1000082, "lvl": 2, "cnt": 1 }
+      ],
+      "traps2": [
+        { "data": 12000010, "lvl": 3, "cnt": 4 }, { "data": 12000011, "lvl": 7, "cnt": 5 },
+        { "data": 12000013, "lvl": 7, "cnt": 5 }, { "data": 12000014, "lvl": 7, "cnt": 2 }
+      ],
+      "decos2": [{ "data": 18000038, "cnt": 1 }, { "data": 18000040, "cnt": 1 }, { "data": 18000044, "cnt": 1 }],
+      "obstacles2": [{ "data": 8000097, "cnt": 1 }, { "data": 8000098, "cnt": 1 }],
+      "units2": [
+        { "data": 4000031, "lvl": 12 }, { "data": 4000032, "lvl": 14 }, { "data": 4000033, "lvl": 12 },
+        { "data": 4000034, "lvl": 12 }, { "data": 4000035, "lvl": 12 }, { "data": 4000037, "lvl": 11 },
+        { "data": 4000038, "lvl": 12 }, { "data": 4000041, "lvl": 12 }, { "data": 4000042, "lvl": 12 }
+      ],
+      "heroes2": [{ "data": 28000003, "lvl": 10, "timer": 160229 }],
+      "skins2": [52000153],
+      "sceneries2": [],
+      "boosts": { "clocktower_cooldown": 39073 }
+    };
+  </script>
+
+  <!-- Scripts Applicatifs -->
+  <script src="js/coc_data.js"></script>
+  <script src="js/analysis.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
