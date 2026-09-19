@@ -214,11 +214,11 @@
         <div class="card-minimal p-4 flex flex-col justify-between">
           <div class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Seuil HDV 12 Sain</div>
           <div class="mt-2">
-            <div id="forecast-kpi-countdown" class="text-3xl font-semibold text-zinc-100 font-mono tracking-tight">58 jours</div>
-            <p class="text-xs text-emerald-400 mt-1">2 ouvriers dédiés aux héros</p>
+            <div id="forecast-kpi-countdown" class="text-3xl font-semibold text-zinc-100 font-mono tracking-tight">53 jours</div>
+            <p class="text-xs text-emerald-400 mt-1">2 ouvriers + Apprenti Ouvrier</p>
           </div>
           <div class="mt-3 pt-2.5 border-t border-white/[0.08] text-[11px] text-zinc-400">
-            Date estimée : <strong id="forecast-target-date-str" class="text-zinc-200 font-medium">17 Novembre 2026</strong>
+            Date estimée : <strong id="forecast-target-date-str" class="text-zinc-200 font-medium">12 Novembre 2026</strong>
           </div>
         </div>
 
@@ -236,11 +236,11 @@
         <div class="card-minimal p-4 flex flex-col justify-between">
           <div class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Rythme Standard</div>
           <div class="mt-2">
-            <div id="forecast-metric-standard-days" class="text-3xl font-semibold text-zinc-300 font-mono tracking-tight">118 j</div>
+            <div id="forecast-metric-standard-days" class="text-3xl font-semibold text-zinc-300 font-mono tracking-tight">108 j</div>
             <p class="text-xs text-zinc-400 mt-1">Avec latence ouvriers (-35%)</p>
           </div>
           <div class="mt-3 pt-2.5 border-t border-white/[0.08] text-[11px] text-zinc-400">
-            Labo restant : <span id="forecast-metric-lab-days" class="text-zinc-300 font-mono font-medium">~58 j</span>
+            Labo restant : <span id="forecast-metric-lab-days" class="text-zinc-300 font-mono font-medium">~52 j</span>
           </div>
         </div>
 
@@ -268,7 +268,7 @@
           <div class="flex items-center justify-between">
             <div>
               <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Projection de Maxage</h4>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Scénario Optimal (J+58) vs Standard (J+118)</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Scénario Optimal (J+53) vs Standard (J+108)</p>
             </div>
             <span class="text-[11px] font-mono text-zinc-400">J0 → J+150</span>
           </div>
@@ -283,16 +283,37 @@
 
     <!-- 4. CHANTIERS & OUVRIERS EN COURS -->
     <section class="panel-minimal p-6 sm:p-8 space-y-6">
-      <div class="flex items-center justify-between pb-4 border-b border-white/[0.08]">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.08] gap-3">
         <div>
           <h3 class="text-base font-semibold text-zinc-100">Chantiers & Recherches</h3>
-          <p class="text-xs text-zinc-400 mt-0.5">5 comptes à rebours en direct.</p>
+          <p class="text-xs text-zinc-400 mt-0.5">5 comptes à rebours & disponibilité des assistants en direct.</p>
         </div>
-        <span class="text-xs font-mono text-zinc-400">5 actifs</span>
+        <div class="flex items-center gap-2">
+          <span id="helpers-summary-badge" class="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span>+5h / jour économisées</span>
+          </span>
+          <span class="text-xs font-mono text-zinc-400">5 chantiers</span>
+        </div>
       </div>
 
-      <div id="active-upgrades-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Rendu dynamique par app.js -->
+      <!-- Assistants Actifs (Apprenti Ouvrier & Assistant Labo) -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Assistants Quotidiens</h4>
+          <span class="text-[11px] text-zinc-400">Décompte de recharge en direct</span>
+        </div>
+        <div id="helpers-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <!-- Rendu dynamique par app.js -->
+        </div>
+      </div>
+
+      <!-- Chantiers Principaux -->
+      <div class="space-y-3 pt-2">
+        <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Ouvriers & Laboratoire</h4>
+        <div id="active-upgrades-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Rendu dynamique par app.js -->
+        </div>
       </div>
     </section>
 

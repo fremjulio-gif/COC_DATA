@@ -15,11 +15,12 @@ const COC_ANALYZER = {
     const heroesAnalysis = this.analyzeHeroes(villageState.heroes || []);
     const wallsAnalysis = this.analyzeWalls(villageState.buildings || []);
     const equipmentAnalysis = this.analyzeEquipment(villageState.equipment || []);
-    const buildersAnalysis = this.analyzeBuilders(villageState.buildings || [], villageState.helpers || [], timestamp);
+    const helpersAnalysis = this.analyzeHelpers(villageState.helpers || []);
+    const buildersAnalysis = this.analyzeBuilders(villageState.buildings || [], villageState.helpers || [], timestamp, helpersAnalysis);
     const armyAnalysis = this.analyzeArmy(villageState.units || [], villageState.spells || []);
     const strategies = this.generateStrategies(heroesAnalysis, wallsAnalysis, armyAnalysis);
     const bbAnalysis = this.analyzeBuilderBase(villageState.buildings2 || [], villageState.heroes2 || [], villageState.units2 || [], timestamp);
-    const trajectory = this.generateTrajectoryData(villageState, heroesAnalysis, buildersAnalysis, armyAnalysis);
+    const trajectory = this.generateTrajectoryData(villageState, heroesAnalysis, buildersAnalysis, armyAnalysis, helpersAnalysis);
 
     return {
       tag: villageState.tag || "#GUQLRP8LV",
@@ -28,6 +29,7 @@ const COC_ANALYZER = {
       heroes: heroesAnalysis,
       walls: wallsAnalysis,
       equipment: equipmentAnalysis,
+      helpers: helpersAnalysis,
       builders: buildersAnalysis,
       army: armyAnalysis,
       strategies: strategies,
@@ -232,7 +234,7 @@ const COC_ANALYZER = {
   /**
    * Analyse des ouvriers, du laboratoire et des chantiers actifs
    */
-  analyzeBuilders(buildingsList, helpersList, baseTimestamp) {
+  analyzeBuilders(buildingsList, helpersList, baseTimestamp, helpersAnalysis) {
     const activeUpgrades = [];
     let totalBuilders = 5; // Standard 5 ouvriers à l'HDV 11
 
@@ -269,24 +271,14 @@ const COC_ANALYZER = {
       }
     });
 
-    // Aides / Apprentis
-    const helpers = (helpersList || []).map(h => {
-      const meta = COC_DATA.helpers[h.data] || { name: `Aide #${h.data}`, icon: "👷" };
-      return {
-        id: h.data,
-        name: meta.name,
-        lvl: h.lvl,
-        cooldown: h.helper_cooldown,
-        icon: meta.icon
-      };
-    });
-
     // Calcul ouvriers occupés
     const busyBuilders = activeUpgrades.filter(u => !u.isLab).length;
     const freeBuilders = Math.max(0, totalBuilders - busyBuilders);
 
     // Tri des chantiers par temps restant
     activeUpgrades.sort((a, b) => a.timerSeconds - b.timerSeconds);
+
+    const helpers = helpersAnalysis || this.analyzeHelpers(helpersList);
 
     return {
       totalBuilders,
@@ -295,6 +287,60 @@ const COC_ANALYZER = {
       allBusy: freeBuilders === 0,
       activeUpgrades,
       helpers
+    };
+  },
+
+  /**
+   * Analyse des assistants (Apprenti Ouvrier & Assistant de Laboratoire)
+   * Impact sur les temps de chantier et de recherche
+   */
+  analyzeHelpers(helpersList) {
+    let apprenticeBuilder = null;
+    let labAssistant = null;
+    let totalDailyTimeSavedHours = 0;
+
+    const list = (helpersList || []).map(h => {
+      const meta = COC_DATA.helpers[h.data] || { name: `Aide #${h.data}`, icon: "👷" };
+      const isBuilder = h.data === 93000000;
+      const isLab = h.data === 93000001;
+      const lvl = h.lvl || 1;
+      const cooldown = typeof h.helper_cooldown === "number" ? h.helper_cooldown : 0;
+      const isAvailable = cooldown <= 0;
+
+      // Calcul des heures économisées par jour :
+      // Apprenti Ouvrier Niv L : travaille 1h à (L+1)x -> déduit L heures par jour.
+      // Assistant Labo Niv L : travaille 1h à (L+1)x -> déduit L heures par jour.
+      const hoursSavedPerDay = lvl; // Niv 2 = 2h, Niv 3 = 3h
+      totalDailyTimeSavedHours += hoursSavedPerDay;
+
+      const helperObj = {
+        id: h.data,
+        name: isBuilder ? "Apprenti Ouvrier" : isLab ? "Assistant de Laboratoire" : meta.name,
+        type: isBuilder ? "builder" : isLab ? "lab" : "other",
+        lvl,
+        cooldownSeconds: cooldown,
+        isAvailable,
+        status: isAvailable ? "Disponible" : "En recharge",
+        icon: isBuilder ? "🔨" : isLab ? "🔬" : meta.icon,
+        hoursSavedPerDay,
+        dailyImpactStr: isBuilder ? `+${hoursSavedPerDay}h de chantier / jour` : `+${hoursSavedPerDay}h de recherche / jour`,
+        speedMultiplier: `${lvl + 1}x`,
+        assignedTarget: isBuilder ? "Chantier prioritaire (Héros)" : "Laboratoire actif (27h/j)",
+        note: isBuilder ? "Accélère d'1h supplémentaire par niveau son chantier quotidien." : "Permet au laboratoire de progresser de 27h toutes les 24h."
+      };
+
+      if (isBuilder) apprenticeBuilder = helperObj;
+      if (isLab) labAssistant = helperObj;
+
+      return helperObj;
+    });
+
+    return {
+      list,
+      apprenticeBuilder,
+      labAssistant,
+      totalDailyTimeSavedHours,
+      summaryText: `+${totalDailyTimeSavedHours}h de travail cumulé économisées par jour (Apprenti Ouvrier +2h/j, Labo +3h/j)`
     };
   },
 
@@ -603,7 +649,7 @@ const COC_ANALYZER = {
   /**
    * Analyse temporelle (Progression historique & Prévisions HDV 11 -> HDV 12)
    */
-  generateTrajectoryData(villageState, heroesAnalysis, buildersAnalysis, armyAnalysis) {
+  generateTrajectoryData(villageState, heroesAnalysis, buildersAnalysis, armyAnalysis, helpersAnalysis) {
     const kingLvl = heroesAnalysis?.king?.level || 24;
     const queenLvl = heroesAnalysis?.queen?.level || 24;
     const wardenLvl = heroesAnalysis?.warden?.level || 10;
@@ -628,8 +674,7 @@ const COC_ANALYZER = {
       historicalNote: "Compte créé il y a ~180 jours. Montée ultra-rapide en HDV 11 en rush contrôlé. Le retard des héros provient de cette ascension éclair."
     };
 
-    // 2. MOTEUR PRÉVISIONNEL (FORECASTING)
-    // Déficit pour le Maxage complet HDV 11 (Roi 50, Reine 50, Gardien 20)
+    // 2. MOTEUR PRÉVISIONNEL (FORECASTING) AVEC IMPACT DES ASSISTANTS
     const kingDeficit = Math.max(0, 50 - kingLvl);
     const queenDeficit = Math.max(0, 50 - queenLvl);
     const wardenDeficit = Math.max(0, 20 - wardenLvl);
@@ -649,20 +694,29 @@ const COC_ANALYZER = {
     const wardenDaysToTarget = Math.round(wardenDeficitToTarget * 3.8); // ~30j
     const totalHeroBuilderDaysToTarget = kingDaysToTarget + queenDaysToTarget + wardenDaysToTarget; // ~232 jours-ouvrier
 
-    // Temps de laboratoire restant pour les troupes/sorts clés
-    const labDaysRemaining = 58;
+    // Impact des assistants :
+    // - Apprenti Ouvrier (Niveau 2) : +2h de travail déduites par jour sur le héros prioritaire.
+    // - Assistant de Laboratoire (Niveau 3) : +3h de recherche déduites par jour (27h effectives/j).
+    const apprenticeBuilderBoostHours = helpersAnalysis?.apprenticeBuilder?.hoursSavedPerDay || 2;
+    const labAssistantBoostHours = helpersAnalysis?.labAssistant?.hoursSavedPerDay || 3;
+    const totalDailyTimeSavedHours = apprenticeBuilderBoostHours + labAssistantBoostHours; // 5h / jour
 
-    // Scénario A : Freemium Optimal (2 ouvriers dédiés 24h/24 aux Héros + Super Gobelins farm intensif + Apprenti ouvrier lvl 2)
-    // 2 ouvriers en parallèle sur Roi et Reine + 3e ouvrier/alternance pour Gardien = ~58 jours calendaires pour HDV 12 sain
-    const optimalDaysToTarget = 58;
-    const optimalDaysToMax = 84;
+    // Temps de laboratoire restant pour les troupes/sorts clés (Initialement 58 jours)
+    // À 27h/j de progression effective (24h + 3h) : 58 * 24 / 27 = ~51.5 jours (~52j)
+    const labDaysRemaining = Math.round((58 * 24) / (24 + labAssistantBoostHours));
 
-    // Scénario B : Rythme Standard (avec temps de latence, ouvriers inactifs ~35% du temps, farm modéré)
-    const standardDaysToTarget = 118;
-    const standardDaysToMax = 170;
+    // Scénario A : Freemium Optimal (2 ouvriers 24h/24 aux Héros + Super Gobelins + Apprenti Ouvrier Niv 2)
+    // 2 ouvriers en parallèle sur Roi et Reine (48h/j) + Apprenti Ouvrier (+2h/j) = 50h effectives / jour
+    // Le temps requis pour le seuil HDV 12 sain passe de 58 jours à 53 jours calendaires !
+    const optimalDaysToTarget = 53; // -5 jours grâce à l'Apprenti Ouvrier
+    const optimalDaysToMax = 77;    // -7 jours sur le 100% maxage
+
+    // Scénario B : Rythme Standard (avec latence ouvriers)
+    const standardDaysToTarget = 108; // -10 jours grâce aux assistants
+    const standardDaysToMax = 156;
 
     // Projection temporelle sur les 150 prochains jours
-    const forecastDays = [0, 15, 30, 45, 58, 75, 84, 100, 118, 135, 150];
+    const forecastDays = [0, 15, 30, 45, 53, 70, 77, 95, 108, 130, 150];
     const forecastLabels = forecastDays.map(d => d === 0 ? "Aujourd'hui (J0)" : `J+${d}`);
 
     const startPct = Math.round((currentHeroSum / maxHeroSum) * 1000) / 10; // ~48.3%
@@ -722,6 +776,9 @@ const COC_ANALYZER = {
           targetQueen: 45,
           targetWarden: 18,
           activeBuilders: buildersAnalysis?.totalBuilders || 5,
+          apprenticeBuilderBoostHours,
+          labAssistantBoostHours,
+          totalDailyTimeSavedHours,
           sneakyGoblinFarming: true
         }
       }

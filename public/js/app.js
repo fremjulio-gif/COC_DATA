@@ -282,7 +282,8 @@ function loadVillageData(data) {
   renderAntiRushAlert(appState.analysis.heroes);
   renderActiveStrategy(appState.currentStrategy || "farm");
   renderTrajectorySection(appState.analysis);
-  renderTimers(appState.analysis.builders, appState.analysis.army.labActiveResearch, appState.analysis.builderBase);
+  renderHelpers(appState.analysis.helpers);
+  renderTimers(appState.analysis.builders, appState.analysis.army.labActiveResearch, appState.analysis.builderBase, appState.analysis.helpers);
   renderEquipmentList("all");
   renderArmyGrid(appState.analysis.army);
   renderCharts(appState.analysis);
@@ -561,9 +562,70 @@ function renderFarmStrategy(farm) {
 }
 
 /**
+ * Rendu des assistants actifs (Apprenti Ouvrier & Assistant Labo)
+ */
+function renderHelpers(helpers) {
+  const container = document.getElementById("helpers-grid");
+  const badgeEl = document.getElementById("helpers-summary-badge");
+
+  if (badgeEl && helpers) {
+    badgeEl.innerHTML = `
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+      <span>+${helpers.totalDailyTimeSavedHours}h / jour économisées</span>
+    `;
+  }
+
+  if (!container || !helpers || !helpers.list) return;
+
+  container.innerHTML = helpers.list.map(h => `
+    <div class="card-minimal p-4 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center text-lg flex-shrink-0">
+              ${h.icon}
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h4 class="text-xs font-semibold text-zinc-100">${h.name}</h4>
+                <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">Niv. ${h.lvl}</span>
+              </div>
+              <div class="text-[11px] text-zinc-400 mt-0.5">${h.assignedTarget}</div>
+            </div>
+          </div>
+
+          <div id="helper-status-${h.id}">
+            ${h.isAvailable ? `
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span>Disponible</span>
+              </span>
+            ` : `
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                <span class="font-mono" id="helper-timer-${h.id}">${formatSecondsToCountdown(h.cooldownSeconds)}</span>
+              </span>
+            `}
+          </div>
+        </div>
+
+        <p class="text-xs text-zinc-300 mt-3 leading-relaxed">
+          ${h.note}
+        </p>
+      </div>
+
+      <div class="mt-3.5 pt-2.5 border-t border-white/[0.08] flex items-center justify-between text-[11px]">
+        <span class="text-zinc-400">Gain de temps :</span>
+        <span class="font-mono font-semibold text-emerald-400">${h.dailyImpactStr}</span>
+      </div>
+    </div>
+  `).join("");
+}
+
+/**
  * Rendu des chantiers & timers interactifs
  */
-function renderTimers(builders, labResearch, builderBase) {
+function renderTimers(builders, labResearch, builderBase, helpers) {
   const container = document.getElementById("active-upgrades-container");
   if (!container) return;
 
@@ -682,8 +744,9 @@ function renderTimers(builders, labResearch, builderBase) {
     </div>
   `).join("");
 
-  // Boucle de décrémentation des timers chaque seconde
+  // Boucle de décrémentation des timers et cooldowns des assistants chaque seconde
   appState.timerInterval = setInterval(() => {
+    // 1. Chantiers
     appState.timers.forEach(item => {
       if (item.remainingSeconds > 0) {
         item.remainingSeconds--;
@@ -699,6 +762,31 @@ function renderTimers(builders, labResearch, builderBase) {
         }
       }
     });
+
+    // 2. Cooldowns des assistants
+    const helpersList = appState.analysis?.helpers?.list;
+    if (helpersList && helpersList.length > 0) {
+      helpersList.forEach(h => {
+        if (h.cooldownSeconds > 0) {
+          h.cooldownSeconds--;
+          const timerEl = document.getElementById(`helper-timer-${h.id}`);
+          if (timerEl) {
+            timerEl.textContent = formatSecondsToCountdown(h.cooldownSeconds);
+          }
+        } else if (!h.isAvailable) {
+          h.isAvailable = true;
+          const statusContainer = document.getElementById(`helper-status-${h.id}`);
+          if (statusContainer) {
+            statusContainer.innerHTML = `
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span>Disponible</span>
+              </span>
+            `;
+          }
+        }
+      });
+    }
   }, 1000);
 }
 
@@ -1066,7 +1154,7 @@ function renderTrajectorySection(analysis) {
             pointBorderWidth: 1.5,
             pointRadius: (ctx) => {
               const val = fc.days[ctx.dataIndex];
-              return val === 58 || val === 84 ? 5 : 2.5;
+              return val === 53 || val === 77 ? 5 : 2.5;
             },
             pointHoverRadius: 6,
             order: 1
@@ -1083,7 +1171,7 @@ function renderTrajectorySection(analysis) {
             pointBackgroundColor: "#71717a",
             pointRadius: (ctx) => {
               const val = fc.days[ctx.dataIndex];
-              return val === 118 ? 4 : 2;
+              return val === 108 ? 4 : 2;
             },
             pointHoverRadius: 5,
             order: 2
@@ -1142,12 +1230,12 @@ function renderTrajectorySection(analysis) {
               afterBody: (tooltipItems) => {
                 const idx = tooltipItems[0].dataIndex;
                 const day = fc.days[idx];
-                if (day === 58) {
-                  return "🎯 [J+58] Date recommandée pour passage HDV 12 sain !";
-                } else if (day === 84) {
-                  return "🏆 [J+84] Village HDV 11 100% maxé (Héros 50/50/20) !";
-                } else if (day === 118) {
-                  return "⚠️ [J+118] Atterrissage HDV 12 en rythme standard.";
+                if (day === 53) {
+                  return "🎯 [J+53] Passage HDV 12 sain accéléré par l'Apprenti Ouvrier (+2h/j) !";
+                } else if (day === 77) {
+                  return "🏆 [J+77] Village HDV 11 100% maxé grâce aux assistants (+5h/j) !";
+                } else if (day === 108) {
+                  return "⚠️ [J+108] Atterrissage HDV 12 en rythme standard (+ assistants inclus).";
                 }
                 return "";
               }
