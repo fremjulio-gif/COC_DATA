@@ -24,3 +24,4 @@ export default function handler(req, res) {
     return res.status(500).json({ error: "Impossible de lire le fichier data/village_state.json", details: err.message });
   }
 }
+

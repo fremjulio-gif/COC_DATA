@@ -128,9 +128,9 @@ const COC_ANALYZER = {
       isCriticalUnderleveled,
       totalDarkElixirNeeded,
       wardenElixirNeeded,
-      severity: isCriticalUnderleveled ? "CRITIQUE" : "NORMAL",
-      alertTitle: "🚨 ALERTE ROUGE : Retard Critique des Héros (Anti-Rush HDV 12)",
-      alertDescription: "Vos héros principaux (Roi niv. 24, Reine niv. 24, Gardien niv. 10) n'atteignent que 48% du potentiel HDV 11. NE PAS passer HDV 12 avant d'avoir monté vos héros au minimum au niveau 45/45/18 pour éviter les pénalités de guerre et d'attaque."
+      severity: isCriticalUnderleveled ? "Retard HDV 11" : "Optimal",
+      alertTitle: "Diagnostic Héros : Retard de niveau HDV 11",
+      alertDescription: "Vos héros principaux (Roi 24/50, Reine 24/50, Gardien 10/20) totalisent 58 niveaux sur les 120 requis au plafond HDV 11 (48.3%). Le passage vers l'HDV 12 est recommandé à partir du seuil 45 / 45 / 18 pour conserver une pleine efficacité en attaque et en ligue."
     };
   },
 

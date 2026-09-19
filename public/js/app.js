@@ -302,66 +302,65 @@ function renderKPIs(analysis) {
 /**
  * Rendu de la bannière d'alerte rouge Anti-Rush
  */
+/**
+ * Rendu de la bannière d'alerte Anti-Rush (Sober & Factual)
+ */
 function renderAntiRushAlert(heroes) {
   const container = document.getElementById("anti-rush-alert-container");
   if (!container) return;
 
   if (heroes.isCriticalUnderleveled) {
     container.innerHTML = `
-      <div class="glass-card glass-card-critical p-5 rounded-2xl animate-danger-pulse">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div class="flex items-start gap-4">
-            <div class="w-12 h-12 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 text-2xl flex-shrink-0">
-              🚨
+      <div class="card-minimal p-5 sm:p-6 border-amber-500/20 bg-amber-500/[0.03]">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div class="space-y-3.5 flex-1">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              <h3 class="text-sm font-semibold text-zinc-100 tracking-tight">${heroes.alertTitle}</h3>
+              <span class="px-2 py-0.5 text-[11px] font-medium rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">Priorité HDV 11</span>
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="text-lg font-bold text-rose-200">${heroes.alertTitle}</h3>
-                <span class="px-2 py-0.5 text-xs font-extrabold uppercase tracking-wider rounded bg-rose-600 text-white shadow-sm">Bloquant</span>
+            <p class="text-xs text-zinc-400 leading-relaxed max-w-3xl">
+              ${heroes.alertDescription}
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
+                <div class="flex items-center justify-between text-xs text-zinc-200">
+                  <span class="text-zinc-400">Roi des Barbares</span>
+                  <span class="font-mono font-medium">${heroes.king.level} / ${heroes.king.maxTh11}</span>
+                </div>
+                <div class="progress-bar-slim mt-2">
+                  <div class="progress-fill bg-amber-400" style="width: ${heroes.king.progress}%"></div>
+                </div>
+                <div class="text-[11px] text-zinc-500 mt-1.5 font-mono">-${heroes.king.deficit} niv. (~${Math.round(heroes.king.enNeeded / 1000)}k EN)</div>
               </div>
-              <p class="text-sm text-rose-300/90 mt-1 max-w-3xl leading-relaxed">
-                ${heroes.alertDescription}
-              </p>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
-                <div class="bg-slate-900/60 border border-rose-500/20 rounded-lg p-2.5">
-                  <div class="flex items-center justify-between text-xs text-rose-200">
-                    <span>👑 Roi des Barbares</span>
-                    <span class="font-bold">${heroes.king.level} / ${heroes.king.maxTh11}</span>
-                  </div>
-                  <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1.5 overflow-hidden">
-                    <div class="bg-gradient-to-r from-rose-500 to-amber-500 h-full rounded-full" style="width: ${heroes.king.progress}%"></div>
-                  </div>
-                  <div class="text-[11px] text-rose-400/80 mt-1">Retard : -${heroes.king.deficit} niveaux (~${Math.round(heroes.king.enNeeded / 1000)}k EN)</div>
-                </div>
 
-                <div class="bg-slate-900/60 border border-rose-500/20 rounded-lg p-2.5">
-                  <div class="flex items-center justify-between text-xs text-rose-200">
-                    <span>🏹 Reine des Archères</span>
-                    <span class="font-bold">${heroes.queen.level} / ${heroes.queen.maxTh11}</span>
-                  </div>
-                  <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1.5 overflow-hidden">
-                    <div class="bg-gradient-to-r from-rose-500 to-fuchsia-500 h-full rounded-full" style="width: ${heroes.queen.progress}%"></div>
-                  </div>
-                  <div class="text-[11px] text-rose-400/80 mt-1">Retard : -${heroes.queen.deficit} niveaux (~${Math.round(heroes.queen.enNeeded / 1000)}k EN)</div>
+              <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
+                <div class="flex items-center justify-between text-xs text-zinc-200">
+                  <span class="text-zinc-400">Reine des Archères</span>
+                  <span class="font-mono font-medium">${heroes.queen.level} / ${heroes.queen.maxTh11}</span>
                 </div>
+                <div class="progress-bar-slim mt-2">
+                  <div class="progress-fill bg-purple-400" style="width: ${heroes.queen.progress}%"></div>
+                </div>
+                <div class="text-[11px] text-zinc-500 mt-1.5 font-mono">-${heroes.queen.deficit} niv. (~${Math.round(heroes.queen.enNeeded / 1000)}k EN)</div>
+              </div>
 
-                <div class="bg-slate-900/60 border border-rose-500/20 rounded-lg p-2.5">
-                  <div class="flex items-center justify-between text-xs text-rose-200">
-                    <span>📖 Grand Gardien</span>
-                    <span class="font-bold">${heroes.warden.level} / ${heroes.warden.maxTh11}</span>
-                  </div>
-                  <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1.5 overflow-hidden">
-                    <div class="bg-gradient-to-r from-rose-500 to-sky-500 h-full rounded-full" style="width: ${heroes.warden.progress}%"></div>
-                  </div>
-                  <div class="text-[11px] text-rose-400/80 mt-1">Retard : -${heroes.warden.deficit} niveaux (~${Math.round(heroes.warden.elixirNeeded / 1000000)}M Rose)</div>
+              <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
+                <div class="flex items-center justify-between text-xs text-zinc-200">
+                  <span class="text-zinc-400">Grand Gardien</span>
+                  <span class="font-mono font-medium">${heroes.warden.level} / ${heroes.warden.maxTh11}</span>
                 </div>
+                <div class="progress-bar-slim mt-2">
+                  <div class="progress-fill bg-sky-400" style="width: ${heroes.warden.progress}%"></div>
+                </div>
+                <div class="text-[11px] text-zinc-500 mt-1.5 font-mono">-${heroes.warden.deficit} niv. (~${Math.round(heroes.warden.elixirNeeded / 1000000)}M Rose)</div>
               </div>
             </div>
           </div>
           <div class="flex-shrink-0 w-full md:w-auto">
-            <a href="#farm-strategy-section" class="w-full md:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/30 transition-all">
-              <span>Voir le Plan de Rapprochement</span>
-              <span>↓</span>
+            <a href="#farm-strategy-section" class="btn-minimal w-full md:w-auto justify-center">
+              <span>Plan de Rapprochement</span>
+              <span class="text-zinc-400 text-xs">↓</span>
             </a>
           </div>
         </div>
@@ -369,12 +368,12 @@ function renderAntiRushAlert(heroes) {
     `;
   } else {
     container.innerHTML = `
-      <div class="glass-card p-4 rounded-2xl border-emerald-500/30 bg-emerald-500/10">
+      <div class="card-minimal p-4 border-emerald-500/20 bg-emerald-500/[0.03]">
         <div class="flex items-center gap-3">
-          <span class="text-2xl">✅</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
           <div>
-            <h4 class="text-sm font-bold text-emerald-300">Niveaux de héros optimaux</h4>
-            <p class="text-xs text-emerald-400/90">Vos héros sont prêts pour envisager sereinement les prochaines étapes d'évolution.</p>
+            <h4 class="text-xs font-semibold text-zinc-200">Niveaux de héros optimaux</h4>
+            <p class="text-[11px] text-zinc-400">Vos héros respectent les paliers recommandés pour votre niveau d'Hôtel de Ville.</p>
           </div>
         </div>
       </div>
@@ -392,48 +391,55 @@ function renderFarmStrategy(farm) {
 
   if (armyTroopsContainer) {
     armyTroopsContainer.innerHTML = farm.recommendedArmy.troops.map(t => `
-      <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-slate-800">
-        <div class="flex items-center gap-2.5">
-          <span class="text-2xl">${t.icon}</span>
+      <div class="flex items-center justify-between p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
+        <div class="flex items-center gap-3">
+          <span class="text-xl">${t.icon}</span>
           <div>
-            <div class="text-sm font-semibold text-white">${t.name}</div>
-            <div class="text-[11px] text-slate-400">${t.role}</div>
+            <div class="text-xs font-medium text-zinc-200">${t.name}</div>
+            <div class="text-[11px] text-zinc-400">${t.role}</div>
           </div>
         </div>
-        <span class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 font-mono font-bold text-xs">x${t.count}</span>
+        <span class="px-2 py-0.5 rounded font-mono font-medium text-xs bg-zinc-800 text-zinc-300 border border-zinc-700/60">x${t.count}</span>
       </div>
     `).join("");
   }
 
   if (armySpellsContainer) {
     armySpellsContainer.innerHTML = farm.recommendedArmy.spells.map(s => `
-      <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-slate-800">
-        <div class="flex items-center gap-2.5">
-          <span class="text-2xl">${s.icon}</span>
+      <div class="flex items-center justify-between p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
+        <div class="flex items-center gap-3">
+          <span class="text-xl">${s.icon}</span>
           <div>
-            <div class="text-sm font-semibold text-white">${s.name}</div>
-            <div class="text-[11px] text-slate-400">${s.role}</div>
+            <div class="text-xs font-medium text-zinc-200">${s.name}</div>
+            <div class="text-[11px] text-zinc-400">${s.role}</div>
           </div>
         </div>
-        <span class="px-2.5 py-1 rounded bg-sky-500/20 text-sky-300 font-mono font-bold text-xs">x${s.count}</span>
+        <span class="px-2 py-0.5 rounded font-mono font-medium text-xs bg-zinc-800 text-zinc-300 border border-zinc-700/60">x${s.count}</span>
       </div>
     `).join("");
   }
 
   if (tacticalList) {
     tacticalList.innerHTML = farm.tacticalAdvice.map(advice => `
-      <li class="flex items-start gap-2.5 text-xs text-slate-300">
-        <span class="text-amber-400 font-bold mt-0.5">▸</span>
+      <li class="flex items-start gap-2.5 text-xs text-zinc-300 leading-relaxed">
+        <span class="text-zinc-500 font-mono mt-0.5">―</span>
         <span>${advice}</span>
       </li>
     `).join("");
   }
 
   // Métriques de rentabilité
-  document.getElementById("farm-metric-de").textContent = farm.efficiencyMetrics.darkElixirPerHour;
-  document.getElementById("farm-metric-gold").textContent = farm.efficiencyMetrics.goldElixirPerHour;
-  document.getElementById("farm-metric-hours").textContent = `~${farm.efficiencyMetrics.estimatedHoursForHeroes} h`;
-  document.getElementById("farm-metric-league").textContent = farm.efficiencyMetrics.trophyRange;
+  const deEl = document.getElementById("farm-metric-de");
+  if (deEl) deEl.textContent = farm.efficiencyMetrics.darkElixirPerHour;
+
+  const goldEl = document.getElementById("farm-metric-gold");
+  if (goldEl) goldEl.textContent = farm.efficiencyMetrics.goldElixirPerHour;
+
+  const hoursEl = document.getElementById("farm-metric-hours");
+  if (hoursEl) hoursEl.textContent = `~${farm.efficiencyMetrics.estimatedHoursForHeroes} h`;
+
+  const leagueEl = document.getElementById("farm-metric-league");
+  if (leagueEl) leagueEl.textContent = farm.efficiencyMetrics.trophyRange;
 }
 
 /**
@@ -453,7 +459,7 @@ function renderTimers(builders, labResearch, builderBase) {
   // Ouvriers principaux
   builders.activeUpgrades.forEach(u => {
     items.push({
-      id: `upgrade-${u.id}-${Math.random()}`,
+      id: `upgrade-${u.id}-${Math.random().toString(36).substr(2, 9)}`,
       title: u.name,
       level: u.targetLevel,
       icon: u.icon,
@@ -502,7 +508,7 @@ function renderTimers(builders, labResearch, builderBase) {
   // Création du markup initial
   if (items.length === 0) {
     container.innerHTML = `
-      <div class="col-span-full text-center py-8 text-slate-400 text-sm">
+      <div class="col-span-full text-center py-10 text-zinc-500 text-xs">
         Aucun chantier actif détecté.
       </div>
     `;
@@ -510,31 +516,31 @@ function renderTimers(builders, labResearch, builderBase) {
   }
 
   container.innerHTML = items.map(item => `
-    <div id="${item.id}" class="glass-card p-4 rounded-xl border border-slate-700/50 flex flex-col justify-between">
+    <div id="${item.id}" class="card-minimal p-4 flex flex-col justify-between">
       <div>
         <div class="flex items-center justify-between gap-2">
-          <div class="flex items-center gap-2">
-            <span class="text-2xl">${item.icon}</span>
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">${item.icon}</span>
             <div>
-              <h4 class="text-sm font-semibold text-white truncate">${item.title}</h4>
-              <div class="text-[11px] text-slate-400">Vers Niveau ${item.level}</div>
+              <h4 class="text-xs font-semibold text-zinc-100 truncate">${item.title}</h4>
+              <div class="text-[11px] text-zinc-400">Vers Niveau ${item.level}</div>
             </div>
           </div>
-          <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-            item.category === 'lab' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
-            item.category === 'bb' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
-            'bg-sky-500/20 text-sky-300 border border-sky-500/30'
+          <span class="px-2 py-0.5 rounded text-[10px] font-medium font-mono ${
+            item.category === 'lab' ? 'bg-purple-500/10 text-purple-300 border border-purple-500/20' :
+            item.category === 'bb' ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' :
+            'bg-sky-500/10 text-sky-300 border border-sky-500/20'
           }">${item.tag}</span>
         </div>
 
         ${item.isHelper ? `
-          <div class="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-medium">
+          <div class="mt-2.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-800 text-zinc-300 border border-zinc-700/50">
             <span>👷</span> Boost Apprenti Actif
           </div>
         ` : ''}
 
         ${item.isGearUp ? `
-          <div class="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-medium">
+          <div class="mt-2.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20">
             <span>⚙️</span> Gear-Up en cours
           </div>
         ` : ''}
@@ -542,16 +548,16 @@ function renderTimers(builders, labResearch, builderBase) {
 
       <div class="mt-4">
         <div class="flex items-center justify-between text-xs mb-1.5">
-          <span class="text-slate-400">Temps restant :</span>
-          <span class="timer-countdown font-mono font-bold text-white text-sm" data-timer-id="${item.id}">
+          <span class="text-zinc-500 text-[11px]">Temps restant</span>
+          <span class="timer-countdown font-mono font-medium text-zinc-200 text-xs" data-timer-id="${item.id}">
             ${formatSecondsToCountdown(item.remainingSeconds)}
           </span>
         </div>
-        <div class="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden">
-          <div class="timer-progress-bar h-full rounded-full bg-gradient-to-r ${
-            item.category === 'lab' ? 'from-purple-500 to-fuchsia-500' :
-            item.category === 'bb' ? 'from-emerald-500 to-teal-400' :
-            'from-sky-500 to-indigo-500'
+        <div class="progress-bar-slim">
+          <div class="progress-fill ${
+            item.category === 'lab' ? 'bg-purple-400' :
+            item.category === 'bb' ? 'bg-emerald-400' :
+            'bg-sky-400'
           }" style="width: 100%;"></div>
         </div>
       </div>
@@ -570,7 +576,7 @@ function renderTimers(builders, labResearch, builderBase) {
       } else {
         const el = document.querySelector(`[data-timer-id="${item.id}"]`);
         if (el) {
-          el.textContent = "Terminé ! 🎉";
+          el.textContent = "Terminé ✓";
           el.classList.add("text-emerald-400");
         }
       }
@@ -617,46 +623,46 @@ function renderEquipmentList(filter) {
   }
 
   if (items.length === 0) {
-    container.innerHTML = `<div class="col-span-full text-center py-8 text-slate-400 text-xs">Aucun équipement correspondant à ce filtre.</div>`;
+    container.innerHTML = `<div class="col-span-full text-center py-8 text-zinc-500 text-xs">Aucun équipement correspondant à ce filtre.</div>`;
     return;
   }
 
   container.innerHTML = items.map(eq => {
     const isClose = eq.distToMilestone === 1;
     return `
-      <div class="glass-card p-3.5 rounded-xl border ${
-        eq.topTier ? 'border-amber-500/30 bg-amber-500/5' : 'border-slate-800'
-      } flex flex-col justify-between">
+      <div class="card-minimal p-3.5 flex flex-col justify-between ${
+        eq.topTier ? 'border-amber-500/20' : ''
+      }">
         <div>
           <div class="flex items-start justify-between gap-2">
             <div class="flex items-center gap-2">
-              <span class="text-2xl">${eq.icon}</span>
+              <span class="text-xl">${eq.icon}</span>
               <div>
-                <h5 class="text-xs font-bold text-white truncate max-w-[130px]">${eq.name}</h5>
-                <span class="text-[10px] text-slate-400">${eq.hero}</span>
+                <h5 class="text-xs font-medium text-zinc-200 truncate max-w-[130px]">${eq.name}</h5>
+                <span class="text-[10px] text-zinc-400">${eq.hero}</span>
               </div>
             </div>
-            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${
-              eq.isEpic ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40' : 'bg-slate-700/50 text-slate-300'
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium ${
+              eq.isEpic ? 'bg-purple-500/10 text-purple-300 border border-purple-500/20' : 'bg-zinc-800 text-zinc-400 border border-zinc-700/40'
             }">${eq.isEpic ? 'Épique' : 'Commun'}</span>
           </div>
 
           <div class="mt-3 flex items-center justify-between text-xs">
-            <span class="text-slate-400">Niveau :</span>
-            <span class="font-mono font-bold text-white">${eq.currentLevel} / ${eq.maxTh11}</span>
+            <span class="text-zinc-400 text-[11px]">Niveau</span>
+            <span class="font-mono font-medium text-zinc-200 text-xs">${eq.currentLevel} / ${eq.maxTh11}</span>
           </div>
 
-          <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1 overflow-hidden">
-            <div class="h-full rounded-full ${
+          <div class="progress-bar-slim mt-1.5">
+            <div class="progress-fill ${
               eq.isMilestone ? 'bg-emerald-400' : isClose ? 'bg-amber-400' : 'bg-sky-400'
             }" style="width: ${(eq.currentLevel / eq.maxTh11) * 100}%"></div>
           </div>
         </div>
 
-        <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-          <span class="text-slate-400">Palier clé :</span>
-          <span class="font-semibold ${
-            eq.isMilestone ? 'text-emerald-400' : isClose ? 'text-amber-300 font-bold animate-pulse' : 'text-slate-300'
+        <div class="mt-3 pt-2.5 border-t border-zinc-800/80 flex items-center justify-between text-[11px]">
+          <span class="text-zinc-500">Palier clé</span>
+          <span class="font-mono ${
+            eq.isMilestone ? 'text-emerald-400' : isClose ? 'text-amber-300 font-medium' : 'text-zinc-400'
           }">
             ${eq.isMilestone ? 'Atteint (x3) ✓' : `Prochain : Niv. ${eq.nextMilestone} (-${eq.distToMilestone})`}
           </span>
@@ -675,19 +681,19 @@ function renderArmyGrid(army) {
 
   if (unitsContainer) {
     unitsContainer.innerHTML = army.units.map(u => `
-      <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between">
-        <div class="flex items-center gap-2">
+      <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
           <span class="text-xl">${u.icon}</span>
           <div>
-            <div class="text-xs font-semibold text-white">${u.name}</div>
-            <div class="text-[10px] text-slate-400">Max HDV 11 : ${u.maxTh11}</div>
+            <div class="text-xs font-medium text-zinc-200">${u.name}</div>
+            <div class="text-[10px] text-zinc-400">Max HDV 11 : ${u.maxTh11}</div>
           </div>
         </div>
         <div class="flex flex-col items-end">
-          <span class="px-2 py-0.5 rounded text-xs font-mono font-bold ${
-            u.isMax ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-800 text-slate-300'
+          <span class="px-2 py-0.5 rounded text-xs font-mono font-medium ${
+            u.isMax ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' : 'bg-zinc-800 text-zinc-400'
           }">Niv. ${u.level}</span>
-          ${u.canSuper ? `<span class="text-[9px] text-amber-400 font-semibold mt-0.5">Super Débloqué ★</span>` : ''}
+          ${u.canSuper ? `<span class="text-[9px] text-amber-400/90 font-mono mt-0.5">Super Débloqué ★</span>` : ''}
         </div>
       </div>
     `).join("");
@@ -695,16 +701,16 @@ function renderArmyGrid(army) {
 
   if (spellsContainer) {
     spellsContainer.innerHTML = army.spells.map(s => `
-      <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between">
-        <div class="flex items-center gap-2">
+      <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
           <span class="text-xl">${s.icon}</span>
           <div>
-            <div class="text-xs font-semibold text-white">${s.name}</div>
-            <div class="text-[10px] text-slate-400">Max HDV 11 : ${s.maxTh11}</div>
+            <div class="text-xs font-medium text-zinc-200">${s.name}</div>
+            <div class="text-[10px] text-zinc-400">Max HDV 11 : ${s.maxTh11}</div>
           </div>
         </div>
-        <span class="px-2 py-0.5 rounded text-xs font-mono font-bold ${
-          s.isMax ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-800 text-slate-300'
+        <span class="px-2 py-0.5 rounded text-xs font-mono font-medium ${
+          s.isMax ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' : 'bg-zinc-800 text-zinc-400'
         }">Niv. ${s.level}</span>
       </div>
     `).join("");
@@ -744,7 +750,7 @@ function renderTrajectorySection(analysis) {
   // 2. Initialisation des Graphiques Chart.js
   if (typeof Chart === "undefined") return;
 
-  // A. Graphique Historique de Progression (Combo Bar + Line)
+    // A. Graphique Historique de Progression (Combo Bar + Line)
   const ctxHistory = document.getElementById("chart-progression-history");
   if (ctxHistory) {
     if (appState.charts.progressionHistory) appState.charts.progressionHistory.destroy();
@@ -761,27 +767,27 @@ function renderTrajectorySection(analysis) {
             label: "Niveau HDV",
             data: hist.thLevels,
             borderColor: "#38bdf8",
-            backgroundColor: "rgba(56, 189, 248, 0.15)",
+            backgroundColor: "rgba(56, 189, 248, 0.08)",
             pointBackgroundColor: "#38bdf8",
-            pointBorderColor: "#ffffff",
+            pointBorderColor: "#09090b",
             pointBorderWidth: 2,
-            pointRadius: 5,
-            pointHoverRadius: 7,
-            borderWidth: 3,
-            tension: 0.25,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            borderWidth: 2,
+            tension: 0.2,
             yAxisID: "y-th",
             order: 1
           },
           {
             type: "line",
-            label: "Rythme Mensuel (Améliorations)",
+            label: "Rythme Mensuel",
             data: hist.monthlyPace,
             borderColor: "#10b981",
-            borderDash: [4, 4],
+            borderDash: [3, 3],
             pointBackgroundColor: "#10b981",
-            pointRadius: 4,
-            borderWidth: 2,
-            tension: 0.3,
+            pointRadius: 3,
+            borderWidth: 1.5,
+            tension: 0.2,
             yAxisID: "y-heroes",
             order: 2
           },
@@ -789,30 +795,33 @@ function renderTrajectorySection(analysis) {
             type: "bar",
             label: "Roi des Barbares",
             data: hist.heroes.king,
-            backgroundColor: "rgba(245, 158, 11, 0.85)",
+            backgroundColor: "rgba(245, 158, 11, 0.8)",
             stack: "heroes",
             yAxisID: "y-heroes",
-            borderRadius: 4,
+            borderRadius: 3,
+            barPercentage: 0.6,
             order: 3
           },
           {
             type: "bar",
             label: "Reine des Archères",
             data: hist.heroes.queen,
-            backgroundColor: "rgba(192, 132, 252, 0.85)",
+            backgroundColor: "rgba(192, 132, 252, 0.8)",
             stack: "heroes",
             yAxisID: "y-heroes",
-            borderRadius: 4,
+            borderRadius: 3,
+            barPercentage: 0.6,
             order: 4
           },
           {
             type: "bar",
             label: "Grand Gardien",
             data: hist.heroes.warden,
-            backgroundColor: "rgba(56, 189, 248, 0.85)",
+            backgroundColor: "rgba(56, 189, 248, 0.8)",
             stack: "heroes",
             yAxisID: "y-heroes",
-            borderRadius: 4,
+            borderRadius: 3,
+            barPercentage: 0.6,
             order: 5
           }
         ]
@@ -828,16 +837,17 @@ function renderTrajectorySection(analysis) {
           legend: {
             position: "top",
             labels: {
-              boxWidth: 10,
+              boxWidth: 8,
+              boxHeight: 8,
               font: { size: 10 },
-              color: "#94a3b8"
+              color: "#71717a"
             }
           },
           tooltip: {
-            backgroundColor: "rgba(15, 23, 42, 0.95)",
-            titleColor: "#38bdf8",
-            bodyColor: "#f8fafc",
-            borderColor: "rgba(56, 189, 248, 0.3)",
+            backgroundColor: "rgba(9, 9, 11, 0.95)",
+            titleColor: "#fafafa",
+            bodyColor: "#a1a1aa",
+            borderColor: "rgba(255, 255, 255, 0.08)",
             borderWidth: 1,
             padding: 10,
             callbacks: {
@@ -852,10 +862,10 @@ function renderTrajectorySection(analysis) {
         scales: {
           x: {
             stacked: true,
-            grid: { color: "rgba(255, 255, 255, 0.05)" },
+            grid: { display: false },
             ticks: {
               font: { size: window.innerWidth < 640 ? 8.5 : 10 },
-              color: "#94a3b8",
+              color: "#71717a",
               maxRotation: 0,
               autoSkip: true
             }
@@ -869,11 +879,11 @@ function renderTrajectorySection(analysis) {
             title: {
               display: window.innerWidth >= 640,
               text: "Niveaux Héros",
-              color: "#94a3b8",
+              color: "#71717a",
               font: { size: 10 }
             },
-            grid: { color: "rgba(255, 255, 255, 0.05)" },
-            ticks: { font: { size: window.innerWidth < 640 ? 8.5 : 10 }, color: "#94a3b8" }
+            grid: { color: "rgba(255, 255, 255, 0.03)" },
+            ticks: { font: { size: window.innerWidth < 640 ? 8.5 : 10 }, color: "#71717a" }
           },
           "y-th": {
             type: "linear",
@@ -917,43 +927,43 @@ function renderTrajectorySection(analysis) {
             label: "Scénario A (Freemium Optimal)",
             data: fc.scenarioA,
             borderColor: "#38bdf8",
-            backgroundColor: "rgba(56, 189, 248, 0.15)",
+            backgroundColor: "rgba(56, 189, 248, 0.06)",
             fill: true,
-            tension: 0.35,
-            borderWidth: 3,
+            tension: 0.3,
+            borderWidth: 2,
             pointBackgroundColor: "#38bdf8",
-            pointBorderColor: "#ffffff",
+            pointBorderColor: "#09090b",
             pointBorderWidth: 1.5,
             pointRadius: (ctx) => {
               const val = fc.days[ctx.dataIndex];
-              return val === 58 || val === 84 ? 6 : 3;
+              return val === 58 || val === 84 ? 5 : 2.5;
             },
-            pointHoverRadius: 7,
+            pointHoverRadius: 6,
             order: 1
           },
           {
             label: "Scénario B (Rythme Standard)",
             data: fc.scenarioB,
-            borderColor: "#a855f7",
-            backgroundColor: "rgba(168, 85, 247, 0.05)",
-            fill: true,
-            tension: 0.35,
-            borderWidth: 2.5,
-            borderDash: [5, 4],
-            pointBackgroundColor: "#a855f7",
+            borderColor: "#71717a",
+            backgroundColor: "transparent",
+            fill: false,
+            tension: 0.3,
+            borderWidth: 1.5,
+            borderDash: [4, 4],
+            pointBackgroundColor: "#71717a",
             pointRadius: (ctx) => {
               const val = fc.days[ctx.dataIndex];
-              return val === 118 ? 5 : 3;
+              return val === 118 ? 4 : 2;
             },
-            pointHoverRadius: 6,
+            pointHoverRadius: 5,
             order: 2
           },
           {
-            label: "Seuil Transition HDV 12 (Héros 45/45/18)",
+            label: "Seuil Transition HDV 12 (45/45/18)",
             data: Array(count).fill(fc.targetThreshold),
             borderColor: "#10b981",
             borderDash: [3, 3],
-            borderWidth: 1.5,
+            borderWidth: 1.2,
             pointRadius: 0,
             fill: false,
             order: 3
@@ -961,7 +971,7 @@ function renderTrajectorySection(analysis) {
           {
             label: "Cap Max HDV 11 (100%)",
             data: Array(count).fill(fc.maxThreshold),
-            borderColor: "rgba(255, 255, 255, 0.25)",
+            borderColor: "rgba(255, 255, 255, 0.15)",
             borderDash: [2, 2],
             borderWidth: 1,
             pointRadius: 0,
@@ -981,16 +991,17 @@ function renderTrajectorySection(analysis) {
           legend: {
             position: "top",
             labels: {
-              boxWidth: 10,
+              boxWidth: 8,
+              boxHeight: 8,
               font: { size: window.innerWidth < 640 ? 9 : 10 },
-              color: "#94a3b8"
+              color: "#71717a"
             }
           },
           tooltip: {
-            backgroundColor: "rgba(15, 23, 42, 0.95)",
-            titleColor: "#38bdf8",
-            bodyColor: "#f8fafc",
-            borderColor: "rgba(168, 85, 247, 0.3)",
+            backgroundColor: "rgba(9, 9, 11, 0.95)",
+            titleColor: "#fafafa",
+            bodyColor: "#a1a1aa",
+            borderColor: "rgba(255, 255, 255, 0.08)",
             borderWidth: 1,
             padding: 10,
             callbacks: {
@@ -1006,7 +1017,7 @@ function renderTrajectorySection(analysis) {
                 } else if (day === 84) {
                   return "🏆 [J+84] Village HDV 11 100% maxé (Héros 50/50/20) !";
                 } else if (day === 118) {
-                  return "⚠️ [J+118] Atterrissage HDV 12 en rythme standard (+60j de délai).";
+                  return "⚠️ [J+118] Atterrissage HDV 12 en rythme standard.";
                 }
                 return "";
               }
@@ -1015,10 +1026,10 @@ function renderTrajectorySection(analysis) {
         },
         scales: {
           x: {
-            grid: { color: "rgba(255, 255, 255, 0.05)" },
+            grid: { display: false },
             ticks: {
               font: { size: window.innerWidth < 640 ? 8.5 : 10 },
-              color: "#94a3b8",
+              color: "#71717a",
               maxRotation: 0,
               autoSkip: true
             }
@@ -1029,16 +1040,16 @@ function renderTrajectorySection(analysis) {
             max: 105,
             ticks: {
               font: { size: window.innerWidth < 640 ? 8.5 : 10 },
-              color: "#94a3b8",
+              color: "#71717a",
               callback: (v) => `${v}%`
             },
             title: {
               display: window.innerWidth >= 640,
               text: "% Complétion HDV 11",
-              color: "#94a3b8",
+              color: "#71717a",
               font: { size: 10 }
             },
-            grid: { color: "rgba(255, 255, 255, 0.05)" }
+            grid: { color: "rgba(255, 255, 255, 0.03)" }
           }
         }
       }
@@ -1052,9 +1063,9 @@ function renderTrajectorySection(analysis) {
 function renderCharts(analysis) {
   if (typeof Chart === "undefined") return;
 
-  // Configuration par défaut Dark Theme
-  Chart.defaults.color = "#94a3b8";
-  Chart.defaults.font.family = "system-ui, sans-serif";
+  // Configuration par défaut Dark Theme Minimal
+  Chart.defaults.color = "#71717a";
+  Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
 
   // 1. Graphique Héros (Radar / Bar)
   const ctxHeroes = document.getElementById("chart-heroes");
@@ -1070,16 +1081,18 @@ function renderCharts(analysis) {
           {
             label: "Niveau Actuel",
             data: [h.king.level, h.queen.level, h.warden.level, h.minionPrince.level],
-            backgroundColor: ["#f59e0b", "#c084fc", "#38bdf8", "#8b5cf6"],
-            borderRadius: 6
+            backgroundColor: ["#f59e0b", "#c084fc", "#38bdf8", "#818cf8"],
+            borderRadius: 4,
+            barPercentage: 0.6
           },
           {
             label: "Cap Max HDV 11",
             data: [h.king.maxTh11, h.queen.maxTh11, h.warden.maxTh11, h.minionPrince.maxTh11],
-            backgroundColor: "rgba(255, 255, 255, 0.08)",
+            backgroundColor: "rgba(255, 255, 255, 0.04)",
             borderWidth: 1,
-            borderColor: "rgba(255, 255, 255, 0.2)",
-            borderRadius: 6
+            borderColor: "rgba(255, 255, 255, 0.08)",
+            borderRadius: 4,
+            barPercentage: 0.6
           }
         ]
       },
@@ -1094,10 +1107,19 @@ function renderCharts(analysis) {
           legend: {
             position: "top",
             labels: {
-              boxWidth: 10,
-              font: { size: window.innerWidth < 640 ? 9 : 11 },
-              color: "#94a3b8"
+              boxWidth: 8,
+              boxHeight: 8,
+              font: { size: window.innerWidth < 640 ? 9 : 10 },
+              color: "#71717a"
             }
+          },
+          tooltip: {
+            backgroundColor: "rgba(9, 9, 11, 0.95)",
+            titleColor: "#fafafa",
+            bodyColor: "#a1a1aa",
+            borderColor: "rgba(255, 255, 255, 0.08)",
+            borderWidth: 1,
+            padding: 10
           }
         },
         scales: {
@@ -1105,17 +1127,17 @@ function renderCharts(analysis) {
             beginAtZero: true,
             max: 55,
             ticks: {
-              font: { size: window.innerWidth < 640 ? 8.5 : 11 },
-              color: "#94a3b8"
+              font: { size: window.innerWidth < 640 ? 8.5 : 10 },
+              color: "#71717a"
             },
-            grid: { color: "rgba(255, 255, 255, 0.05)" }
+            grid: { color: "rgba(255, 255, 255, 0.03)" }
           },
           x: {
             ticks: {
               maxRotation: 0,
               autoSkip: true,
-              font: { size: window.innerWidth < 640 ? 8.5 : 11 },
-              color: "#94a3b8",
+              font: { size: window.innerWidth < 640 ? 8.5 : 10 },
+              color: "#71717a",
               callback: function(val, index) {
                 if (window.innerWidth < 640) {
                   const shortNames = ["Roi", "Reine", "Gardien", "Prince"];
@@ -1143,15 +1165,15 @@ function renderCharts(analysis) {
         labels: ["Remparts Niv. 12 (Max HDV 11)", "Remparts Niv. 11 (À améliorer)"],
         datasets: [{
           data: [w.lvl12Count, w.lvl11Count],
-          backgroundColor: ["#38bdf8", "#334155"],
+          backgroundColor: ["#38bdf8", "#27272a"],
           borderWidth: 0,
-          hoverOffset: 4
+          hoverOffset: 3
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: "70%",
+        cutout: "78%",
         interaction: {
           mode: "index",
           intersect: false
@@ -1160,10 +1182,19 @@ function renderCharts(analysis) {
           legend: {
             position: "bottom",
             labels: {
-              boxWidth: 10,
-              font: { size: window.innerWidth < 640 ? 9.5 : 11 },
-              color: "#94a3b8"
+              boxWidth: 8,
+              boxHeight: 8,
+              font: { size: window.innerWidth < 640 ? 9 : 10 },
+              color: "#71717a"
             }
+          },
+          tooltip: {
+            backgroundColor: "rgba(9, 9, 11, 0.95)",
+            titleColor: "#fafafa",
+            bodyColor: "#a1a1aa",
+            borderColor: "rgba(255, 255, 255, 0.08)",
+            borderWidth: 1,
+            padding: 10
           }
         }
       }
