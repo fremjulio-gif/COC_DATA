@@ -1,6 +1,7 @@
 /* 
-  TABLEAU DE BORD COV OPTIMIZER - STYLE MINIMALISTE MODERNE (Linear / Vercel / Apple UI)
-  Dark Theme Sobre, Aéré et Typographique
+  TABLEAU DE BORD COC OPTIMIZER
+  APPLE TYPE GLASSMORPHISM & LIQUID GLASS DESIGN SYSTEM
+  Inspiré de visionOS, macOS Sonoma & iOS 18 Glass UI
 */
 
 :root {
@@ -9,27 +10,33 @@
   --sal: env(safe-area-inset-left, 0px);
   --sar: env(safe-area-inset-right, 0px);
   
-  /* Palette Sobre Zinc / Neutral */
-  --bg-primary: #09090b;
-  --bg-surface: rgba(18, 18, 23, 0.7);
-  --bg-surface-card: rgba(24, 24, 29, 0.6);
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-hover: rgba(255, 255, 255, 0.12);
+  /* Palette Apple Deep Obsidian & Liquid Light */
+  --bg-obsidian: #070709;
+  --glass-surface-panel: rgba(18, 18, 28, 0.58);
+  --glass-surface-card: rgba(25, 25, 38, 0.46);
+  --glass-surface-hover: rgba(35, 35, 52, 0.6);
   
-  /* Accents d'action discrets */
-  --accent-blue: #38bdf8;
-  --accent-gold: #f59e0b;
-  --accent-purple: #a855f7;
-  --accent-emerald: #10b981;
-  --accent-rose: #f43f5e;
+  /* Specular Rims & Refractions */
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-subtle: rgba(255, 255, 255, 0.08);
+  --glass-border-highlight: rgba(255, 255, 255, 0.25);
+  
+  /* Liquid Accents */
+  --liquid-cyan: #38bdf8;
+  --liquid-indigo: #6366f1;
+  --liquid-violet: #a855f7;
+  --liquid-amber: #f59e0b;
+  --liquid-emerald: #10b981;
+  --liquid-rose: #f43f5e;
   
   /* Typographie */
-  --text-primary: #f4f4f5;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
   
-  --radius-card: 14px;
-  --radius-sm: 8px;
+  --radius-panel: 22px;
+  --radius-card: 16px;
+  --radius-sm: 10px;
 }
 
 /* Reset & Global */
@@ -46,13 +53,13 @@ html {
   max-width: 100vw;
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  background-color: var(--bg-primary);
+  background-color: var(--bg-obsidian);
 }
 
 body {
-  background-color: var(--bg-primary);
+  background-color: var(--bg-obsidian);
   color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
   min-height: 100vh;
   min-height: 100dvh;
   width: 100%;
@@ -67,47 +74,173 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Panneaux & Cartes Minimalistes */
+/* ==========================================================================
+   LIQUID GLASS AMBIENT BACKGROUND (visionOS / macOS Ambient Light)
+   ========================================================================== */
+.liquid-bg-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+  background: radial-gradient(circle at 50% 0%, #0d111c 0%, #070709 100%);
+}
+
+.liquid-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(95px);
+  opacity: 0.45;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.liquid-orb-1 {
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.4) 0%, rgba(99, 102, 241, 0.2) 60%, transparent 80%);
+  top: -120px;
+  left: -80px;
+  animation: liquidDrift1 22s ease-in-out infinite alternate;
+}
+
+.liquid-orb-2 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, rgba(56, 189, 248, 0.15) 70%, transparent 80%);
+  top: 25%;
+  right: -140px;
+  animation: liquidDrift2 26s ease-in-out infinite alternate;
+}
+
+.liquid-orb-3 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.25) 0%, rgba(139, 92, 246, 0.2) 70%, transparent 80%);
+  bottom: 10%;
+  left: -100px;
+  animation: liquidDrift3 28s ease-in-out infinite alternate;
+}
+
+.liquid-orb-4 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, rgba(16, 185, 129, 0.15) 70%, transparent 80%);
+  top: 60%;
+  right: 15%;
+  animation: liquidDrift4 24s ease-in-out infinite alternate;
+}
+
+.liquid-noise {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(7, 7, 9, 0.6) 100%);
+  pointer-events: none;
+}
+
+@keyframes liquidDrift1 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(80px, 90px, 0) scale(1.15); }
+}
+
+@keyframes liquidDrift2 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(-90px, 70px, 0) scale(1.12); }
+}
+
+@keyframes liquidDrift3 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(70px, -60px, 0) scale(1.18); }
+}
+
+@keyframes liquidDrift4 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(-60px, -80px, 0) scale(1.08); }
+}
+
+/* ==========================================================================
+   APPLE GLASS PANELS & CARDS (Frosted Liquid Glass)
+   ========================================================================== */
 .panel-minimal {
-  background: var(--bg-surface);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
+  background: var(--glass-surface-panel);
+  backdrop-filter: blur(30px) saturate(190%) contrast(102%);
+  -webkit-backdrop-filter: blur(30px) saturate(190%) contrast(102%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-panel);
   position: relative;
   overflow: hidden;
+  isolation: isolate;
+  transform: translateZ(0);
+  box-shadow: 
+    0 24px 48px -12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.35);
 }
 
 .card-minimal {
-  background: var(--bg-surface-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-subtle);
+  background: var(--glass-surface-card);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border-subtle);
   border-radius: var(--radius-card);
-  transition: border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transform: translateZ(0);
+  box-shadow: 
+    0 10px 30px -10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.25s ease, 
+              background-color 0.25s ease, 
+              box-shadow 0.25s ease;
+}
+
+/* Reflet spéculaire supérieur (Liquid Sheen) */
+.card-minimal::before, .panel-minimal::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 1;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .card-minimal:hover {
-    border-color: var(--border-hover);
+    background: var(--glass-surface-hover);
+    border-color: var(--glass-border-highlight);
+    transform: translateY(-2px);
+    box-shadow: 
+      0 16px 36px -10px rgba(0, 0, 0, 0.5),
+      0 0 20px rgba(56, 189, 248, 0.1),
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
   }
 }
 
-/* Contrôles tactiles & Ergonomie Mobile (>= 44px) */
+/* ==========================================================================
+   LIQUID GLASS BUTTONS & CONTROLS (Tactile & Elastic)
+   ========================================================================== */
 button, input, select, textarea, a {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
 .btn-minimal {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
   color: var(--text-primary);
   border-radius: var(--radius-sm);
-  padding: 8px 16px;
+  padding: 8px 18px;
   font-size: 13px;
   font-weight: 500;
-  transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -115,90 +248,158 @@ button, input, select, textarea, a {
   cursor: pointer;
   min-height: 44px;
   min-width: 44px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
 }
 
 .btn-minimal:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--border-hover);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--glass-border-highlight);
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.btn-minimal:active {
+  transform: scale(0.96);
 }
 
 .btn-primary-minimal {
-  background: #2563eb;
-  border: 1px solid #3b82f6;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.85) 0%, rgba(99, 102, 241, 0.85) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: #ffffff;
+  box-shadow: 
+    0 8px 24px rgba(14, 165, 233, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4);
 }
 
 .btn-primary-minimal:hover {
-  background: #1d4ed8;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.95) 0%, rgba(79, 70, 229, 0.95) 100%);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 
+    0 10px 28px rgba(14, 165, 233, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
 }
 
+/* ==========================================================================
+   LIQUID FILTER PILLS (Segmented Glass Controls)
+   ========================================================================== */
 .filter-pill {
-  min-height: 38px;
-  padding: 6px 14px;
+  min-height: 40px;
+  padding: 8px 16px;
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 500;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border-subtle);
   color: var(--text-secondary);
-  transition: all 0.15s ease;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .filter-pill.active {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: var(--glass-border-highlight);
   color: #ffffff;
+  box-shadow: 
+    0 4px 14px rgba(0, 0, 0, 0.3),
+    0 0 12px rgba(56, 189, 248, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35);
 }
 
 .filter-pill:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
+  border-color: var(--glass-border);
 }
 
-/* Barres de progression ultra-fines */
+/* ==========================================================================
+   LIQUID PROGRESS BARS (Glossy Fluid Tracks)
+   ========================================================================== */
 .progress-bar-slim {
-  height: 5px;
+  height: 6px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.05);
   overflow: hidden;
   width: 100%;
+  position: relative;
 }
 
 .progress-fill {
   height: 100%;
   border-radius: 9999px;
-  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Zone Drag & Drop Minimaliste */
+.progress-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: inherit;
+}
+
+/* ==========================================================================
+   DROPZONE LIQUID GLASS
+   ========================================================================== */
 .dropzone-minimal {
-  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--glass-border);
   border-radius: var(--radius-card);
-  transition: all 0.2s ease;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   cursor: pointer;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.dropzone-minimal.dragover {
-  border-color: var(--accent-blue);
-  background: rgba(56, 189, 248, 0.03);
+.dropzone-minimal:hover, .dropzone-minimal.dragover {
+  border-color: var(--liquid-cyan);
+  background: rgba(56, 189, 248, 0.05);
+  box-shadow: 
+    0 8px 24px rgba(56, 189, 248, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
-/* Scrollbars épurées */
+/* ==========================================================================
+   SCROLLBARS APPLE STYLE
+   ========================================================================== */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: content-box;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.28);
 }

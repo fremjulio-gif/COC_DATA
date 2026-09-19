@@ -29,30 +29,42 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Styles Minimalistes -->
+  <!-- Anime.js v4 UMD (Creative Motion Engine) -->
+  <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script>
+
+  <!-- Styles Minimalistes & Apple Liquid Glass -->
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="selection:bg-zinc-800 selection:text-white">
+<body class="selection:bg-cyan-500/20 selection:text-cyan-200">
+
+  <!-- Liquid Glass Ambient Background Orbs (Apple VisionOS / macOS Sonoma style) -->
+  <div class="liquid-bg-container fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+    <div class="liquid-orb liquid-orb-1"></div>
+    <div class="liquid-orb liquid-orb-2"></div>
+    <div class="liquid-orb liquid-orb-3"></div>
+    <div class="liquid-orb liquid-orb-4"></div>
+    <div class="liquid-noise"></div>
+  </div>
 
   <!-- Notifications Toast -->
   <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- Modal Coller JSON -->
-  <div id="modal-paste" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-    <div class="panel-minimal w-full max-w-xl p-6 border border-zinc-800 shadow-2xl">
-      <div class="flex items-center justify-between pb-3 border-b border-zinc-800">
+  <div id="modal-paste" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
+    <div class="panel-minimal w-full max-w-xl p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
         <h3 class="text-sm font-semibold text-zinc-100 flex items-center gap-2">
           <i data-lucide="file-code" class="w-4 h-4 text-zinc-400"></i>
           <span>Importer un état JSON</span>
         </h3>
-        <button id="btn-close-modal" class="text-zinc-400 hover:text-white p-1">
+        <button id="btn-close-modal" class="text-zinc-400 hover:text-white p-1 rounded-lg transition-colors">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
       <p class="text-xs text-zinc-400 mt-3 leading-relaxed">
         Collez la structure JSON brute exportée depuis le jeu ou l'API pour recalculer l'ensemble du tableau de bord.
       </p>
-      <textarea id="textarea-json" rows="9" class="w-full mt-3 p-3 bg-zinc-950 border border-zinc-800 rounded-lg font-mono text-xs text-zinc-300 focus:outline-none focus:border-zinc-600 transition-colors" placeholder="{ 'tag': '#...', 'buildings': [...] }"></textarea>
+      <textarea id="textarea-json" rows="9" class="w-full mt-3 p-3 bg-black/40 border border-white/10 rounded-xl font-mono text-xs text-zinc-300 focus:outline-none focus:border-cyan-400/50 transition-colors" placeholder="{ 'tag': '#...', 'buildings': [...] }"></textarea>
       <div class="flex items-center justify-end gap-3 mt-4">
         <button id="btn-apply-paste" class="btn-minimal btn-primary-minimal text-xs font-medium">
           Appliquer et Recalculer
@@ -61,8 +73,8 @@
     </div>
   </div>
 
-  <!-- Header Épuré -->
-  <header class="sticky top-0 z-40 backdrop-blur-xl bg-zinc-950/80 border-b border-zinc-800/80 w-full" style="padding-top: env(safe-area-inset-top);">
+  <!-- Header Épuré Apple Liquid Glass -->
+  <header class="sticky top-0 z-40 backdrop-blur-2xl bg-zinc-950/70 border-b border-white/[0.08] w-full" style="padding-top: env(safe-area-inset-top);">
     <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
       <div class="flex items-center gap-3 min-w-0">
         <div class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700/60 flex items-center justify-center text-zinc-200 text-sm font-mono font-bold flex-shrink-0">

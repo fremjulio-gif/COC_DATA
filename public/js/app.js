@@ -138,6 +138,19 @@ function setupEventListeners() {
       });
     });
   }
+
+  // Feedback tactile élastique Anime.js v4 (Spring juicy physics)
+  document.addEventListener("pointerdown", (e) => {
+    const target = e.target.closest(".btn-minimal, .filter-pill, #btn-sync-api, #btn-copy-army, #btn-paste-modal");
+    if (target && window.anime && window.anime.animate) {
+      const { animate, spring } = window.anime;
+      animate(target, {
+        scale: [1, 0.94, 1],
+        duration: 320,
+        ease: spring({ bounce: 0.55, stiffness: 320, damping: 12 })
+      });
+    }
+  });
 }
 
 /**
@@ -264,6 +277,9 @@ function loadVillageData(data) {
   }
 
   initLucide();
+
+  // Animation élastique d'apparition Anime.js v4
+  playLiquidEntranceAnimations(appState.analysis);
 }
 
 /**
@@ -670,6 +686,18 @@ function renderEquipmentList(filter) {
       </div>
     `;
   }).join("");
+
+  // Anime.js v4 Staggered Spring pour la grille d'équipements
+  if (window.anime && window.anime.animate) {
+    const { animate, spring, stagger } = window.anime;
+    animate('#equipment-grid > *', {
+      opacity: [0, 1],
+      translateY: [10, 0],
+      scale: [0.97, 1],
+      delay: stagger(20, { from: 'start' }),
+      ease: spring({ bounce: 0.35, stiffness: 160, damping: 14 })
+    });
+  }
 }
 
 /**
@@ -1230,4 +1258,91 @@ function showToast(message, type = "info") {
     toast.classList.add("translate-y-2", "opacity-0");
     setTimeout(() => toast.remove(), 300);
   }, 3500);
+}
+
+/**
+ * Animations Liquid Glass & Entrée Élastique (Anime.js v4 Creative Motion)
+ * Conforme aux règles strictes du SKILL.md (WAAPI + JS Engine + Spring Physics)
+ */
+function playLiquidEntranceAnimations(analysis) {
+  if (!window.anime || !window.anime.animate) return;
+
+  const { animate, spring, stagger, waapi } = window.anime;
+
+  // 1. MOTEUR WAAPI (waapi.animate) : Apparition élastique & organique des cartes
+  // Compositor thread 60/120 FPS (zéro saccade, performance maximale)
+  try {
+    const cards = document.querySelectorAll(".card-minimal, .panel-minimal");
+    if (cards.length > 0) {
+      if (waapi && waapi.animate) {
+        waapi.animate(cards, {
+          opacity: [0, 1],
+          transform: ["translateY(16px) scale(0.98)", "translateY(0px) scale(1)"],
+          duration: 480,
+          delay: stagger(30, { from: "start" }),
+          ease: "cubic-bezier(0.16, 1, 0.3, 1)"
+        });
+      } else {
+        animate(cards, {
+          opacity: [0, 1],
+          translateY: [16, 0],
+          scale: [0.98, 1],
+          delay: stagger(30, { from: "start" }),
+          ease: spring({ bounce: 0.35, stiffness: 140, damping: 14 })
+        });
+      }
+    }
+  } catch (err) {
+    console.debug("Anime.js WAAPI entrance notice:", err);
+  }
+
+  // 2. MOTEUR JS (animate) : Compteurs numériques fluides pour les KPIs clés
+  try {
+    // A. Compteur % Remparts
+    const wallsPctEl = document.getElementById("kpi-walls-pct");
+    if (wallsPctEl && analysis.walls) {
+      const targetWalls = analysis.walls.completionPercentage;
+      const counterWalls = { val: 0 };
+      animate(counterWalls, {
+        val: targetWalls,
+        duration: 900,
+        ease: "outExpo",
+        onUpdate: () => {
+          wallsPctEl.textContent = `${counterWalls.val.toFixed(1)}%`;
+        }
+      });
+    }
+
+    // B. Compteur Hero Power Index
+    const heroIndexEl = document.getElementById("kpi-hero-index");
+    if (heroIndexEl && analysis.heroes) {
+      const targetHero = analysis.heroes.globalHeroIndex;
+      const counterHero = { val: 0 };
+      animate(counterHero, {
+        val: targetHero,
+        duration: 850,
+        ease: "outExpo",
+        onUpdate: () => {
+          heroIndexEl.textContent = `${Math.round(counterHero.val)}%`;
+        }
+      });
+    }
+
+    // C. Compteur Jours Restants Prévisionnels
+    const countdownEl = document.getElementById("forecast-kpi-countdown");
+    if (countdownEl && analysis.trajectory?.forecasting?.metrics) {
+      const targetDays = analysis.trajectory.forecasting.metrics.optimalDaysToTarget;
+      const counterDays = { val: 0 };
+      animate(counterDays, {
+        val: targetDays,
+        duration: 800,
+        ease: "outExpo",
+        onUpdate: () => {
+          countdownEl.textContent = `${Math.round(counterDays.val)} jours`;
+        }
+      });
+    }
+  } catch (err) {
+    console.debug("Anime.js JS counter animation notice:", err);
+  }
 }
