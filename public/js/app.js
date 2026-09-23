@@ -73,9 +73,12 @@ function setupEventListeners() {
     }
   }
 
-  // Écouteur de redimensionnement d'écran (orientation mobile)
+  // Écouteur de redimensionnement d'écran (orientation mobile & desktop, ignore le scroll toolbar)
   let resizeTimer;
+  let lastWindowWidth = window.innerWidth;
   window.addEventListener("resize", () => {
+    if (window.innerWidth === lastWindowWidth) return;
+    lastWindowWidth = window.innerWidth;
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
       if (appState.analysis) {
@@ -732,7 +735,7 @@ function renderActiveStrategy(strategyKey = "farm") {
 
   // Construction du contenu dynamique en 3 cartes minimalistes
   container.innerHTML = `
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
       
       <!-- Carte 1 : Composition (Troupes, Sorts & CDC) -->
       <div class="space-y-3">
@@ -834,13 +837,13 @@ function renderActiveStrategy(strategyKey = "farm") {
     </div>
   `;
 
-  // Animation Anime.js v4 d'apparition fluide
-  if (window.anime && window.anime.animate) {
+  // Animation Anime.js v4 d'apparition fluide (sans flash d'opacité)
+  if (window.innerWidth >= 640 && window.anime && window.anime.animate) {
     const { animate } = window.anime;
     animate("#strategy-content-container", {
-      opacity: [0, 1],
-      translateY: [8, 0],
-      duration: 300,
+      opacity: [0.85, 1],
+      translateY: [6, 0],
+      duration: 220,
       ease: "outQuad"
     });
   }
@@ -1250,15 +1253,14 @@ function renderEquipmentList(filter) {
     `;
   }).join("");
 
-  // Anime.js v4 Staggered Spring pour la grille d'équipements
-  if (window.anime && window.anime.animate) {
+  // Anime.js v4 Staggered Spring pour la grille d'équipements (sur desktop uniquement pour préserver la mémoire VRAM mobile)
+  if (window.innerWidth >= 640 && window.anime && window.anime.animate) {
     const { animate, spring, stagger } = window.anime;
     animate('#equipment-grid > *', {
-      opacity: [0, 1],
-      translateY: [10, 0],
-      scale: [0.97, 1],
-      delay: stagger(20, { from: 'start' }),
-      ease: spring({ bounce: 0.35, stiffness: 160, damping: 14 })
+      opacity: [0.85, 1],
+      translateY: [6, 0],
+      delay: stagger(15, { from: 'start' }),
+      ease: spring({ bounce: 0.25, stiffness: 180, damping: 14 })
     });
   }
 }
@@ -1860,35 +1862,42 @@ function showToast(message, type = "info") {
  * Animations Liquid Glass & Entrée Élastique (Anime.js v4 Creative Motion)
  * Conforme aux règles strictes du SKILL.md (WAAPI + JS Engine + Spring Physics)
  */
+let hasEntranceAnimated = false;
+
 function playLiquidEntranceAnimations(analysis) {
   if (!window.anime || !window.anime.animate) return;
 
   const { animate, spring, stagger, waapi } = window.anime;
 
-  // 1. MOTEUR WAAPI (waapi.animate) : Apparition fluide des sections de premier niveau
-  // (Évite les conflits de re-rasterisation GPU/WebKit qui effaçaient les canvas sur smartphone)
-  try {
-    const topSections = document.querySelectorAll("main > section, main > div");
-    if (topSections.length > 0) {
-      if (waapi && waapi.animate) {
-        waapi.animate(topSections, {
-          opacity: [0, 1],
-          transform: ["translateY(14px)", "translateY(0px)"],
-          duration: 450,
-          delay: stagger(35, { from: "start" }),
-          ease: "cubic-bezier(0.16, 1, 0.3, 1)"
-        });
-      } else {
-        animate(topSections, {
-          opacity: [0, 1],
-          translateY: [14, 0],
-          delay: stagger(35, { from: "start" }),
-          ease: spring({ bounce: 0.3, stiffness: 140, damping: 14 })
-        });
+  // 1. MOTEUR WAAPI (waapi.animate) : Apparition fluide UNIQUEMENT au premier montage
+  // Évite impérativement de masquer à opacity: 0 sur mobile où WebKit iOS peut figer les fenêtres hors-champ !
+  if (!hasEntranceAnimated) {
+    hasEntranceAnimated = true;
+    try {
+      const isMobile = window.innerWidth < 640;
+      const topSections = document.querySelectorAll("main > section, main > div");
+      if (topSections.length > 0 && !isMobile) {
+        if (waapi && waapi.animate) {
+          const anim = waapi.animate(topSections, {
+            opacity: [0.85, 1],
+            transform: ["translateY(8px)", "translateY(0px)"],
+            duration: 380,
+            delay: stagger(20, { from: "start" }),
+            ease: "cubic-bezier(0.16, 1, 0.3, 1)"
+          });
+          if (anim && anim.finished) {
+            anim.finished.then(() => {
+              topSections.forEach(s => {
+                s.style.opacity = "";
+                s.style.transform = "";
+              });
+            }).catch(() => {});
+          }
+        }
       }
+    } catch (err) {
+      console.debug("Anime.js entrance notice:", err);
     }
-  } catch (err) {
-    console.debug("Anime.js entrance notice:", err);
   }
 
   // 2. MOTEUR JS (animate) : Compteurs numériques fluides pour les KPIs clés

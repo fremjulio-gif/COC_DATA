@@ -50,8 +50,8 @@
   <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- Modal Coller JSON -->
-  <div id="modal-paste" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
-    <div class="panel-minimal w-full max-w-xl p-6 shadow-2xl">
+  <div id="modal-paste" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4">
+    <div class="panel-minimal w-full max-w-xl p-4 sm:p-6 shadow-2xl max-h-[88dvh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-white/10">
         <h3 class="text-sm font-semibold text-zinc-100 flex items-center gap-2">
           <i data-lucide="file-code" class="w-4 h-4 text-zinc-400"></i>
@@ -64,7 +64,7 @@
       <p class="text-xs text-zinc-400 mt-3 leading-relaxed">
         Collez la structure JSON brute exportée depuis le jeu ou l'API pour recalculer l'ensemble du tableau de bord.
       </p>
-      <textarea id="textarea-json" rows="9" class="w-full mt-3 p-3 bg-black/40 border border-white/10 rounded-xl font-mono text-xs text-zinc-300 focus:outline-none focus:border-cyan-400/50 transition-colors" placeholder="{ 'tag': '#...', 'buildings': [...] }"></textarea>
+      <textarea id="textarea-json" rows="8" class="w-full mt-3 p-3 bg-black/40 border border-white/10 rounded-xl font-mono text-xs text-zinc-300 focus:outline-none focus:border-cyan-400/50 transition-colors" placeholder="{ 'tag': '#...', 'buildings': [...] }"></textarea>
       <div class="flex items-center justify-end gap-3 mt-4">
         <button id="btn-apply-paste" class="btn-minimal btn-primary-minimal text-xs font-medium">
           Appliquer et Recalculer
@@ -74,8 +74,8 @@
   </div>
 
   <!-- Modal Synchronisation Inter-Appareils (Desktop <-> Mobile) -->
-  <div id="modal-sync" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
-    <div class="panel-minimal w-full max-w-lg p-6 shadow-2xl space-y-4">
+  <div id="modal-sync" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4">
+    <div class="panel-minimal w-full max-w-lg p-4 sm:p-6 shadow-2xl space-y-3 sm:space-y-4 max-h-[88dvh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-white/10">
         <h3 class="text-sm font-semibold text-zinc-100 flex items-center gap-2">
           <i data-lucide="smartphone" class="w-4 h-4 text-cyan-400"></i>
@@ -165,7 +165,7 @@
   </header>
 
   <!-- Conteneur Principal Aéré & Responsive -->
-  <main class="w-full max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8 sm:space-y-10">
+  <main class="w-full max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-4 sm:space-y-6 lg:space-y-8">
 
     <!-- 1. SECTION KPIS ÉPURÉS (2 cols mobile, 4 cols desktop) -->
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
@@ -243,9 +243,9 @@
     <div id="anti-rush-alert-container"></div>
 
     <!-- 3. TRAJECTOIRE & PRÉVISIONS -->
-    <section id="trajectory-section" class="panel-minimal p-6 sm:p-8 space-y-6">
+    <section id="trajectory-section" class="panel-minimal p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
       
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.08] gap-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 sm:pb-4 border-b border-white/[0.08] gap-3">
         <div>
           <h3 class="text-base font-semibold text-zinc-100 flex items-center gap-2">
             <span>Trajectoire & Prévisions</span>
@@ -264,12 +264,12 @@
       </div>
 
       <!-- Synthèse Prévisionnelle (Compte à rebours épuré) -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
         
-        <div class="card-minimal p-4 flex flex-col justify-between">
+        <div class="card-minimal p-3.5 sm:p-4 flex flex-col justify-between">
           <div class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Seuil HDV 12 Sain</div>
           <div class="mt-2">
-            <div id="forecast-kpi-countdown" class="text-3xl font-semibold text-zinc-100 font-mono tracking-tight">53 jours</div>
+            <div id="forecast-kpi-countdown" class="text-2xl sm:text-3xl font-semibold text-zinc-100 font-mono tracking-tight">53 jours</div>
             <p class="text-xs text-emerald-400 mt-1">2 ouvriers + Apprenti Ouvrier</p>
           </div>
           <div class="mt-3 pt-2.5 border-t border-white/[0.08] text-[11px] text-zinc-400">
@@ -277,10 +277,10 @@
           </div>
         </div>
 
-        <div class="card-minimal p-4 flex flex-col justify-between">
+        <div class="card-minimal p-3.5 sm:p-4 flex flex-col justify-between">
           <div class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Temps Ouvrier Héros</div>
           <div class="mt-2">
-            <div id="forecast-metric-builder-days" class="text-3xl font-semibold text-amber-400 font-mono tracking-tight">232 j</div>
+            <div id="forecast-metric-builder-days" class="text-2xl sm:text-3xl font-semibold text-amber-400 font-mono tracking-tight">232 j</div>
             <p class="text-xs text-zinc-400 mt-1">Objectif 45 / 45 / 18 (300j pour 100%)</p>
           </div>
           <div class="mt-3 pt-2.5 border-t border-white/[0.08] text-[11px] text-zinc-400">
@@ -288,10 +288,10 @@
           </div>
         </div>
 
-        <div class="card-minimal p-4 flex flex-col justify-between">
+        <div class="card-minimal p-3.5 sm:p-4 flex flex-col justify-between">
           <div class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Rythme Standard</div>
           <div class="mt-2">
-            <div id="forecast-metric-standard-days" class="text-3xl font-semibold text-zinc-300 font-mono tracking-tight">108 j</div>
+            <div id="forecast-metric-standard-days" class="text-2xl sm:text-3xl font-semibold text-zinc-300 font-mono tracking-tight">108 j</div>
             <p class="text-xs text-zinc-400 mt-1">Avec latence ouvriers (-35%)</p>
           </div>
           <div class="mt-3 pt-2.5 border-t border-white/[0.08] text-[11px] text-zinc-400">
@@ -302,10 +302,10 @@
       </div>
 
       <!-- Les 2 Graphiques Chart.js -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-6 pt-1 sm:pt-2">
         
         <!-- Graphique 1 : Historique -->
-        <div class="card-minimal p-5 space-y-4">
+        <div class="card-minimal p-3.5 sm:p-5 space-y-3 sm:space-y-4">
           <div class="flex items-center justify-between">
             <div>
               <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Progression (180 jours)</h4>
@@ -319,7 +319,7 @@
         </div>
 
         <!-- Graphique 2 : Prévisions -->
-        <div class="card-minimal p-5 space-y-4">
+        <div class="card-minimal p-3.5 sm:p-5 space-y-3 sm:space-y-4">
           <div class="flex items-center justify-between">
             <div>
               <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Projection de Maxage</h4>
@@ -337,8 +337,8 @@
     </section>
 
     <!-- 4. CHANTIERS & OUVRIERS EN COURS -->
-    <section class="panel-minimal p-6 sm:p-8 space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.08] gap-3">
+    <section class="panel-minimal p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 sm:pb-4 border-b border-white/[0.08] gap-3">
         <div>
           <h3 class="text-base font-semibold text-zinc-100">Chantiers & Recherches</h3>
           <p class="text-xs text-zinc-400 mt-0.5">5 comptes à rebours & disponibilité des assistants en direct.</p>
@@ -358,23 +358,23 @@
           <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Assistants Quotidiens</h4>
           <span class="text-[11px] text-zinc-400">Décompte de recharge en direct</span>
         </div>
-        <div id="helpers-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div id="helpers-grid" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
           <!-- Rendu dynamique par app.js -->
         </div>
       </div>
 
       <!-- Chantiers Principaux -->
-      <div class="space-y-3 pt-2">
+      <div class="space-y-3 pt-1 sm:pt-2">
         <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Ouvriers & Laboratoire</h4>
-        <div id="active-upgrades-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div id="active-upgrades-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
           <!-- Rendu dynamique par app.js -->
         </div>
       </div>
     </section>
 
     <!-- 5. ÉQUIPEMENTS DE HÉROS & PALIERS MULTIPLES DE 3 -->
-    <section class="panel-minimal p-6 sm:p-8 space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.08] gap-3">
+    <section class="panel-minimal p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 sm:pb-4 border-b border-white/[0.08] gap-3">
         <div>
           <h3 class="text-base font-semibold text-zinc-100">Équipements</h3>
           <p class="text-xs text-zinc-400 mt-0.5">Paliers d'aptitude multiples de 3 (x3).</p>
@@ -392,16 +392,16 @@
         </div>
       </div>
 
-      <div id="equipment-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div id="equipment-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
         <!-- Rendu dynamique par app.js -->
       </div>
     </section>
 
     <!-- 6. STATISTIQUES GLOBALES HÉROS & REMPARTS -->
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
       
       <!-- Graphique Héros -->
-      <div class="lg:col-span-2 panel-minimal p-6 space-y-4">
+      <div class="lg:col-span-2 panel-minimal p-4 sm:p-6 space-y-3 sm:space-y-4">
         <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
           <div>
             <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Héros vs Plafond HDV 11</h4>
@@ -415,7 +415,7 @@
       </div>
 
       <!-- Graphique Remparts -->
-      <div class="panel-minimal p-6 space-y-4">
+      <div class="panel-minimal p-4 sm:p-6 space-y-3 sm:space-y-4">
         <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
           <div>
             <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-300">Remparts</h4>
@@ -423,7 +423,7 @@
           </div>
           <span class="text-xs font-mono text-sky-400">64.7% Niv. 12</span>
         </div>
-        <div class="chart-container flex items-center justify-center">
+        <div class="chart-container">
           <canvas id="chart-walls"></canvas>
         </div>
       </div>
@@ -431,8 +431,8 @@
     </section>
 
     <!-- 7. STATION D'ARTISANAT DÉFENSIF (CRAFTED DEFENSE - v18.600.5) -->
-    <section id="crafted-defense-section" class="panel-minimal p-6 sm:p-8 space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.08] gap-4">
+    <section id="crafted-defense-section" class="panel-minimal p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 sm:pb-4 border-b border-white/[0.08] gap-3 sm:gap-4">
         <div>
           <div class="flex items-center gap-2.5">
             <h3 class="text-base font-semibold text-zinc-100 tracking-tight">Station d'Artisanat Défensif</h3>
@@ -447,12 +447,12 @@
           </span>
         </div>
       </div>
-      <div id="crafted-defense-types-container" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+      <div id="crafted-defense-types-container" class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4"></div>
     </section>
 
     <!-- 8. ARMÉE & RECHERCHES DU LABORATOIRE (OUVRABLE / FERMABLE) -->
-    <section id="army-lab-section" class="panel-minimal p-6 sm:p-8 space-y-6">
-      <div id="army-lab-header" class="flex items-center justify-between pb-4 border-b border-white/[0.08] cursor-pointer select-none group">
+    <section id="army-lab-section" class="panel-minimal p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
+      <div id="army-lab-header" class="flex items-center justify-between pb-3 sm:pb-4 border-b border-white/[0.08] cursor-pointer select-none group">
         <div>
           <div class="flex items-center gap-2.5">
             <h3 class="text-base font-semibold text-zinc-100 group-hover:text-cyan-300 transition-colors">Laboratoire & Armée</h3>
@@ -469,24 +469,24 @@
         </button>
       </div>
 
-      <div id="army-lab-content" class="grid grid-cols-1 lg:grid-cols-2 gap-6 transition-all duration-300">
+      <div id="army-lab-content" class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 transition-all duration-300">
         <!-- Troupes -->
-        <div class="space-y-3">
+        <div class="space-y-2.5 sm:space-y-3">
           <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Troupes</h4>
-          <div id="army-units-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-96 overflow-y-auto pr-1"></div>
+          <div id="army-units-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-72 sm:max-h-96 overflow-y-auto pr-1"></div>
         </div>
 
         <!-- Sorts -->
-        <div class="space-y-3">
+        <div class="space-y-2.5 sm:space-y-3">
           <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Sorts</h4>
-          <div id="army-spells-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-96 overflow-y-auto pr-1"></div>
+          <div id="army-spells-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-72 sm:max-h-96 overflow-y-auto pr-1"></div>
         </div>
       </div>
     </section>
 
     <!-- 9. HUB MULTI-STRATÉGIES (GDC, CLASSÉ/RUSH, FARM & SANS HÉROS) -->
-    <section id="farm-strategy-section" class="panel-minimal p-6 sm:p-8 space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.08] gap-4">
+    <section id="farm-strategy-section" class="panel-minimal p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 sm:pb-4 border-b border-white/[0.08] gap-3 sm:gap-4">
         <div>
           <div class="flex items-center gap-2.5">
             <h3 class="text-base font-semibold text-zinc-100 tracking-tight">Hub Tactique HDV 11</h3>
@@ -504,19 +504,19 @@
 
       <!-- Sélecteur d'Onglets Minimaliste (Segmented Control) -->
       <div class="flex p-1 bg-zinc-900/60 backdrop-blur-md rounded-xl border border-white/[0.08] overflow-x-auto gap-1 no-scrollbar overscroll-x-contain">
-        <button class="strategy-tab-btn flex-1 min-w-[110px] sm:min-w-[120px] py-2 px-3 rounded-lg text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 active bg-white/10 text-white shadow-sm" data-tab="farm">
+        <button class="strategy-tab-btn flex-1 min-w-[105px] sm:min-w-[120px] py-2 px-3 rounded-lg text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 active bg-white/10 text-white shadow-sm" data-tab="farm">
           <span>🌾</span>
           <span>Farm & Pillage</span>
         </button>
-        <button class="strategy-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-lg text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 text-zinc-400 hover:text-zinc-200" data-tab="gdc">
+        <button class="strategy-tab-btn flex-1 min-w-[110px] sm:min-w-[120px] py-2 px-3 rounded-lg text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 text-zinc-400 hover:text-zinc-200" data-tab="gdc">
           <span>⚔️</span>
           <span>GDC (3 Étoiles)</span>
         </button>
-        <button class="strategy-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-lg text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 text-zinc-400 hover:text-zinc-200" data-tab="rush">
+        <button class="strategy-tab-btn flex-1 min-w-[110px] sm:min-w-[120px] py-2 px-3 rounded-lg text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 text-zinc-400 hover:text-zinc-200" data-tab="rush">
           <span>🏆</span>
           <span>Classé / Rush</span>
         </button>
-        <button class="strategy-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-lg text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 text-zinc-400 hover:text-zinc-200" data-tab="noheroes">
+        <button class="strategy-tab-btn flex-1 min-w-[110px] sm:min-w-[120px] py-2 px-3 rounded-lg text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 text-zinc-400 hover:text-zinc-200" data-tab="noheroes">
           <span>🛠️</span>
           <span>Sans Héros</span>
         </button>
@@ -529,8 +529,8 @@
     </section>
 
     <!-- 10. ZONE DRAG & DROP MINIMALISTE -->
-    <section class="panel-minimal p-6">
-      <div id="dropzone" class="dropzone-minimal p-8 text-center flex flex-col items-center justify-center gap-3">
+    <section class="panel-minimal p-3.5 sm:p-6">
+      <div id="dropzone" class="dropzone-minimal p-5 sm:p-8 text-center flex flex-col items-center justify-center gap-2.5 sm:gap-3">
         <div class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400">
           <i data-lucide="upload" class="w-4 h-4"></i>
         </div>
@@ -538,7 +538,7 @@
           <div class="text-sm font-medium text-zinc-200">Glissez-déposez votre fichier village_state.json</div>
           <div class="text-xs text-zinc-400 mt-0.5">ou sélectionnez un fichier depuis votre appareil</div>
         </div>
-        <button type="button" id="btn-touch-upload" class="btn-minimal text-xs mt-2 font-medium">
+        <button type="button" id="btn-touch-upload" class="btn-minimal text-xs mt-1 sm:mt-2 font-medium">
           <span>Parcourir les fichiers</span>
         </button>
         <input type="file" id="file-input" accept=".json" class="hidden">
@@ -548,7 +548,7 @@
   </main>
 
   <!-- Footer Épuré -->
-  <footer class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-xs text-zinc-400 border-t border-zinc-800/60 mt-12">
+  <footer class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 text-center text-xs text-zinc-400 border-t border-zinc-800/60 mt-6 sm:mt-10">
     <p>CoC Freemium Optimizer • Joueur <span class="font-mono text-zinc-400">#GUQLRP8LV</span> • Données synchronisées</p>
   </footer>
 
