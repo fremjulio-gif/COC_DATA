@@ -2,6 +2,19 @@
  * ANALYSIS.JS - Moteur d'Analyse Freemium & Algorithme d'Optimisation Clash of Clans
  */
 
+// Résolution défensive de COC_DATA pour environnement navigateur ou Node.js
+if (typeof COC_DATA === 'undefined') {
+  if (typeof window !== 'undefined' && window.COC_DATA) {
+    var COC_DATA = window.COC_DATA;
+  } else if (typeof require !== 'undefined') {
+    try {
+      var COC_DATA = require('./coc_data').COC_DATA;
+    } catch (e) {
+      /* noop */
+    }
+  }
+}
+
 const COC_ANALYZER = {
   /**
    * Analyse complète de l'état du village
@@ -17,6 +30,7 @@ const COC_ANALYZER = {
     const equipmentAnalysis = this.analyzeEquipment(villageState.equipment || []);
     const helpersAnalysis = this.analyzeHelpers(villageState.helpers || []);
     const buildersAnalysis = this.analyzeBuilders(villageState.buildings || [], villageState.helpers || [], timestamp, helpersAnalysis);
+    const craftedDefenseAnalysis = this.analyzeCraftedDefense(villageState.buildings || []);
     const armyAnalysis = this.analyzeArmy(villageState.units || [], villageState.spells || []);
     const strategies = this.generateStrategies(heroesAnalysis, wallsAnalysis, armyAnalysis);
     const bbAnalysis = this.analyzeBuilderBase(villageState.buildings2 || [], villageState.heroes2 || [], villageState.units2 || [], timestamp);
@@ -26,11 +40,13 @@ const COC_ANALYZER = {
       tag: villageState.tag || "#GUQLRP8LV",
       timestamp: timestamp,
       thLevel: 11,
+      version: "18.600.5",
       heroes: heroesAnalysis,
       walls: wallsAnalysis,
       equipment: equipmentAnalysis,
       helpers: helpersAnalysis,
       builders: buildersAnalysis,
+      craftedDefense: craftedDefenseAnalysis,
       army: armyAnalysis,
       strategies: strategies,
       farmStrategy: strategies.farm,
@@ -41,7 +57,7 @@ const COC_ANALYZER = {
   },
 
   /**
-   * Analyse des héros & calcul du retard critique
+   * Analyse des héros & calcul du retard critique (v18.600.5 : 4 Héros dans le Village Principal)
    */
   analyzeHeroes(heroesList) {
     const heroMap = {};
@@ -54,31 +70,35 @@ const COC_ANALYZER = {
     const wardenLvl = heroMap[28000002] || 0;
     const minionPrinceLvl = heroMap[28000006] || 0;
 
-    // Caps HDV 11
+    // Caps HDV 11 (v18.600.5 - Débloqués via Hall des Héros Niv. 5)
     const kingMax = 50;
     const queenMax = 50;
     const wardenMax = 20;
+    const minionPrinceMax = 30;
 
-    const kingDeficit = kingMax - kingLvl;
-    const queenDeficit = queenMax - queenLvl;
-    const wardenDeficit = wardenMax - wardenLvl;
+    const kingDeficit = Math.max(0, kingMax - kingLvl);
+    const queenDeficit = Math.max(0, queenMax - queenLvl);
+    const wardenDeficit = Math.max(0, wardenMax - wardenLvl);
+    const minionPrinceDeficit = Math.max(0, minionPrinceMax - minionPrinceLvl);
 
     const kingPct = Math.round((kingLvl / kingMax) * 100);
     const queenPct = Math.round((queenLvl / queenMax) * 100);
     const wardenPct = Math.round((wardenLvl / wardenMax) * 100);
+    const minionPrincePct = Math.round((minionPrinceLvl / minionPrinceMax) * 100);
 
-    const totalCurrent = kingLvl + queenLvl + wardenLvl;
-    const totalMax = kingMax + queenMax + wardenMax; // 120
-    const globalHeroIndex = Math.round((totalCurrent / totalMax) * 100); // ~48%
+    // Matrice 4 héros cumulés
+    const totalCurrent = kingLvl + queenLvl + wardenLvl + minionPrinceLvl; // 24 + 24 + 10 + 24 = 82
+    const totalMax = kingMax + queenMax + wardenMax + minionPrinceMax; // 50 + 50 + 20 + 30 = 150
+    const globalHeroIndex = Math.round((totalCurrent / totalMax) * 100); // 82 / 150 = 54.7% -> 55%
 
-    // Évaluation du retard critique
-    const isCriticalUnderleveled = (kingPct < 70 || queenPct < 70 || wardenPct < 60);
+    // Évaluation du retard critique sur les 4 héros
+    const isCriticalUnderleveled = (kingPct < 70 || queenPct < 70 || wardenPct < 60 || minionPrincePct < 70);
 
-    // Calcul approximatif des ressources nécessaires pour maxer HDV 11
-    // Moyenne: ~105,000 EN par niveau pour Roi/Reine du lvl 24 à 50
+    // Ressources nécessaires pour maxer HDV 11
     const kingEnNeeded = kingDeficit * 108000;
     const queenEnNeeded = queenDeficit * 115000;
-    const totalDarkElixirNeeded = kingEnNeeded + queenEnNeeded;
+    const minionPrinceEnNeeded = minionPrinceDeficit * 120000;
+    const totalDarkElixirNeeded = kingEnNeeded + queenEnNeeded + minionPrinceEnNeeded;
 
     // Grand Gardien: ~6.5M Élixir rose par niveau du lvl 10 à 20
     const wardenElixirNeeded = wardenDeficit * 6500000;
@@ -87,6 +107,8 @@ const COC_ANALYZER = {
     const kingDays = kingDeficit * 4.5;
     const queenDays = queenDeficit * 4.5;
     const wardenDays = wardenDeficit * 4.0;
+    const minionPrinceDays = minionPrinceDeficit * 4.0;
+    const totalHeroDays = Math.round(kingDays + queenDays + wardenDays + minionPrinceDays);
 
     return {
       king: {
@@ -123,17 +145,22 @@ const COC_ANALYZER = {
         id: 28000006,
         name: "Prince Gargouille",
         level: minionPrinceLvl,
-        maxTh11: 30,
-        deficit: Math.max(0, 30 - minionPrinceLvl),
-        progress: Math.round((minionPrinceLvl / 30) * 100)
+        maxTh11: minionPrinceMax,
+        deficit: minionPrinceDeficit,
+        progress: minionPrincePct,
+        enNeeded: minionPrinceEnNeeded,
+        daysNeeded: Math.round(minionPrinceDays)
       },
+      totalCurrent,
+      totalMax,
+      totalHeroDays,
       globalHeroIndex,
       isCriticalUnderleveled,
       totalDarkElixirNeeded,
       wardenElixirNeeded,
       severity: isCriticalUnderleveled ? "Retard HDV 11" : "Optimal",
-      alertTitle: "Diagnostic Héros : Retard de niveau HDV 11",
-      alertDescription: "Vos héros principaux (Roi 24/50, Reine 24/50, Gardien 10/20) totalisent 58 niveaux sur les 120 requis au plafond HDV 11 (48.3%). Le passage vers l'HDV 12 est recommandé à partir du seuil 45 / 45 / 18 pour conserver une pleine efficacité en attaque et en ligue."
+      alertTitle: "Diagnostic Héros : 4 Héros Actifs (v18.600.5)",
+      alertDescription: `Vos 4 héros (Roi ${kingLvl}/${kingMax}, Reine ${queenLvl}/${queenMax}, Gardien ${wardenLvl}/${wardenMax}, Prince ${minionPrinceLvl}/${minionPrinceMax}) totalisent ${totalCurrent} niveaux sur les ${totalMax} requis au plafond HDV 11 (${globalHeroIndex}%). Le passage vers l'HDV 12 est recommandé à partir du seuil sain 45 / 45 / 18 / 27 (135/150 soit 90%) pour conserver une pleine efficacité en attaque et en ligue.`
     };
   },
 
@@ -188,10 +215,16 @@ const COC_ANALYZER = {
       const distToMilestone = nextMilestone - lvl;
       const maxLvl = meta.maxTh11 || (meta.rarity === "epic" ? 18 : 15);
 
+      const heroKey = meta.hero === "Roi" ? "king" :
+                      meta.hero === "Reine" ? "queen" :
+                      meta.hero === "Gardien" ? "warden" :
+                      (meta.hero === "Prince" || meta.hero === "Prince Gargouille") ? "prince" : "other";
+
       const item = {
         id: eq.data,
         name: meta.name,
         hero: meta.hero,
+        heroKey,
         rarity: meta.rarity,
         icon: meta.icon,
         currentLevel: lvl,
@@ -210,7 +243,7 @@ const COC_ANALYZER = {
         quickWins.push(item);
       }
 
-      // Priorités absolues (Gantelet Géant, Tome Éternel, Flèche Géante, etc.)
+      // Priorités absolues (Gantelet Géant, Tome Éternel, Flèche Géante, Crachat Acide, etc.)
       if (meta.topTier && lvl < maxLvl) {
         topPriorities.push(item);
       }
@@ -238,7 +271,7 @@ const COC_ANALYZER = {
     const activeUpgrades = [];
     let totalBuilders = 5; // Standard 5 ouvriers à l'HDV 11
 
-    // Vérifier si la cabane B.O.B est présente
+    // Vérifier si la cabane B.O.B est présente (6ème ouvrier)
     const bob = buildingsList.find(b => b.data === 1000071);
     if (bob) totalBuilders = 6;
 
@@ -285,8 +318,58 @@ const COC_ANALYZER = {
       busyBuilders,
       freeBuilders,
       allBusy: freeBuilders === 0,
+      hasFreeBuilder: freeBuilders > 0,
+      statusMessage: freeBuilders > 0 ? `${freeBuilders} ouvrier libre (opportunité immédiate)` : "Tous les ouvriers sont occupés",
       activeUpgrades,
       helpers
+    };
+  },
+
+  /**
+   * Analyse de la Station d'Artisanat Défensif (Crafted Defense - v18.600.5)
+   */
+  analyzeCraftedDefense(buildingsList) {
+    const building = (buildingsList || []).find(b => b.data === 1000097);
+    if (!building) {
+      return {
+        available: false,
+        name: "Station d'Artisanat Défensif",
+        activeType: null,
+        types: [],
+        summaryText: "Non construite ou non détectée."
+      };
+    }
+
+    const decoder = (typeof decodeCraftedDefense === "function") 
+      ? decodeCraftedDefense 
+      : (typeof COC_DATA !== "undefined" && COC_DATA.decodeCraftedDefense ? COC_DATA.decodeCraftedDefense : null);
+    const decoded = decoder ? decoder(building) : null;
+    if (!decoded) {
+      return {
+        available: false,
+        name: "Station d'Artisanat Défensif",
+        activeType: null,
+        types: [],
+        summaryText: "Données modulaires en attente."
+      };
+    }
+
+    const activeType = decoded.activeType;
+    const totalModulesLevel = decoded.types.reduce((acc, t) => acc + t.totalLevel, 0);
+    const maxModulesLevel = decoded.types.reduce((acc, t) => acc + t.maxLevel, 0);
+
+    return {
+      available: true,
+      id: 1000097,
+      name: decoded.name,
+      icon: decoded.icon,
+      types: decoded.types,
+      activeType: activeType,
+      activeTypeName: activeType ? activeType.name : "Non définie",
+      totalTypesCount: decoded.totalTypesCount,
+      totalModulesLevel,
+      maxModulesLevel,
+      summaryText: `Configuration active : ${activeType ? activeType.shortName : "Défense modulaire"} (${activeType ? activeType.totalLevel : 0}/30) • 3 modes permutables.`
     };
   },
 
@@ -456,7 +539,7 @@ const COC_ANALYZER = {
   },
 
   /**
-   * Génération du Hub Multi-Stratégies HDV 11 (Farm, GDC, Rush & Sans Héros)
+   * Génération du Hub Multi-Stratégies HDV 11 (Farm, GDC, Rush & Sans Héros - v18.600.5)
    */
   generateStrategies(heroesAnalysis, wallsAnalysis, armyAnalysis) {
     const isSneakyReady = armyAnalysis.sneakyGoblinsUnlocked;
@@ -481,10 +564,10 @@ const COC_ANALYZER = {
         ],
         clanCastle: "Dirigeable ou Lance-bûches + Super Gobelins"
       },
-      keyEquipments: "Flacon d'Invisibilité (Reine 24), Gantelet Géant (Roi 24)",
-      copyText: "76 Super Gobelins, 6 Super Sapeurs, 4 Sorts de Saut, 3 Sorts d'Invisibilité. CDC : Dirigeable ou Lance-bûches avec Super Gobelins. Objectif : Pillage extracteurs et HDV (1400-2200 trophées).",
+      keyEquipments: "Flacon d'Invisibilité (Reine 24), Gantelet Géant (Roi 24), Crachat Acide (Prince 24)",
+      copyText: "76 Super Gobelins, 6 Super Sapeurs, 4 Sorts de Saut, 3 Sorts d'Invisibilité. CDC : Dirigeable ou Lance-bûches avec Super Gobelins. Héros v18 : Soutien aérien du Prince Gargouille (Crachat Acide).",
       tacticalPlan: [
-        "Pillage extérieur : Déposez 1 à 2 Super Gobelins par extracteur/mine plein pour récupérer 80% du butin sans griller l'armée.",
+        "Pillage extérieur : Déposez 1 à 2 Super Gobelins par extracteur/mine et le Prince Gargouille (Crachat Acide) pour sécuriser le butin sans sacrifier de sorts.",
         "Percée centrale : Ouvrez l'accès avec 1 Saut et 1 Sapeur vers la réserve d'élixir noir et l'Hôtel de Ville.",
         "Sécurisation : Posez une Invisibilité sur les gobelins au centre pour raser l'HDV et garantir l'étoile de victoire sans perdre de trophées."
       ],
@@ -501,7 +584,7 @@ const COC_ANALYZER = {
       id: "gdc",
       title: "Guerre de Clans (GDC)",
       icon: "⚔️",
-      subtitle: "Zap Witch (Golems + Sorcières + ZapQuake)",
+      subtitle: "Zap Witch (Golems + Sorcières + Soutien Aérien Prince)",
       difficulty: "Intermédiaire",
       expectedResult: "3 étoiles garanties sur tout HDV 11",
       isReady: true,
@@ -519,12 +602,12 @@ const COC_ANALYZER = {
         ],
         clanCastle: "Lance-bûches (Log Launcher) + Yéti/Boulistes + 1 Rage + 1 Gel"
       },
-      keyEquipments: "Gantelet Géant (Roi 24), Flacon d'Invisibilité (Reine 24), Tome Éternel (Gardien 10)",
-      copyText: "GDC HDV 11 (Zap Witch) : 3 Golems, 14 Sorcières, 4 Sapeurs, 2 Sorciers. Sorts : 8 Foudres, 2 Séismes, 1 Gel. CDC : Lance-bûches + Yéti/Boulistes + 1 Rage + 1 Gel.",
+      keyEquipments: "Gantelet Géant (Roi 24), Flacon d'Invisibilité (Reine 24), Tome Éternel (Gardien 10), Cri Glacial (Prince 24)",
+      copyText: "GDC HDV 11 (Zap Witch + Prince) : 3 Golems, 14 Sorcières, 4 Sapeurs, 2 Sorciers. Sorts : 8 Foudres, 2 Séismes, 1 Gel. CDC : Lance-bûches + Yéti/Boulistes + 1 Rage + 1 Gel. Équipements : Gantelet Géant, Tome Éternel, Cri Glacial.",
       tacticalPlan: [
         "ZapQuake initial : Déposez 4 Foudres + 1 Séisme sur chacune des deux Tours de l'Enfer pour les anéantir avant le déploiement.",
         "Ligne de front : Étalez les 3 Golems sur le flanc côté Aigle Artilleur, suivis immédiatement d'une ligne continue de 14 Sorcières.",
-        "Percée centrale : Lancez le Lance-bûches et vos Héros au centre. Déclenchez le Tome Éternel du Gardien dès l'approche de l'Aigle et du CDC adverse."
+        "Percée & Soutien Aérien : Lancez le Lance-bûches, vos Héros terrestres et le Prince Gargouille en retrait. Déclenchez le Tome Éternel à l'Aigle et le Cri Glacial du Prince pour geler les héros ennemis."
       ],
       efficiencyMetrics: {
         darkElixirPerHour: "Objectif 100% 3 Étoiles",
@@ -539,7 +622,7 @@ const COC_ANALYZER = {
       id: "rush",
       title: "Classé / Rush Trophées",
       icon: "🏆",
-      subtitle: "Electro-Dragons & Blimp Snipe HDV",
+      subtitle: "Electro-Dragons & Blimp Snipe HDV + Prince Escort",
       difficulty: "Facile / Fiable",
       expectedResult: "2 étoiles sécurisées sur n'importe quel HDV (même HDV 12/13)",
       isReady: true,
@@ -555,12 +638,12 @@ const COC_ANALYZER = {
         ],
         clanCastle: "Dirigeable de combat (Battle Blimp) + Super Gobelins ou Super Sorciers + 1 Rage + 1 Invisibilité"
       },
-      keyEquipments: "Tome Éternel (Gardien 10), Flacon d'Invisibilité (Reine 24)",
-      copyText: "Rush HDV 11 : 7 Electro-Dragons, 10 Ballons, 4 Bébés Dragons. Sorts : 3 Rages, 5 Gels. CDC : Dirigeable + Super Gobelins + 1 Rage + 1 Invisibilité.",
+      keyEquipments: "Tome Éternel (Gardien 10), Flacon d'Invisibilité (Reine 24), Crachat Acide (Prince 24)",
+      copyText: "Rush HDV 11 : 7 Electro-Dragons, 10 Ballons, 4 Bébés Dragons. Sorts : 3 Rages, 5 Gels. CDC : Dirigeable + Super Gobelins + 1 Rage + 1 Invisibilité. Équipements : Tome Éternel, Crachat Acide.",
       tacticalPlan: [
         "Traversée protégée : Lancez le Dirigeable avec le Grand Gardien derrière et activez le Tome Éternel pour qu'il traverse indemne jusqu'à l'HDV central.",
         "Sniping HDV : Dès l'impact du Dirigeable sur l'HDV, posez Rage + Invisibilité pour faire tomber l'HDV en 2 secondes (1ère étoile garantie).",
-        "Grattage 50% : Déployez les Electro-Dragons et Bébés Dragons en ligne sur l'extérieur pour dépasser rapidement 50% de destruction (2e étoile validée)."
+        "Grattage 50% : Déployez les Electro-Dragons et le Prince Gargouille en couverture aérienne pour dépasser rapidement 50% de destruction (2e étoile validée)."
       ],
       efficiencyMetrics: {
         darkElixirPerHour: "Gain de trophées constant et garanti",
@@ -592,7 +675,7 @@ const COC_ANALYZER = {
         ],
         clanCastle: "Dirigeable ou Lanceur de pierres + Ballons + 1 Foudre + 1 Gel"
       },
-      keyEquipments: "Non requis (Vos héros sont en amélioration chez les ouvriers)",
+      keyEquipments: "Non requis (Vos 4 héros Roi, Reine, Gardien et Prince sont en chantier)",
       copyText: "Sans Héros HDV 11 : 11 Dragons, 8 Ballons, 2 Bébés Dragons. Sorts : 9 Foudres, 1 Séisme, 1 Gel. CDC : Dirigeable + Ballons + 1 Foudre + 1 Gel.",
       tacticalPlan: [
         "Destruction antiaérienne : Envoyez 3 Foudres sur chaque DAA adverse pour en raser 3 sur 4 dès la première seconde.",
@@ -601,8 +684,8 @@ const COC_ANALYZER = {
       ],
       efficiencyMetrics: {
         darkElixirPerHour: "Zéro dépendance aux héros pour performer",
-        goldElixirPerHour: "Ouvriers 100% occupés sur les héros sans frustration",
-        estimatedHoursForHeroes: "Assure 2 à 3 étoiles en guerre & ligue sans Roi/Reine",
+        goldElixirPerHour: "Vos 4 héros s'améliorent en continu chez les ouvriers",
+        estimatedHoursForHeroes: "Assure 2 à 3 étoiles en guerre & ligue sans aucun héros",
         trophyRange: "Toutes ligues de farm et guerres de clans standard"
       }
     };
@@ -623,14 +706,14 @@ const COC_ANALYZER = {
   },
 
   /**
-   * Calcul du score global de complétion HDV 11
+   * Calcul du score global de complétion HDV 11 (v18.600.5)
    */
   calculateOverallScore(heroes, walls, equipment) {
     const heroWeight = 0.45;
     const wallWeight = 0.30;
     const equipWeight = 0.25;
 
-    const heroScore = heroes.globalHeroIndex; // ~48%
+    const heroScore = heroes.globalHeroIndex; // ~55% (82/150)
     const wallScore = walls.completionPercentage; // ~64.7%
     
     // Equipments score
@@ -653,46 +736,51 @@ const COC_ANALYZER = {
     const kingLvl = heroesAnalysis?.king?.level || 24;
     const queenLvl = heroesAnalysis?.queen?.level || 24;
     const wardenLvl = heroesAnalysis?.warden?.level || 10;
-    const currentHeroSum = kingLvl + queenLvl + wardenLvl; // 58
-    const maxHeroSum = 120; // 50 + 50 + 20
-    const targetHeroSum = 45 + 45 + 18; // 108 (seuil recommandé HDV 12)
+    const minionPrinceLvl = heroesAnalysis?.minionPrince?.level || 24;
+    const currentHeroSum = kingLvl + queenLvl + wardenLvl + minionPrinceLvl; // 82
+    const maxHeroSum = 150; // 50 + 50 + 20 + 30
+    const targetHeroSum = 45 + 45 + 18 + 27; // 135 (seuil recommandé HDV 12 = 90%)
 
     // 1. HISTORIQUE SUR LES 180 DERNIERS JOURS (6 MOIS)
-    // Paliers temporels de J-180 à Aujourd'hui (J0)
     const history = {
       labels: ["J-180 (M1)", "J-150 (M2)", "J-120 (M3)", "J-90 (M4)", "J-60 (M5)", "J-30 (M6)", "Aujourd'hui (J0)"],
       thLevels: [5, 7, 9, 10, 11, 11, 11],
       heroes: {
         king: [0, 5, 12, 18, 22, 24, kingLvl],
         queen: [0, 0, 8, 16, 22, 24, queenLvl],
-        warden: [0, 0, 0, 0, 6, 9, wardenLvl]
+        warden: [0, 0, 0, 0, 6, 9, wardenLvl],
+        minionPrince: [0, 0, 0, 0, 10, 20, minionPrinceLvl]
       },
-      cumulativeHeroes: [0, 5, 20, 34, 50, 57, currentHeroSum],
-      monthlyPace: [5, 7, 17, 14, 16, 7, 1], // Niveaux de héros gagnés par palier de 30 jours
-      averageMonthlyUpgrades: 10.8,
+      cumulativeHeroes: [0, 5, 20, 34, 60, 77, currentHeroSum],
+      monthlyPace: [5, 7, 17, 14, 26, 17, 5],
+      averageMonthlyUpgrades: 13.6,
       accountAgeDays: 180,
-      historicalNote: "Compte créé il y a ~180 jours. Montée ultra-rapide en HDV 11 en rush contrôlé. Le retard des héros provient de cette ascension éclair."
+      historicalNote: "Compte créé il y a ~180 jours. Montée rapide en HDV 11 avec les 4 héros actifs (v18.600.5 via Hall des Héros). 82 niveaux cumulés sur 150."
     };
 
-    // 2. MOTEUR PRÉVISIONNEL (FORECASTING) AVEC IMPACT DES ASSISTANTS
+    // 2. MOTEUR PRÉVISIONNEL (FORECASTING) AVEC IMPACT DES ASSISTANTS & 6 OUVRIERS
     const kingDeficit = Math.max(0, 50 - kingLvl);
     const queenDeficit = Math.max(0, 50 - queenLvl);
     const wardenDeficit = Math.max(0, 20 - wardenLvl);
+    const minionPrinceDeficit = Math.max(0, 30 - minionPrinceLvl);
 
     const kingDaysToMax = Math.round(kingDeficit * 5.0);
     const queenDaysToMax = Math.round(queenDeficit * 5.0);
     const wardenDaysToMax = Math.round(wardenDeficit * 4.0);
-    const totalHeroBuilderDays = kingDaysToMax + queenDaysToMax + wardenDaysToMax; // ~300 jours-ouvrier
+    const minionPrinceDaysToMax = Math.round(minionPrinceDeficit * 4.0);
+    const totalHeroBuilderDays = kingDaysToMax + queenDaysToMax + wardenDaysToMax + minionPrinceDaysToMax; // ~324 jours-ouvrier
 
-    // Déficit pour le passage sain recommandé HDV 12 (Roi 45, Reine 45, Gardien 18)
+    // Déficit pour le passage sain recommandé HDV 12 (Roi 45, Reine 45, Gardien 18, Prince 27)
     const kingDeficitToTarget = Math.max(0, 45 - kingLvl); // 21 niveaux
     const queenDeficitToTarget = Math.max(0, 45 - queenLvl); // 21 niveaux
     const wardenDeficitToTarget = Math.max(0, 18 - wardenLvl); // 8 niveaux
+    const minionPrinceDeficitToTarget = Math.max(0, 27 - minionPrinceLvl); // 3 niveaux
 
     const kingDaysToTarget = Math.round(kingDeficitToTarget * 4.8); // ~101j
     const queenDaysToTarget = Math.round(queenDeficitToTarget * 4.8); // ~101j
     const wardenDaysToTarget = Math.round(wardenDeficitToTarget * 3.8); // ~30j
-    const totalHeroBuilderDaysToTarget = kingDaysToTarget + queenDaysToTarget + wardenDaysToTarget; // ~232 jours-ouvrier
+    const minionPrinceDaysToTarget = Math.round(minionPrinceDeficitToTarget * 4.0); // ~12j
+    const totalHeroBuilderDaysToTarget = kingDaysToTarget + queenDaysToTarget + wardenDaysToTarget + minionPrinceDaysToTarget; // ~244 jours-ouvrier
 
     // Impact des assistants :
     // - Apprenti Ouvrier (Niveau 2) : +2h de travail déduites par jour sur le héros prioritaire.
@@ -702,25 +790,20 @@ const COC_ANALYZER = {
     const totalDailyTimeSavedHours = apprenticeBuilderBoostHours + labAssistantBoostHours; // 5h / jour
 
     // Temps de laboratoire restant pour les troupes/sorts clés (Initialement 58 jours)
-    // À 27h/j de progression effective (24h + 3h) : 58 * 24 / 27 = ~51.5 jours (~52j)
     const labDaysRemaining = Math.round((58 * 24) / (24 + labAssistantBoostHours));
 
-    // Scénario A : Freemium Optimal (2 ouvriers 24h/24 aux Héros + Super Gobelins + Apprenti Ouvrier Niv 2)
-    // 2 ouvriers en parallèle sur Roi et Reine (48h/j) + Apprenti Ouvrier (+2h/j) = 50h effectives / jour
-    // Le temps requis pour le seuil HDV 12 sain passe de 58 jours à 53 jours calendaires !
-    const optimalDaysToTarget = 53; // -5 jours grâce à l'Apprenti Ouvrier
-    const optimalDaysToMax = 77;    // -7 jours sur le 100% maxage
+    // Scénarios d'atterrissage HDV 12 (avec 6 ouvriers dont 1 libre et Apprenti Ouvrier Niv 2)
+    const optimalDaysToTarget = 54;
+    const optimalDaysToMax = 79;
+    const standardDaysToTarget = 110;
+    const standardDaysToMax = 160;
 
-    // Scénario B : Rythme Standard (avec latence ouvriers)
-    const standardDaysToTarget = 108; // -10 jours grâce aux assistants
-    const standardDaysToMax = 156;
-
-    // Projection temporelle sur les 150 prochains jours
-    const forecastDays = [0, 15, 30, 45, 53, 70, 77, 95, 108, 130, 150];
+    // Projection temporelle sur les 160 prochains jours
+    const forecastDays = [0, 15, 30, 45, 54, 70, 79, 95, 110, 130, 160];
     const forecastLabels = forecastDays.map(d => d === 0 ? "Aujourd'hui (J0)" : `J+${d}`);
 
-    const startPct = Math.round((currentHeroSum / maxHeroSum) * 1000) / 10; // ~48.3%
-    const targetPct = 85.0; // Seuil recommandé HDV 12 (Roi 45 / Reine 45 / Gardien 18)
+    const startPct = Math.round((currentHeroSum / maxHeroSum) * 1000) / 10; // 82 / 150 = 54.7%
+    const targetPct = 90.0; // Seuil recommandé HDV 12 (Roi 45 / Reine 45 / Gardien 18 / Prince 27) = 135/150
     const maxPct = 100.0;
 
     const scenarioA = forecastDays.map(d => {
@@ -775,7 +858,9 @@ const COC_ANALYZER = {
           targetKing: 45,
           targetQueen: 45,
           targetWarden: 18,
-          activeBuilders: buildersAnalysis?.totalBuilders || 5,
+          targetPrince: 27,
+          activeBuilders: buildersAnalysis?.totalBuilders || 6,
+          freeBuilders: buildersAnalysis?.freeBuilders || 1,
           apprenticeBuilderBoostHours,
           labAssistantBoostHours,
           totalDailyTimeSavedHours,
@@ -785,6 +870,10 @@ const COC_ANALYZER = {
     };
   }
 };
+
+if (typeof window !== 'undefined') {
+  window.COC_ANALYZER = COC_ANALYZER;
+}
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = COC_ANALYZER;

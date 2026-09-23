@@ -319,6 +319,7 @@ function loadVillageData(data) {
 
   renderKPIs(appState.analysis);
   renderAntiRushAlert(appState.analysis.heroes);
+  renderCraftedDefense(appState.analysis.craftedDefense);
   renderActiveStrategy(appState.currentStrategy || "farm");
   renderTrajectorySection(appState.analysis);
   renderHelpers(appState.analysis.helpers);
@@ -347,11 +348,18 @@ function renderKPIs(analysis) {
   // HDV
   document.getElementById("kpi-th-level").textContent = `HDV ${analysis.thLevel}`;
   
-  // Ouvriers
+  // Ouvriers (v18.600.5 : 6 ouvriers via Cabane B.O.B)
   const b = analysis.builders;
   document.getElementById("kpi-builders-count").textContent = `${b.busyBuilders} / ${b.totalBuilders}`;
-  document.getElementById("kpi-builders-status").textContent = b.allBusy ? "Tous les ouvriers sont occupés !" : `${b.freeBuilders} ouvrier(s) libre(s)`;
-  document.getElementById("kpi-builders-status").className = b.allBusy ? "text-amber-400 text-xs mt-1" : "text-emerald-400 text-xs mt-1";
+  const buildersStatusEl = document.getElementById("kpi-builders-status");
+  if (buildersStatusEl) {
+    buildersStatusEl.textContent = b.hasFreeBuilder 
+      ? `${b.freeBuilders} ouvrier libre (mobilisable !)`
+      : "Tous les ouvriers sont occupés";
+    buildersStatusEl.className = b.hasFreeBuilder 
+      ? "text-emerald-400 text-xs mt-1 font-medium" 
+      : "text-amber-400 text-xs mt-1";
+  }
 
   // Remparts
   const w = analysis.walls;
@@ -360,24 +368,33 @@ function renderKPIs(analysis) {
   document.getElementById("kpi-walls-bar").style.width = `${w.completionPercentage}%`;
   document.getElementById("kpi-walls-sub").textContent = `${w.lvl11Count} remparts restant à passer niv. 12`;
 
-  // Hero Power Index
+  // Hero Power Index (v18.600.5 : 4 Héros cumulés sur 150 niveaux)
   const h = analysis.heroes;
-  document.getElementById("kpi-hero-index").textContent = `${h.globalHeroIndex}%`;
+  document.getElementById("kpi-hero-index").textContent = `${h.totalCurrent} / ${h.totalMax}`;
   document.getElementById("kpi-hero-bar").style.width = `${h.globalHeroIndex}%`;
   const heroBadge = document.getElementById("kpi-hero-badge");
   if (heroBadge) {
-    heroBadge.textContent = h.severity;
+    heroBadge.textContent = `${h.globalHeroIndex}%`;
     heroBadge.className = h.isCriticalUnderleveled 
       ? "px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40 animate-pulse"
       : "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
   }
+
+  const heroSubEl = document.getElementById("kpi-hero-sub");
+  if (heroSubEl) {
+    heroSubEl.textContent = `Roi ${h.king.level} • Reine ${h.queen.level} • Gardien ${h.warden.level} • Prince ${h.minionPrince.level}`;
+  }
+
+  // Badge déficit global sur le graphique héros
+  const heroesDeficitBadge = document.getElementById("heroes-deficit-badge");
+  if (heroesDeficitBadge) {
+    const totalDeficit = h.king.deficit + h.queen.deficit + h.warden.deficit + h.minionPrince.deficit;
+    heroesDeficitBadge.textContent = `Déficit : -${totalDeficit} niveaux`;
+  }
 }
 
 /**
- * Rendu de la bannière d'alerte rouge Anti-Rush
- */
-/**
- * Rendu de la bannière d'alerte Anti-Rush (Sober & Factual)
+ * Rendu de la bannière d'alerte Anti-Rush (Sober & Factual - 4 Héros v18.600.5)
  */
 function renderAntiRushAlert(heroes) {
   const container = document.getElementById("anti-rush-alert-container");
@@ -396,10 +413,10 @@ function renderAntiRushAlert(heroes) {
             <p class="text-xs text-zinc-400 leading-relaxed max-w-3xl">
               ${heroes.alertDescription}
             </p>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
               <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
                 <div class="flex items-center justify-between text-xs text-zinc-200">
-                  <span class="text-zinc-400">Roi des Barbares</span>
+                  <span class="text-zinc-400">Roi</span>
                   <span class="font-mono font-medium">${heroes.king.level} / ${heroes.king.maxTh11}</span>
                 </div>
                 <div class="progress-bar-slim mt-2">
@@ -410,7 +427,7 @@ function renderAntiRushAlert(heroes) {
 
               <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
                 <div class="flex items-center justify-between text-xs text-zinc-200">
-                  <span class="text-zinc-400">Reine des Archères</span>
+                  <span class="text-zinc-400">Reine</span>
                   <span class="font-mono font-medium">${heroes.queen.level} / ${heroes.queen.maxTh11}</span>
                 </div>
                 <div class="progress-bar-slim mt-2">
@@ -421,13 +438,24 @@ function renderAntiRushAlert(heroes) {
 
               <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
                 <div class="flex items-center justify-between text-xs text-zinc-200">
-                  <span class="text-zinc-400">Grand Gardien</span>
+                  <span class="text-zinc-400">Gardien</span>
                   <span class="font-mono font-medium">${heroes.warden.level} / ${heroes.warden.maxTh11}</span>
                 </div>
                 <div class="progress-bar-slim mt-2">
                   <div class="progress-fill bg-sky-400" style="width: ${heroes.warden.progress}%"></div>
                 </div>
                 <div class="text-[11px] text-zinc-500 mt-1.5 font-mono">-${heroes.warden.deficit} niv. (~${Math.round(heroes.warden.elixirNeeded / 1000000)}M Rose)</div>
+              </div>
+
+              <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
+                <div class="flex items-center justify-between text-xs text-zinc-200">
+                  <span class="text-zinc-400">Prince</span>
+                  <span class="font-mono font-medium">${heroes.minionPrince.level} / ${heroes.minionPrince.maxTh11}</span>
+                </div>
+                <div class="progress-bar-slim mt-2">
+                  <div class="progress-fill bg-indigo-400" style="width: ${heroes.minionPrince.progress}%"></div>
+                </div>
+                <div class="text-[11px] text-zinc-500 mt-1.5 font-mono">-${heroes.minionPrince.deficit} niv. (~${Math.round(heroes.minionPrince.enNeeded / 1000)}k EN)</div>
               </div>
             </div>
           </div>
@@ -447,7 +475,7 @@ function renderAntiRushAlert(heroes) {
           <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
           <div>
             <h4 class="text-xs font-semibold text-zinc-200">Niveaux de héros optimaux</h4>
-            <p class="text-[11px] text-zinc-400">Vos héros respectent les paliers recommandés pour votre niveau d'Hôtel de Ville.</p>
+            <p class="text-[11px] text-zinc-400">Vos 4 héros respectent les paliers recommandés pour votre niveau d'Hôtel de Ville.</p>
           </div>
         </div>
       </div>
@@ -598,6 +626,88 @@ function renderActiveStrategy(strategyKey = "farm") {
 
 function renderFarmStrategy(farm) {
   renderActiveStrategy("farm");
+}
+
+/**
+ * Rendu de la Station d'Artisanat Défensif (v18.600.5)
+ */
+function renderCraftedDefense(craftedDefense) {
+  const container = document.getElementById("crafted-defense-types-container");
+  const badgeLabel = document.getElementById("crafted-defense-active-label");
+  if (!container) return;
+
+  if (!craftedDefense || !craftedDefense.available || !craftedDefense.types || craftedDefense.types.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full text-center py-6 text-xs text-zinc-500">
+        Station d'Artisanat Défensif non disponible.
+      </div>
+    `;
+    return;
+  }
+
+  if (badgeLabel && craftedDefense.activeType) {
+    badgeLabel.textContent = `Mode : ${craftedDefense.activeType.shortName}`;
+  }
+
+  container.innerHTML = craftedDefense.types.map((type, idx) => {
+    const isActive = idx === 0;
+    return `
+      <div class="card-minimal p-4 flex flex-col justify-between transition-all duration-200 ${
+        isActive ? 'border-cyan-500/30 bg-cyan-500/[0.03] ring-1 ring-cyan-500/20' : 'opacity-80 hover:opacity-100'
+      }">
+        <div>
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="text-2xl">${type.icon}</span>
+              <div>
+                <h4 class="text-xs font-semibold text-zinc-100">${type.name}</h4>
+                <div class="text-[10px] text-zinc-400 mt-0.5">${type.desc}</div>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium ${
+              isActive ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30' : 'bg-zinc-800 text-zinc-400 border border-zinc-700/50'
+            }">${isActive ? 'Actif' : 'Permutable'}</span>
+          </div>
+
+          <div class="mt-4 space-y-2.5">
+            <div class="flex items-center justify-between text-[11px] text-zinc-400">
+              <span>Niveau du mode</span>
+              <span class="font-mono text-zinc-200 font-medium">${type.totalLevel} / ${type.maxLevel}</span>
+            </div>
+
+            <!-- Modules -->
+            <div class="space-y-2 pt-1 border-t border-white/[0.06]">
+              ${type.modules.map(mod => `
+                <div class="p-2 rounded-lg bg-zinc-900/60 border border-zinc-800/80">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-[11px] text-zinc-300 flex items-center gap-1.5">
+                      <span>${mod.icon}</span>
+                      <span>${mod.name}</span>
+                    </span>
+                    <span class="font-mono text-[10px] text-zinc-400">Niv. ${mod.level} / ${mod.maxLevel}</span>
+                  </div>
+                  <div class="progress-bar-slim mt-1.5">
+                    <div class="progress-fill ${
+                      mod.type === 'hitpoints' ? 'bg-rose-400' :
+                      mod.type === 'damage' ? 'bg-amber-400' :
+                      'bg-cyan-400'
+                    }" style="width: ${mod.progressPct}%"></div>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-2.5 border-t border-white/[0.08] flex items-center justify-between text-[11px]">
+          <span class="text-zinc-500">Statut tactique</span>
+          <span class="font-mono text-xs ${isActive ? 'text-cyan-300 font-medium' : 'text-zinc-400'}">
+            ${isActive ? 'Actif en défense' : 'En réserve'}
+          </span>
+        </div>
+      </div>
+    `;
+  }).join("");
 }
 
 /**
@@ -860,11 +970,13 @@ function renderEquipmentList(filter) {
   } else if (filter === "top-tier") {
     items = eqData.topPriorities;
   } else if (filter === "king") {
-    items = items.filter(i => i.hero === "Roi");
+    items = items.filter(i => i.heroKey === "king" || i.hero === "Roi");
   } else if (filter === "queen") {
-    items = items.filter(i => i.hero === "Reine");
+    items = items.filter(i => i.heroKey === "queen" || i.hero === "Reine");
   } else if (filter === "warden") {
-    items = items.filter(i => i.hero === "Gardien");
+    items = items.filter(i => i.heroKey === "warden" || i.hero === "Gardien");
+  } else if (filter === "prince") {
+    items = items.filter(i => i.heroKey === "prince" || i.hero === "Prince" || i.hero === "Prince Gargouille");
   }
 
   if (items.length === 0) {
@@ -1001,7 +1113,7 @@ function renderTrajectorySection(analysis) {
 
   const buildersBadgeEl = document.getElementById("trajectory-builders-badge");
   if (buildersBadgeEl && analysis.builders) {
-    buildersBadgeEl.textContent = `${analysis.builders.busyBuilders} / ${analysis.builders.totalBuilders} Actifs`;
+    buildersBadgeEl.textContent = `${analysis.builders.busyBuilders} / ${analysis.builders.totalBuilders} Ouvriers (${analysis.builders.freeBuilders} Libre)`;
   }
 
   // 2. Initialisation des Graphiques Chart.js
@@ -1009,7 +1121,7 @@ function renderTrajectorySection(analysis) {
 
   const isMobile = window.innerWidth < 640;
 
-  // A. Graphique Historique de Progression (Combo Bar + Line)
+  // A. Graphique Historique de Progression (Combo Bar + Line - 4 Héros v18.600.5)
   const ctxHistory = document.getElementById("chart-progression-history");
   if (ctxHistory) {
     if (appState.charts.progressionHistory) appState.charts.progressionHistory.destroy();
@@ -1085,6 +1197,17 @@ function renderTrajectorySection(analysis) {
             borderRadius: 3,
             barPercentage: 0.65,
             order: 5
+          },
+          {
+            type: "bar",
+            label: "Prince Gargouille",
+            data: hist.heroes.minionPrince,
+            backgroundColor: "rgba(129, 140, 248, 0.85)",
+            stack: "heroes",
+            yAxisID: "y-heroes",
+            borderRadius: 3,
+            barPercentage: 0.65,
+            order: 6
           }
         ]
       },
@@ -1120,7 +1243,7 @@ function renderTrajectorySection(analysis) {
               afterBody: (tooltipItems) => {
                 const idx = tooltipItems[0].dataIndex;
                 const totalHeros = hist.cumulativeHeroes[idx];
-                return `Total Héros : Niv. ${totalHeros} / 120`;
+                return `Total 4 Héros : Niv. ${totalHeros} / 150`;
               }
             }
           }
@@ -1141,10 +1264,10 @@ function renderTrajectorySection(analysis) {
             position: "left",
             stacked: true,
             beginAtZero: true,
-            max: 65,
+            max: 95,
             title: {
               display: !isMobile,
-              text: "Niveaux Héros",
+              text: "Niveaux 4 Héros",
               color: "#71717a",
               font: { size: 10 }
             },
@@ -1189,7 +1312,7 @@ function renderTrajectorySection(analysis) {
     const fc = traj.forecasting;
     const count = fc.labels.length;
     const forecastLabels = isMobile
-      ? ["J0", "+15", "+30", "+45", "+53", "+70", "+77", "+95", "+108", "+130", "+150"]
+      ? ["J0", "+15", "+30", "+45", "+54", "+70", "+79", "+95", "+110", "+130", "+160"]
       : fc.labels;
 
     appState.charts.forecasting = new Chart(ctxForecast, {
@@ -1210,7 +1333,7 @@ function renderTrajectorySection(analysis) {
             pointBorderWidth: 1.5,
             pointRadius: (ctx) => {
               const val = fc.days[ctx.dataIndex];
-              return val === 53 || val === 77 ? 5 : 2.5;
+              return val === 54 || val === 79 ? 5 : 2.5;
             },
             pointHoverRadius: 6,
             order: 1
@@ -1227,13 +1350,13 @@ function renderTrajectorySection(analysis) {
             pointBackgroundColor: "#71717a",
             pointRadius: (ctx) => {
               const val = fc.days[ctx.dataIndex];
-              return val === 108 ? 4 : 2;
+              return val === 110 ? 4 : 2;
             },
             pointHoverRadius: 5,
             order: 2
           },
           {
-            label: "Seuil Transition HDV 12 (45/45/18)",
+            label: "Seuil Transition HDV 12 (45/45/18/27)",
             data: Array(count).fill(fc.targetThreshold),
             borderColor: "#10b981",
             borderDash: [3, 3],
@@ -1290,12 +1413,12 @@ function renderTrajectorySection(analysis) {
               afterBody: (tooltipItems) => {
                 const idx = tooltipItems[0].dataIndex;
                 const day = fc.days[idx];
-                if (day === 53) {
-                  return "🎯 [J+53] Passage HDV 12 sain accéléré par l'Apprenti Ouvrier (+2h/j) !";
-                } else if (day === 77) {
-                  return "🏆 [J+77] Village HDV 11 100% maxé grâce aux assistants (+5h/j) !";
-                } else if (day === 108) {
-                  return "⚠️ [J+108] Atterrissage HDV 12 en rythme standard (+ assistants inclus).";
+                if (day === 54) {
+                  return "🎯 [J+54] Passage HDV 12 sain accéléré par l'Apprenti Ouvrier (+2h/j) !";
+                } else if (day === 79) {
+                  return "🏆 [J+79] Village HDV 11 100% maxé avec 4 héros et assistants (+5h/j) !";
+                } else if (day === 110) {
+                  return "⚠️ [J+110] Atterrissage HDV 12 en rythme standard (+ assistants inclus).";
                 }
                 return "";
               }
@@ -1563,17 +1686,17 @@ function playLiquidEntranceAnimations(analysis) {
       });
     }
 
-    // B. Compteur Hero Power Index
+    // B. Compteur Hero Power Index (v18.600.5 : 82 / 150)
     const heroIndexEl = document.getElementById("kpi-hero-index");
     if (heroIndexEl && analysis.heroes) {
-      const targetHero = analysis.heroes.globalHeroIndex;
+      const targetCurrent = analysis.heroes.totalCurrent;
       const counterHero = { val: 0 };
       animate(counterHero, {
-        val: targetHero,
+        val: targetCurrent,
         duration: 850,
         ease: "outExpo",
         onUpdate: () => {
-          heroIndexEl.textContent = `${Math.round(counterHero.val)}%`;
+          heroIndexEl.textContent = `${Math.round(counterHero.val)} / ${analysis.heroes.totalMax}`;
         }
       });
     }

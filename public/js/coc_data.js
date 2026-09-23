@@ -36,7 +36,8 @@ const COC_DATA = {
     1000070: { name: "Atelier", category: "army", maxTh11: 3, icon: "🚜", desc: "Construit des engins de siège." },
     1000071: { name: "Cabane B.O.B / O.T.T.O", category: "builder", maxTh11: 1, icon: "🤖", desc: "6ème ouvrier débloqué via la Base des Ouvriers." },
     1000093: { name: "Animalerie", category: "army", maxTh11: 1, icon: "🐾", desc: "Élève des animaux de compagnie pour les héros." },
-    1000097: { name: "Bâtiment Modulaire / Artisanat", category: "special", maxTh11: 1, icon: "⚙️", desc: "Bâtiment modulable intégrant des composants tactiques." }
+    1000097: { name: "Station d'Artisanat Défensif (Crafted Defense)", category: "defense", maxTh11: 1, icon: "⚙️", desc: "Défense modulaire 3x3 saisonnière (v18.600.5) configurable avec 3 types tactiques et 9 modules d'amélioration." },
+    1000098: { name: "Hall des Héros", category: "army", maxTh11: 5, icon: "🏛️", desc: "Centralise la gestion des héros et plafonne leur niveau (Niveau 5 à l'HDV 11 pour héros 50/50/20/30)." }
   },
 
   // HÉROS
@@ -114,18 +115,18 @@ const COC_DATA = {
     90000039: { name: "Bouclier Traqueur", hero: "Championne", rarity: "common", maxTh11: 15, icon: "🎯" },
     90000040: { name: "Lance Royale", hero: "Championne", rarity: "common", maxTh11: 15, icon: "🗡️" },
     90000041: { name: "Électro-Bottes", hero: "Championne", rarity: "epic", maxTh11: 18, icon: "👢" },
-    90000042: { name: "Ailes Sombrefer", hero: "Prince Gargouille", rarity: "common", maxTh11: 15, icon: "🪽" },
-    90000043: { name: "Crachat Acide", hero: "Prince Gargouille", rarity: "common", maxTh11: 15, icon: "🧪" },
-    90000044: { name: "Cri Glacial", hero: "Prince Gargouille", rarity: "common", maxTh11: 15, icon: "🧊" },
-    90000048: { name: "Essaim Obscur", hero: "Prince Gargouille", rarity: "common", maxTh11: 15, icon: "🦇" },
-    90000049: { name: "Pluie de Météores", hero: "Prince Gargouille", rarity: "epic", maxTh11: 18, icon: "🌠" },
-    90000050: { name: "Orbe Maudit", hero: "Prince Gargouille", rarity: "common", maxTh11: 15, icon: "🔮" },
-    90000051: { name: "Serres Voraces", hero: "Prince Gargouille", rarity: "common", maxTh11: 15, icon: "🦅" },
-    90000052: { name: "Corne de Guerre", hero: "Prince Gargouille", rarity: "common", maxTh11: 15, icon: "📯" },
-    90000053: { name: "Voile Funeste", hero: "Prince Gargouille", rarity: "common", maxTh11: 15, icon: "🕸️" },
-    90000057: { name: "Cape des Ombres", hero: "Prince Gargouille", rarity: "epic", maxTh11: 18, icon: "🧥" },
-    90000060: { name: "Anneau Astral", hero: "Prince Gargouille", rarity: "common", maxTh11: 15, icon: "💍" },
-    90000061: { name: "Totem d'Élixir", hero: "Prince Gargouille", rarity: "epic", maxTh11: 18, icon: "🗿" }
+    90000042: { name: "Ailes Sombrefer", hero: "Prince", rarity: "common", maxTh11: 15, icon: "🪽" },
+    90000043: { name: "Crachat Acide", hero: "Prince", rarity: "common", maxTh11: 15, icon: "🧪", topTier: true },
+    90000044: { name: "Cri Glacial", hero: "Prince", rarity: "common", maxTh11: 15, icon: "🧊", topTier: true },
+    90000048: { name: "Essaim Obscur", hero: "Prince", rarity: "common", maxTh11: 15, icon: "🦇", topTier: true },
+    90000049: { name: "Pluie de Météores", hero: "Prince", rarity: "epic", maxTh11: 18, icon: "🌠", epic: true },
+    90000050: { name: "Orbe Maudit", hero: "Prince", rarity: "common", maxTh11: 15, icon: "🔮", topTier: true },
+    90000051: { name: "Serres Voraces", hero: "Prince", rarity: "common", maxTh11: 15, icon: "🦅" },
+    90000052: { name: "Corne de Guerre", hero: "Prince", rarity: "common", maxTh11: 15, icon: "📯" },
+    90000053: { name: "Voile Funeste", hero: "Prince", rarity: "common", maxTh11: 15, icon: "🕸️" },
+    90000057: { name: "Cape des Ombres", hero: "Prince", rarity: "epic", maxTh11: 18, icon: "🧥", epic: true },
+    90000060: { name: "Anneau Astral", hero: "Prince", rarity: "common", maxTh11: 15, icon: "💍" },
+    90000061: { name: "Totem d'Élixir", hero: "Prince", rarity: "epic", maxTh11: 18, icon: "🗿", epic: true }
   },
 
   // TROUPES DU VILLAGE PRINCIPAL
@@ -212,6 +213,47 @@ const COC_DATA = {
     1000058: { name: "Lava Launcher", icon: "🌋" },
     1000078: { name: "Cabane B.O.B MDO", icon: "🤖" },
     1000082: { name: "Cabane de soins", icon: "🩹" }
+  },
+
+  // STATION D'ARTISANAT DÉFENSIF (CRAFTED DEFENSE - v18.600.5)
+  craftedDefense: {
+    types: {
+      103000011: {
+        id: 103000011,
+        name: "Bougie Ardente (Hot Candle)",
+        shortName: "Bougie Ardente",
+        icon: "🕯️",
+        desc: "Défense thermique projetant de la cire enflammée en zone continue avec dégâts progressifs.",
+        modules: [102000033, 102000034, 102000035]
+      },
+      103000012: {
+        id: 103000012,
+        name: "Chasseur de Héros (Hero Hunter)",
+        shortName: "Chasseur de Héros",
+        icon: "🎯",
+        desc: "Arbalète lourde spécialisée avec fléchettes empoisonnées ciblant prioritairement les héros ennemis.",
+        modules: [102000036, 102000037, 102000038]
+      },
+      103000013: {
+        id: 103000013,
+        name: "Catapulte Gourmande (Cake-a-pult)",
+        shortName: "Catapulte Gourmande",
+        icon: "🎂",
+        desc: "Catapulte festive propulsant des bombes gâteaux à fort rayon de dégâts de zone.",
+        modules: [102000039, 102000040, 102000041]
+      }
+    },
+    modules: {
+      102000033: { name: "Points de Vie (PV)", type: "hitpoints", maxLvl: 10, icon: "❤️" },
+      102000034: { name: "Dégâts par seconde (DPS)", type: "damage", maxLvl: 10, icon: "⚔️" },
+      102000035: { name: "Durée de Fusion", type: "trait", maxLvl: 10, icon: "🔥" },
+      102000036: { name: "Points de Vie (PV)", type: "hitpoints", maxLvl: 10, icon: "❤️" },
+      102000037: { name: "Dégâts Anti-Héros", type: "damage", maxLvl: 10, icon: "⚔️" },
+      102000038: { name: "Ralentissement Poison", type: "trait", maxLvl: 10, icon: "🧪" },
+      102000039: { name: "Points de Vie (PV)", type: "hitpoints", maxLvl: 10, icon: "❤️" },
+      102000040: { name: "Dégâts de Projection", type: "damage", maxLvl: 10, icon: "💥" },
+      102000041: { name: "Rayon de Splash", type: "trait", maxLvl: 10, icon: "🎂" }
+    }
   }
 };
 
@@ -244,6 +286,71 @@ function decodeHelper(id) {
   return COC_DATA.helpers[id] || { name: `Aide #${id}`, icon: "👷" };
 }
 
+function decodeCraftedDefense(buildingData) {
+  if (!buildingData || buildingData.data !== 1000097 || !Array.isArray(buildingData.types)) {
+    return null;
+  }
+
+  const typesList = buildingData.types.map(t => {
+    const typeMeta = COC_DATA.craftedDefense.types[t.data] || {
+      id: t.data,
+      name: `Type #${t.data}`,
+      shortName: `Défense #${t.data}`,
+      icon: "⚙️",
+      desc: "Configuration modulaire saisonnière.",
+      modules: []
+    };
+
+    const modules = (t.modules || []).map(m => {
+      const modMeta = COC_DATA.craftedDefense.modules[m.data] || {
+        name: `Module #${m.data}`,
+        type: "unknown",
+        maxLvl: 10,
+        icon: "🔧"
+      };
+      return {
+        id: m.data,
+        name: modMeta.name,
+        type: modMeta.type,
+        icon: modMeta.icon,
+        level: m.lvl || 1,
+        maxLevel: modMeta.maxLvl || 10,
+        progressPct: Math.round(((m.lvl || 1) / (modMeta.maxLvl || 10)) * 100)
+      };
+    });
+
+    const sumLevel = modules.reduce((acc, cur) => acc + cur.level, 0);
+    const maxPossibleLevel = modules.length * 10 || 30;
+
+    return {
+      id: t.data,
+      name: typeMeta.name,
+      shortName: typeMeta.shortName,
+      icon: typeMeta.icon,
+      desc: typeMeta.desc,
+      modules,
+      totalLevel: sumLevel,
+      maxLevel: maxPossibleLevel,
+      completionPct: Math.round((sumLevel / maxPossibleLevel) * 100)
+    };
+  });
+
+  return {
+    id: 1000097,
+    name: "Station d'Artisanat Défensif",
+    icon: "⚙️",
+    types: typesList,
+    activeType: typesList[0] || null, // Premier type actif par défaut
+    totalTypesCount: typesList.length
+  };
+}
+
+COC_DATA.decodeCraftedDefense = decodeCraftedDefense;
+
+if (typeof window !== 'undefined') {
+  window.COC_DATA = COC_DATA;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     COC_DATA,
@@ -253,6 +360,8 @@ if (typeof module !== 'undefined' && module.exports) {
     decodeUnit,
     decodeSpell,
     decodeTrap,
-    decodeHelper
+    decodeHelper,
+    decodeCraftedDefense
   };
 }
+
