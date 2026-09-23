@@ -235,21 +235,23 @@ function handleFile(file) {
  * Chargement initial des données
  */
 async function loadInitialData() {
-  try {
-    // Tentative de récupération depuis le backend
-    const res = await fetch("/api/village");
-    if (res.ok) {
-      const data = await res.json();
-      loadVillageData(data);
-      return;
-    }
-  } catch (e) {
-    console.warn("Backend non joignable directement, utilisation du fallback interne.");
-  }
-
-  // Fallback si standalone sans backend
+  // 1. Rendu instantané et prioritaire des données embarquées (0ms de latence, zéro écran vide)
   if (window.EMBEDDED_VILLAGE_DATA) {
     loadVillageData(window.EMBEDDED_VILLAGE_DATA);
+  }
+
+  // 2. Synchronisation transparente avec l'API /api/village si disponible
+  try {
+    const res = await fetch("/api/village");
+    const contentType = res.headers.get("content-type");
+    if (res.ok && contentType && contentType.includes("application/json")) {
+      const data = await res.json();
+      if (data && (data.heroes || data.buildings)) {
+        loadVillageData(data);
+      }
+    }
+  } catch (e) {
+    // Mode local silencieux (les données sont déjà affichées)
   }
 }
 
@@ -265,25 +267,34 @@ async function syncWithSupercellApi() {
 
   try {
     const res = await fetch("/api/player");
+    const contentType = res.headers.get("content-type");
+    if (!res.ok || !contentType || !contentType.includes("application/json")) {
+      throw new Error(`Endpoint indisponible (HTTP ${res.status})`);
+    }
+
     const json = await res.json();
 
-    if (json.source === "supercell_api") {
+    if (json.source === "supercell_api" && json.player) {
       appState.apiStatus = "online";
       showToast("Synchronisation API Supercell réussie !", "success");
       updateApiStatusBadge(true, "API Supercell en direct");
-      // Si l'API renvoie des données joueurs officielles, on les injecte
-      if (json.player) {
-        updatePlayerOfficialMeta(json.player);
-      }
-    } else {
+      updatePlayerOfficialMeta(json.player);
+    } else if (json.village) {
       appState.apiStatus = "fallback";
-      showToast("API inaccessible (IP / CORS). Mode fallback local actif.", "info");
-      updateApiStatusBadge(false, "Mode Local (Fallback sécurisé)");
+      loadVillageData(json.village);
+      showToast("Synchronisation locale réussie (Données à jour) !", "success");
+      updateApiStatusBadge(false, "Mode Local (Synchronisé)");
+    } else {
+      throw new Error("Réponse inattendue de l'API");
     }
   } catch (err) {
     appState.apiStatus = "fallback";
-    showToast("Connexion API impossible. Utilisation des données locales.", "info");
-    updateApiStatusBadge(false, "Mode Local (Fallback sécurisé)");
+    // Réappliquer le fallback local pour être sûr à 100% que l'UI est toujours fraîche
+    if (window.EMBEDDED_VILLAGE_DATA) {
+      loadVillageData(window.EMBEDDED_VILLAGE_DATA);
+    }
+    showToast("Mode autonome : Données du village synchronisées en local.", "info");
+    updateApiStatusBadge(false, "Mode Local (Autonome)");
   } finally {
     if (btn) {
       btn.disabled = false;

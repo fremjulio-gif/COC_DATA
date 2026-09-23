@@ -1,0 +1,10 @@
+{
+  "name": "coc-data-optimizer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Tableau de bord d'optimisation Clash of Clans v18.600.5",
+  "scripts": {
+    "start": "python3 app.py"
+  }
+}
