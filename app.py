@@ -41,7 +41,7 @@ class CoCHandler(http.server.SimpleHTTPRequestHandler):
             super().do_GET()
 
     def do_POST(self):
-        if self.path == "/api/save-village":
+        if self.path in ("/api/save-village", "/api/village"):
             self.handle_save_village()
         elif self.path == "/api/analyze":
             self.handle_analyze()

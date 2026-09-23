@@ -73,6 +73,55 @@
     </div>
   </div>
 
+  <!-- Modal Synchronisation Inter-Appareils (Desktop <-> Mobile) -->
+  <div id="modal-sync" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
+    <div class="panel-minimal w-full max-w-lg p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <h3 class="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+          <i data-lucide="smartphone" class="w-4 h-4 text-cyan-400"></i>
+          <span>Synchronisation Desktop ↔ Mobile</span>
+        </h3>
+        <button id="btn-close-sync-modal" class="text-zinc-400 hover:text-white p-1 rounded-lg transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-zinc-400 leading-relaxed">
+        Toute base importée est automatiquement conservée sur cet appareil. Utilisez ce lien ou QR code pour ouvrir et enregistrer immédiatement la même base sur votre smartphone ou un autre ordinateur.
+      </p>
+
+      <!-- QR Code & Lien de synchronisation -->
+      <div class="p-4 rounded-xl bg-black/40 border border-white/10 flex flex-col items-center justify-center gap-3">
+        <div id="sync-qrcode-container" class="w-44 h-44 bg-white p-2 rounded-lg flex items-center justify-center shadow-lg">
+          <img id="sync-qrcode-img" src="" alt="QR Code de synchronisation" class="w-full h-full object-contain">
+        </div>
+        <p class="text-[11px] text-zinc-400 text-center">
+          Scannez avec l'appareil photo de votre smartphone pour transférer le village instantanément.
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex items-center gap-2">
+          <input type="text" id="sync-url-input" readonly class="flex-1 p-2 bg-zinc-900 border border-white/10 rounded-lg text-xs font-mono text-zinc-300 focus:outline-none select-all truncate">
+          <button id="btn-copy-sync-url" class="btn-minimal btn-primary-minimal text-xs py-2 px-3 whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span id="copy-sync-text">Copier</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-white/10 text-xs">
+        <button id="btn-download-json" class="btn-minimal text-xs py-1.5 px-3 flex items-center gap-1.5">
+          <i data-lucide="download" class="w-3.5 h-3.5 text-zinc-400"></i>
+          <span>Télécharger .json</span>
+        </button>
+        <span class="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Auto-sauvegarde active
+        </span>
+      </div>
+    </div>
+  </div>
+
   <!-- Header Épuré Apple Liquid Glass -->
   <header class="sticky top-0 z-40 backdrop-blur-2xl bg-zinc-950/70 border-b border-white/[0.08] w-full" style="padding-top: env(safe-area-inset-top);">
     <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
@@ -96,6 +145,11 @@
           <span id="api-status-dot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
           <span id="api-status-text" class="hidden sm:inline">Mode Local</span>
         </div>
+
+        <button id="btn-sync-modal" class="btn-minimal text-xs py-1.5 px-3 min-h-[38px] text-cyan-300 border-cyan-500/30 bg-cyan-500/[0.06]" title="Synchroniser Desktop ↔ Mobile">
+          <i data-lucide="smartphone" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span class="hidden md:inline">Sync Appareils</span>
+        </button>
 
         <button id="btn-sync-api" class="btn-minimal text-xs py-1.5 px-3 min-h-[38px]" title="Synchroniser avec l'API">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-zinc-400"></i>

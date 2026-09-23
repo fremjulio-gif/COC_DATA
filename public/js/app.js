@@ -12,6 +12,10 @@ let appState = {
   currentStrategy: "farm"
 };
 
+if (typeof window !== "undefined") {
+  window.appState = appState;
+}
+
 // Initialisation dès le chargement du DOM
 document.addEventListener("DOMContentLoaded", () => {
   initLucide();
@@ -104,6 +108,7 @@ function setupEventListeners() {
       try {
         const parsed = JSON.parse(textareaJson.value);
         loadVillageData(parsed);
+        saveVillageState(parsed);
         modalPaste.classList.add("hidden");
         modalPaste.classList.remove("flex");
         showToast("État du village actualisé avec succès !", "success");
@@ -111,6 +116,73 @@ function setupEventListeners() {
         showToast("Erreur : JSON invalide.", "error");
       }
     });
+  }
+
+  // Modal de synchronisation inter-appareils (Desktop <-> Mobile)
+  const btnSyncModal = document.getElementById("btn-sync-modal");
+  const modalSync = document.getElementById("modal-sync");
+  const btnCloseSyncModal = document.getElementById("btn-close-sync-modal");
+  const btnCopySyncUrl = document.getElementById("btn-copy-sync-url");
+  const syncUrlInput = document.getElementById("sync-url-input");
+  const syncQrCodeImg = document.getElementById("sync-qrcode-img");
+  const btnDownloadJson = document.getElementById("btn-download-json");
+
+  if (btnSyncModal && modalSync) {
+    btnSyncModal.addEventListener("click", async () => {
+      const currentData = appState.rawData || window.EMBEDDED_VILLAGE_DATA;
+      if (!currentData) return;
+
+      modalSync.classList.remove("hidden");
+      modalSync.classList.add("flex");
+
+      if (syncUrlInput) {
+        syncUrlInput.value = "Génération du lien sécurisé...";
+      }
+
+      const encoded = await encodeVillageForUrl(currentData);
+      const syncUrl = `${window.location.origin}${window.location.pathname}#sync=${encoded}`;
+
+      if (syncUrlInput) {
+        syncUrlInput.value = syncUrl;
+      }
+      if (syncQrCodeImg) {
+        syncQrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(syncUrl)}`;
+      }
+    });
+
+    if (btnCloseSyncModal) {
+      btnCloseSyncModal.addEventListener("click", () => {
+        modalSync.classList.add("hidden");
+        modalSync.classList.remove("flex");
+      });
+    }
+
+    if (btnCopySyncUrl && syncUrlInput) {
+      btnCopySyncUrl.addEventListener("click", () => {
+        navigator.clipboard.writeText(syncUrlInput.value).then(() => {
+          const textEl = document.getElementById("copy-sync-text");
+          if (textEl) textEl.textContent = "Copié !";
+          showToast("Lien de synchronisation copié dans le presse-papier !", "success");
+          setTimeout(() => {
+            if (textEl) textEl.textContent = "Copier";
+          }, 2500);
+        });
+      });
+    }
+
+    if (btnDownloadJson) {
+      btnDownloadJson.addEventListener("click", () => {
+        const currentData = appState.rawData || window.EMBEDDED_VILLAGE_DATA;
+        const blob = new Blob([JSON.stringify(currentData, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `village_state_${currentData?.tag?.replace("#", "") || "GUQLRP8LV"}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("Fichier village_state.json téléchargé !", "success");
+      });
+    }
   }
 
   // Bouton de synchronisation API Supercell
@@ -223,7 +295,8 @@ function handleFile(file) {
     try {
       const json = JSON.parse(e.target.result);
       loadVillageData(json);
-      showToast(`Fichier ${file.name} chargé avec succès !`, "success");
+      saveVillageState(json);
+      showToast(`Fichier ${file.name} importé & synchronisé partout !`, "success");
     } catch (err) {
       showToast("Fichier JSON corrompu ou illisible", "error");
     }
@@ -232,26 +305,146 @@ function handleFile(file) {
 }
 
 /**
- * Chargement initial des données
+ * Sauvegarde locale & synchronisation backend du village
+ */
+async function saveVillageState(data) {
+  if (!data || !data.tag) return;
+
+  // 1. Sauvegarde instantanée dans localStorage (persiste sur cet appareil après refresh)
+  try {
+    localStorage.setItem("coc_village_state", JSON.stringify(data));
+    localStorage.setItem("coc_village_state_saved_at", Date.now().toString());
+  } catch (e) {
+    console.warn("Échec écriture localStorage :", e);
+  }
+
+  // 2. Synchronisation vers le serveur / API
+  try {
+    const res = await fetch("/api/village", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) {
+      const resp = await res.json();
+      if (resp.savedToGithub) {
+        showToast("Village commité sur GitHub (sync multi-appareils active) !", "success");
+      }
+    }
+  } catch (err) {
+    // Mode local silencieux si serveur non joignable
+  }
+}
+
+/**
+ * Compression gzip base64url pour lien de synchronisation Desktop <-> Mobile
+ */
+async function encodeVillageForUrl(data) {
+  try {
+    const jsonStr = JSON.stringify(data);
+    const stream = new Blob([jsonStr]).stream().pipeThrough(new CompressionStream("gzip"));
+    const buffer = await (await new Response(stream).blob()).arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  } catch (err) {
+    // Fallback base64 simple
+    return btoa(unescape(encodeURIComponent(JSON.stringify(data)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+}
+
+/**
+ * Décompression d'un village depuis le hash d'URL
+ */
+async function decodeVillageFromUrl(b64url) {
+  try {
+    let b64Clean = b64url.replace(/-/g, "+").replace(/_/g, "/");
+    while (b64Clean.length % 4) b64Clean += "=";
+    const decodedBinary = atob(b64Clean);
+    const decodedBytes = new Uint8Array(decodedBinary.length);
+    for (let i = 0; i < decodedBinary.length; i++) decodedBytes[i] = decodedBinary.charCodeAt(i);
+
+    // Tentative de décompression Gzip
+    try {
+      const decompStream = new Blob([decodedBytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+      const decompText = await new Response(decompStream).text();
+      return JSON.parse(decompText);
+    } catch (gzErr) {
+      // Fallback décodage simple
+      const rawText = decodeURIComponent(escape(decodedBinary));
+      return JSON.parse(rawText);
+    }
+  } catch (err) {
+    console.error("Échec du décodage du village depuis l'URL :", err);
+    return null;
+  }
+}
+
+/**
+ * Chargement initial des données avec synchronisation multi-sources
  */
 async function loadInitialData() {
-  // 1. Rendu instantané et prioritaire des données embarquées (0ms de latence, zéro écran vide)
+  // 1. Vérification d'un lien de synchronisation inter-appareils (#sync=... ou #data=...)
+  const hash = window.location.hash;
+  if (hash && (hash.startsWith("#sync=") || hash.startsWith("#data="))) {
+    const b64 = hash.replace(/^#(sync|data)=/, "");
+    if (b64) {
+      const sharedVillage = await decodeVillageFromUrl(b64);
+      if (sharedVillage && sharedVillage.tag) {
+        loadVillageData(sharedVillage);
+        saveVillageState(sharedVillage);
+        try {
+          history.replaceState(null, "", window.location.pathname);
+        } catch (e) {}
+        showToast("Village synchronisé avec succès depuis l'autre appareil !", "success");
+        return;
+      }
+    }
+  }
+
+  // 2. Vérification du stockage local de cet appareil (localStorage)
+  try {
+    const savedLocal = localStorage.getItem("coc_village_state");
+    if (savedLocal) {
+      const localData = JSON.parse(savedLocal);
+      if (localData && localData.tag) {
+        loadVillageData(localData);
+        // Tente de vérifier si le serveur a plus récent en arrière-plan
+        fetchServerVillageInBackground();
+        return;
+      }
+    }
+  } catch (e) {
+    console.warn("Erreur lecture localStorage :", e);
+  }
+
+  // 3. Rendu instantané des données embarquées par défaut
   if (window.EMBEDDED_VILLAGE_DATA) {
     loadVillageData(window.EMBEDDED_VILLAGE_DATA);
   }
 
-  // 2. Synchronisation transparente avec l'API /api/village si disponible
+  // 4. Synchronisation en arrière-plan avec /api/village si disponible
+  fetchServerVillageInBackground();
+}
+
+async function fetchServerVillageInBackground() {
   try {
     const res = await fetch("/api/village");
     const contentType = res.headers.get("content-type");
     if (res.ok && contentType && contentType.includes("application/json")) {
       const data = await res.json();
       if (data && (data.heroes || data.buildings)) {
-        loadVillageData(data);
+        if (!appState.rawData || data.timestamp > (appState.rawData.timestamp || 0)) {
+          loadVillageData(data);
+          try {
+            localStorage.setItem("coc_village_state", JSON.stringify(data));
+          } catch (e) {}
+        }
       }
     }
   } catch (e) {
-    // Mode local silencieux (les données sont déjà affichées)
+    // Mode local silencieux
   }
 }
 
@@ -367,11 +560,13 @@ function loadVillageData(data) {
  */
 function renderKPIs(analysis) {
   // HDV
-  document.getElementById("kpi-th-level").textContent = `HDV ${analysis.thLevel}`;
+  const thEl = document.getElementById("kpi-th-level");
+  if (thEl) thEl.textContent = `HDV ${analysis.thLevel}`;
   
   // Ouvriers (v18.600.5 : 6 ouvriers via Cabane B.O.B)
   const b = analysis.builders;
-  document.getElementById("kpi-builders-count").textContent = `${b.busyBuilders} / ${b.totalBuilders}`;
+  const bCountEl = document.getElementById("kpi-builders-count");
+  if (bCountEl) bCountEl.textContent = `${b.busyBuilders} / ${b.totalBuilders}`;
   const buildersStatusEl = document.getElementById("kpi-builders-status");
   if (buildersStatusEl) {
     buildersStatusEl.textContent = b.hasFreeBuilder 
@@ -384,15 +579,21 @@ function renderKPIs(analysis) {
 
   // Remparts
   const w = analysis.walls;
-  document.getElementById("kpi-walls-progress").textContent = `${w.lvl12Count} / ${w.totalWalls}`;
-  document.getElementById("kpi-walls-pct").textContent = `${w.completionPercentage}%`;
-  document.getElementById("kpi-walls-bar").style.width = `${w.completionPercentage}%`;
-  document.getElementById("kpi-walls-sub").textContent = `${w.lvl11Count} remparts restant à passer niv. 12`;
+  const wProgEl = document.getElementById("kpi-walls-progress");
+  if (wProgEl) wProgEl.textContent = `${w.lvl12Count} / ${w.totalWalls}`;
+  const wPctEl = document.getElementById("kpi-walls-pct");
+  if (wPctEl) wPctEl.textContent = `${w.completionPercentage}%`;
+  const wBarEl = document.getElementById("kpi-walls-bar");
+  if (wBarEl) wBarEl.style.width = `${w.completionPercentage}%`;
+  const wSubEl = document.getElementById("kpi-walls-sub");
+  if (wSubEl) wSubEl.textContent = `${w.lvl11Count} remparts restant à passer niv. 12`;
 
   // Hero Power Index (v18.600.5 : 4 Héros cumulés sur 150 niveaux)
   const h = analysis.heroes;
-  document.getElementById("kpi-hero-index").textContent = `${h.totalCurrent} / ${h.totalMax}`;
-  document.getElementById("kpi-hero-bar").style.width = `${h.globalHeroIndex}%`;
+  const hIdxEl = document.getElementById("kpi-hero-index");
+  if (hIdxEl) hIdxEl.textContent = `${h.totalCurrent} / ${h.totalMax}`;
+  const hBarEl = document.getElementById("kpi-hero-bar");
+  if (hBarEl) hBarEl.style.width = `${h.globalHeroIndex}%`;
   const heroBadge = document.getElementById("kpi-hero-badge");
   if (heroBadge) {
     heroBadge.textContent = `${h.globalHeroIndex}%`;
