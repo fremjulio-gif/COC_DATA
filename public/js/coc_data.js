@@ -351,6 +351,10 @@ if (typeof window !== 'undefined') {
   window.COC_DATA = COC_DATA;
 }
 
+if (typeof global !== 'undefined') {
+  global.COC_DATA = COC_DATA;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     COC_DATA,

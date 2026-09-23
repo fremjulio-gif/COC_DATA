@@ -2,18 +2,14 @@
  * ANALYSIS.JS - Moteur d'Analyse Freemium & Algorithme d'Optimisation Clash of Clans
  */
 
-// Résolution défensive de COC_DATA pour environnement navigateur ou Node.js
-if (typeof COC_DATA === 'undefined') {
-  if (typeof window !== 'undefined' && window.COC_DATA) {
-    var COC_DATA = window.COC_DATA;
-  } else if (typeof require !== 'undefined') {
-    try {
-      var COC_DATA = require('./coc_data').COC_DATA;
-    } catch (e) {
-      /* noop */
-    }
-  }
-}
+// Accès universel au référentiel COC_DATA sans redéclaration globale
+const cocDataRef = (typeof COC_DATA !== 'undefined')
+  ? COC_DATA
+  : (typeof window !== 'undefined' && window.COC_DATA)
+    ? window.COC_DATA
+    : (typeof global !== 'undefined' && global.COC_DATA)
+      ? global.COC_DATA
+      : (typeof require !== 'undefined' ? require('./coc_data').COC_DATA : {});
 
 const COC_ANALYZER = {
   /**
@@ -208,7 +204,7 @@ const COC_ANALYZER = {
     const topPriorities = [];
 
     equipmentList.forEach(eq => {
-      const meta = COC_DATA.equipment[eq.data] || { name: `Équipement #${eq.data}`, hero: "Générique", rarity: "common", maxTh11: 15, icon: "⚙️" };
+      const meta = cocDataRef.equipment[eq.data] || { name: `Équipement #${eq.data}`, hero: "Générique", rarity: "common", maxTh11: 15, icon: "⚙️" };
       const lvl = eq.lvl;
       const isMilestone = (lvl % 3 === 0);
       const nextMilestone = Math.ceil((lvl + 0.01) / 3) * 3;
@@ -277,7 +273,7 @@ const COC_ANALYZER = {
 
     buildingsList.forEach(b => {
       if (b.timer && b.timer > 0) {
-        const meta = COC_DATA.buildings[b.data] || { name: `Bâtiment #${b.data}`, icon: "🏗️" };
+        const meta = cocDataRef.buildings[b.data] || { name: `Bâtiment #${b.data}`, icon: "🏗️" };
         activeUpgrades.push({
           type: "building",
           id: b.data,
@@ -290,7 +286,7 @@ const COC_ANALYZER = {
           isLab: false
         });
       } else if (b.gear_up) {
-        const meta = COC_DATA.buildings[b.data] || { name: `Bâtiment #${b.data}`, icon: "🏗️" };
+        const meta = cocDataRef.buildings[b.data] || { name: `Bâtiment #${b.data}`, icon: "🏗️" };
         activeUpgrades.push({
           type: "building",
           id: b.data,
@@ -342,7 +338,7 @@ const COC_ANALYZER = {
 
     const decoder = (typeof decodeCraftedDefense === "function") 
       ? decodeCraftedDefense 
-      : (typeof COC_DATA !== "undefined" && COC_DATA.decodeCraftedDefense ? COC_DATA.decodeCraftedDefense : null);
+      : (typeof cocDataRef !== "undefined" && cocDataRef.decodeCraftedDefense ? cocDataRef.decodeCraftedDefense : null);
     const decoded = decoder ? decoder(building) : null;
     if (!decoded) {
       return {
@@ -383,7 +379,7 @@ const COC_ANALYZER = {
     let totalDailyTimeSavedHours = 0;
 
     const list = (helpersList || []).map(h => {
-      const meta = COC_DATA.helpers[h.data] || { name: `Aide #${h.data}`, icon: "👷" };
+      const meta = cocDataRef.helpers[h.data] || { name: `Aide #${h.data}`, icon: "👷" };
       const isBuilder = h.data === 93000000;
       const isLab = h.data === 93000001;
       const lvl = h.lvl || 1;
@@ -436,7 +432,7 @@ const COC_ANALYZER = {
     let labActiveResearch = null;
 
     unitsList.forEach(u => {
-      const meta = COC_DATA.units[u.data] || { name: `Unité #${u.data}`, maxTh11: 1, icon: "👾", type: "elixir" };
+      const meta = cocDataRef.units[u.data] || { name: `Unité #${u.data}`, maxTh11: 1, icon: "👾", type: "elixir" };
       const isMax = u.lvl >= meta.maxTh11;
       const unitObj = {
         id: u.data,
@@ -466,7 +462,7 @@ const COC_ANALYZER = {
     });
 
     spellsList.forEach(s => {
-      const meta = COC_DATA.spells[s.data] || { name: `Sort #${s.data}`, maxTh11: 1, icon: "✨", type: "elixir" };
+      const meta = cocDataRef.spells[s.data] || { name: `Sort #${s.data}`, maxTh11: 1, icon: "✨", type: "elixir" };
       const isMax = s.lvl >= meta.maxTh11;
       const spellObj = {
         id: s.data,
@@ -508,7 +504,7 @@ const COC_ANALYZER = {
 
     buildings2List.forEach(b => {
       if (b.timer && b.timer > 0) {
-        const meta = COC_DATA.builderBase[b.data] || { name: `Bâtiment MDO #${b.data}`, icon: "🛠️" };
+        const meta = cocDataRef.builderBase[b.data] || { name: `Bâtiment MDO #${b.data}`, icon: "🛠️" };
         activeUpgrades.push({
           id: b.data,
           name: meta.name,
@@ -521,7 +517,7 @@ const COC_ANALYZER = {
 
     heroes2List.forEach(h => {
       if (h.timer && h.timer > 0) {
-        const meta = COC_DATA.heroes[h.data] || { name: `Héros MDO #${h.data}`, icon: "⚡" };
+        const meta = cocDataRef.heroes[h.data] || { name: `Héros MDO #${h.data}`, icon: "⚡" };
         activeUpgrades.push({
           id: h.data,
           name: meta.name,
@@ -873,6 +869,10 @@ const COC_ANALYZER = {
 
 if (typeof window !== 'undefined') {
   window.COC_ANALYZER = COC_ANALYZER;
+}
+
+if (typeof global !== 'undefined') {
+  global.COC_ANALYZER = COC_ANALYZER;
 }
 
 if (typeof module !== 'undefined' && module.exports) {

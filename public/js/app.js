@@ -325,8 +325,18 @@ function updateApiStatusBadge(isOnline, text) {
  * Chargement et application d'un nouvel état de village
  */
 function loadVillageData(data) {
+  if (!data) return;
   appState.rawData = data;
-  appState.analysis = COC_ANALYZER.analyze(data);
+  const analyzer = (typeof COC_ANALYZER !== 'undefined') 
+    ? COC_ANALYZER 
+    : (typeof window !== 'undefined' && window.COC_ANALYZER) 
+      ? window.COC_ANALYZER 
+      : null;
+  if (!analyzer) {
+    console.error("COC_ANALYZER non disponible au chargement.");
+    return;
+  }
+  appState.analysis = analyzer.analyze(data);
 
   renderKPIs(appState.analysis);
   renderAntiRushAlert(appState.analysis.heroes);
