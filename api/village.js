@@ -3,31 +3,56 @@ import path from 'path';
 import { fallbackVillageData } from './villageData.js';
 
 /**
- * Vercel Serverless Function : État du Village (Lecture & Synchronisation Inter-Appareils)
+ * Vercel Serverless Function : État du Village (Lecture & Synchronisation Sécurisée)
  * Routes : GET /api/village, POST /api/village
  */
 export default async function handler(req, res) {
+  // En-têtes CORS universels
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Sync-Secret');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // POST : Sauvegarde et synchronisation du village
+  // POST : Sauvegarde sécurisée de l'état du village
   if (req.method === 'POST') {
+    // 1. Contrôle d'autorisation par jeton secret (SYNC_SECRET)
+    const expectedSecret = process.env.SYNC_SECRET;
+    if (expectedSecret) {
+      const authHeader = req.headers.authorization || req.headers['x-sync-secret'] || '';
+      const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+      if (token !== expectedSecret) {
+        return res.status(401).json({ 
+          error: "Accès refusé : Jeton d'autorisation SYNC_SECRET manquant ou invalide." 
+        });
+      }
+    }
+
     try {
       const data = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-      if (!data || !data.tag) {
-        return res.status(400).json({ error: "Données de village invalides (champ 'tag' manquant)." });
+      
+      // 2. Validation stricte du schéma
+      if (!data || typeof data !== 'object') {
+        return res.status(400).json({ error: "Corps de requête invalide : un objet JSON est requis." });
+      }
+
+      if (!data.tag || typeof data.tag !== 'string' || !/^#[A-Z0-9]{3,15}$/i.test(data.tag)) {
+        return res.status(400).json({ error: "Identifiant de joueur (tag) invalide ou manquant." });
+      }
+
+      // Limite de taille anti-DoS (500 Ko max)
+      const payloadLength = JSON.stringify(data).length;
+      if (payloadLength > 512000) {
+        return res.status(413).json({ error: "Charge utile trop volumineuse (> 500 Ko)." });
       }
 
       let savedToGithub = false;
       let savedToDisk = false;
 
-      // 1. Sauvegarde sur GitHub si GITHUB_TOKEN est configuré dans Vercel
+      // 3. Sauvegarde sur GitHub si GITHUB_TOKEN configuré
       const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
       const GITHUB_REPO = process.env.GITHUB_REPO || "fremjulio-gif/COC_DATA";
       const FILE_PATH = "data/village_state.json";
@@ -55,7 +80,7 @@ export default async function handler(req, res) {
               "User-Agent": "CoC-Optimizer"
             },
             body: JSON.stringify({
-              message: "chore(data): auto-update village_state.json via web sync",
+              message: `chore(data): sync village ${data.tag} via authenticated api`,
               content: contentBase64,
               sha: currentSha,
               branch: "main"
@@ -66,30 +91,31 @@ export default async function handler(req, res) {
             savedToGithub = true;
           }
         } catch (ghErr) {
-          console.warn("Échec synchronisation GitHub :", ghErr.message);
+          console.warn("Échec de synchronisation GitHub :", ghErr.message);
         }
       }
 
-      // 2. Sauvegarde sur disque local si disponible
+      // 4. Sauvegarde sur disque local si l'environnement le permet
       try {
         const filePath = path.join(process.cwd(), 'data', 'village_state.json');
         fs.mkdirSync(path.dirname(filePath), { recursive: true });
         fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
         savedToDisk = true;
       } catch (fsErr) {
-        // En lecture seule sur environnement serverless sans disque
+        // En lecture seule sur conteneur serverless Vercel
       }
 
       return res.status(200).json({
         success: true,
         message: savedToGithub 
-          ? "Village synchronisé et commité sur GitHub (déploiement multi-appareils actif) !"
+          ? "Village synchronisé et commité sur GitHub !" 
           : savedToDisk 
-            ? "Village enregistré sur le serveur local." 
-            : "Données reçues et validées.",
+            ? "Village enregistré localement." 
+            : "Données reçues et validées avec succès.",
         savedToGithub,
         savedToDisk
       });
+
     } catch (err) {
       return res.status(400).json({ error: "Échec de traitement du village : " + err.message });
     }
@@ -101,12 +127,13 @@ export default async function handler(req, res) {
     if (fs.existsSync(filePath)) {
       const fileContent = fs.readFileSync(filePath, 'utf8');
       const data = JSON.parse(fileContent);
+      res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60');
       return res.status(200).json(data);
     }
   } catch (err) {
-    // Si la lecture disque échoue dans le conteneur serverless
+    // Si la lecture disque échoue
   }
 
-  // Fallback direct sur les données embarquées (garantie 0 crash 500)
+  // Fallback garanti
   return res.status(200).json(fallbackVillageData);
 }

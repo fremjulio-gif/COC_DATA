@@ -8,6 +8,7 @@ import { router } from './router.js';
 import { i18n } from './i18n.js';
 import { analyzeVillage } from './analysis.js';
 import { evaluateAdvice } from './advice.js';
+import { decompressVillageFromHash } from './sync.js';
 import { renderHomeView } from './ui/homeView.js';
 import { renderAdviceView } from './ui/adviceView.js';
 import { renderVillageView } from './ui/villageView.js';
@@ -15,6 +16,7 @@ import { renderHeroesView } from './ui/heroesView.js';
 import { renderArmyView } from './ui/armyView.js';
 import { renderProgressView } from './ui/progressView.js';
 import { renderStrategyView } from './ui/strategyView.js';
+import { renderSettingsView } from './ui/settingsView.js';
 
 let capsData = null;
 let costsData = null;
@@ -99,10 +101,36 @@ async function loadStaticData() {
   }
 }
 
+async function checkSyncUrlHash() {
+  const hash = window.location.hash || '';
+  if (hash.includes('sync=')) {
+    try {
+      const syncHash = hash.replace(/^#?\/?sync=/, '');
+      const village = await decompressVillageFromHash(syncHash);
+      if (village && village.tag) {
+        store.importVillage(village);
+        processAndRenderVillage(village);
+        showToast(`Village ${village.tag} synchronisé avec succès !`, 'success');
+        window.location.hash = '#home';
+        return true;
+      }
+    } catch (err) {
+      showToast('Échec de la synchronisation par lien : ' + err.message, 'error');
+    }
+  }
+  return false;
+}
+
 async function loadInitialVillageData() {
+  // 1. Tente de lire un hash de synchronisation URL
+  const synced = await checkSyncUrlHash();
+  if (synced) return;
+
+  // 2. Charge depuis localStorage
   store.loadFromStorage();
   let village = store.getActiveVillageData();
 
+  // 3. Fallback sur API locale
   if (!village) {
     try {
       const res = await fetch('/api/village');
@@ -157,6 +185,10 @@ export function processAndRenderVillage(village) {
   // Rendu de la vue Stratégies
   const strategyContainer = document.getElementById('strategy-container');
   if (strategyContainer) renderStrategyView(strategyContainer, analysis);
+
+  // Rendu de la vue Réglages
+  const settingsContainer = document.getElementById('settings-container');
+  if (settingsContainer) renderSettingsView(settingsContainer, glossaryData);
 }
 
 function updateHeaderUI(state, analysis) {
@@ -182,11 +214,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   router.init();
   registerServiceWorker();
 
-  // Re-rendre lors du changement de route si nécessaire (notamment redimensionnement des graphiques)
   router.onRouteChange((route) => {
     if (route === 'progress' && store.getState().analysis) {
       const progressContainer = document.getElementById('progress-container');
       if (progressContainer) renderProgressView(progressContainer, store.getState().analysis, capsData);
+    } else if (route === 'settings') {
+      const settingsContainer = document.getElementById('settings-container');
+      if (settingsContainer) renderSettingsView(settingsContainer, glossaryData);
     }
   });
 
