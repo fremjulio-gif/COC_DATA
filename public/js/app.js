@@ -7,13 +7,17 @@ import { store } from './store.js';
 import { router } from './router.js';
 import { i18n } from './i18n.js';
 import { analyzeVillage } from './analysis.js';
+import { evaluateAdvice } from './advice.js';
 import { renderHomeView } from './ui/homeView.js';
+import { renderAdviceView } from './ui/adviceView.js';
 import { renderVillageView } from './ui/villageView.js';
 import { renderHeroesView } from './ui/heroesView.js';
 import { renderArmyView } from './ui/armyView.js';
 
 let capsData = null;
 let costsData = null;
+let rulesData = null;
+let glossaryData = null;
 
 export function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
@@ -77,13 +81,17 @@ async function registerServiceWorker() {
 
 async function loadStaticData() {
   try {
-    const [capsRes, costsRes] = await Promise.all([
+    const [capsRes, costsRes, rulesRes, glossaryRes] = await Promise.all([
       fetch('/data/townhall_caps.json'),
-      fetch('/data/upgrade_costs.json')
+      fetch('/data/upgrade_costs.json'),
+      fetch('/data/advice_rules.json'),
+      fetch('/data/glossary.fr.json')
     ]);
 
     if (capsRes.ok) capsData = await capsRes.json();
     if (costsRes.ok) costsData = await costsRes.json();
+    if (rulesRes.ok) rulesData = await rulesRes.json();
+    if (glossaryRes.ok) glossaryData = await glossaryRes.json();
   } catch (err) {
     console.warn('[App] Erreur lors du chargement des données de référence :', err);
   }
@@ -118,15 +126,25 @@ export function processAndRenderVillage(village) {
 
   updateHeaderUI(store.getState(), analysis);
 
-  // Rendu des vues de l'application
-  renderHomeView(analysis, capsData);
+  // Évaluation des règles de conseils
+  const adviceList = evaluateAdvice(analysis, rulesData, store.getState());
 
+  // Rendu de la vue Accueil
+  renderHomeView(analysis, capsData, adviceList);
+
+  // Rendu de la vue Conseils
+  const adviceContainer = document.getElementById('advice-container');
+  if (adviceContainer) renderAdviceView(adviceContainer, adviceList, glossaryData);
+
+  // Rendu de la vue Village
   const villageContainer = document.getElementById('village-inventory-container');
   if (villageContainer) renderVillageView(villageContainer, analysis, capsData);
 
+  // Rendu de la vue Héros
   const heroesContainer = document.getElementById('heroes-container');
   if (heroesContainer) renderHeroesView(heroesContainer, analysis, capsData);
 
+  // Rendu de la vue Armée
   const armyContainer = document.getElementById('army-container');
   if (armyContainer) renderArmyView(armyContainer, analysis, capsData);
 }

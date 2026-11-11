@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0",
+  "terms": {
+    "HDV": {
+      "term": "Hôtel de Ville (HDV)",
+      "definition": "Le bâtiment central du village. Son niveau détermine le plafond maximal d'amélioration de tous vos bâtiments, héros, troupes et remparts."
+    },
+    "Prince Gargouille": {
+      "term": "Prince Gargouille",
+      "definition": "Quatrième héros du Village Principal introduit dans la version 18.x de Clash of Clans. Héros volant agile disposant de 12 équipements dédiés."
+    },
+    "Hero Power Index": {
+      "term": "Hero Power Index",
+      "definition": "Indicateur représentant le ratio cumulé des niveaux de vos héros par rapport au plafond maximal possible pour votre niveau d'Hôtel de Ville."
+    },
+    "B.O.B": {
+      "term": "Cabane B.O.B (6ème Ouvrier)",
+      "definition": "Sixième ouvrier permanent pour le village principal, débloqué en accomplissant les 4 quêtes d'ingénierie dans la Base des Ouvriers (MDO)."
+    },
+    "Station d'Artisanat": {
+      "term": "Station d'Artisanat Défensif",
+      "definition": "Défense modulaire 3x3 saisonnière introduite en v18.x. Elle propose 3 configurations (Bougie Ardente, Chasseur de Héros, Catapulte Gourmande) et 9 modules."
+    },
+    "Quick Win": {
+      "term": "Quick Win (Équipement)",
+      "definition": "Équipement situé à 1 niveau seulement d'un palier d'aptitude clé (multiple de 3 : 3, 6, 9, 12, 15, 18). L'améliorer procure un gain d'efficacité immédiat."
+    },
+    "Palier x3": {
+      "term": "Palier x3 (Équipement)",
+      "definition": "Niveaux multiples de 3 où les compétences passives et actives des équipements augmentent significativement leurs multiplicateurs de dégâts et de soin."
+    },
+    "Apprenti Ouvrier": {
+      "term": "Apprenti Ouvrier",
+      "definition": "Assistant quotidien qui accélère gratuitement le chantier d'un bâtiment de 1 à 8 heures par jour selon son niveau."
+    },
+    "Assistant Labo": {
+      "term": "Assistant Labo",
+      "definition": "Assistant quotidien qui réduit la durée de vos recherches de laboratoire d'élixir ou d'élixir noir."
+    },
+    "GDC": {
+      "term": "Guerre de Clans (GDC)",
+      "definition": "Compétition opposant deux clans où chaque joueur réalise deux attaques tactiques pour décrocher 3 étoiles."
+    },
+    "Farm": {
+      "term": "Farm (Pillage)",
+      "definition": "Méthode d'attaque optimisée à bas coût (notamment avec les Super Gobelins) pour récolter le maximum de butin en or, élixir et élixir noir."
+    },
+    "Rush": {
+      "term": "Rush Trophées",
+      "definition": "Progression compétitive visant à accumuler le plus grand nombre de trophées pour atteindre les ligues supérieures (Titan, Légende)."
+    },
+    "Super Gobelins": {
+      "term": "Super Gobelins",
+      "definition": "Version améliorée du Gobelin disposant d'une invisibilité temporaire à l'atterrissage, redoutable pour vider les réserves et l'HDV rapidement."
+    }
+  }
+}
