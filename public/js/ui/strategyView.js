@@ -1,15 +1,23 @@
 /**
  * CoC Freemium Optimizer — Vue Stratégies d'Armée
  * Compositions tactiques adaptées au niveau d'HDV (Farm, GDC 3 étoiles, Rush, Sans Héros)
+ * Style Apple Minimaliste avec icônes SVG fines (zéro emoji)
  */
 
 import { showToast } from '../app.js';
+
+const SVG_ICONS = {
+  farm: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2v20"></path><path d="M18 2v20"></path><path d="M6 12h12"></path></svg>`,
+  gdc: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline><line x1="13" y1="19" x2="19" y2="13"></line><line x1="16" y1="16" x2="20" y2="20"></line><line x1="19" y1="21" x2="21" y2="19"></line></svg>`,
+  rush: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
+  noheroes: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>`
+};
 
 const STRATEGIES_DATA = {
   farm: {
     id: "farm",
     name: "Farm & Pillage Massif",
-    icon: "🌾",
+    iconKey: "farm",
     difficulty: "Facile",
     armyUnits: "80x Super Gobelins, 8x Sapeurs, 4x Gargouilles",
     spells: "4x Sort de Saut, 3x Sort d'Invisibilité",
@@ -20,7 +28,7 @@ const STRATEGIES_DATA = {
   gdc: {
     id: "gdc",
     name: "GDC 3 Étoiles (Sorcières & Golems)",
-    icon: "⚔️",
+    iconKey: "gdc",
     difficulty: "Intermédiaire",
     armyUnits: "3x Golems, 14x Sorcières, 4x Sorciers, 2x Archers",
     spells: "8x Sort de Séisme, 1x Sort de Rage, 1x Sort de Gel, 1x Sort de Poison",
@@ -31,7 +39,7 @@ const STRATEGIES_DATA = {
   rush: {
     id: "rush",
     name: "Rush Trophées (Zap Dragons)",
-    icon: "🏆",
+    iconKey: "rush",
     difficulty: "Facile",
     armyUnits: "11x Dragons, 8x Ballons",
     spells: "9x Sort de Foudre, 1x Sort de Rage, 1x Sort de Gel",
@@ -42,7 +50,7 @@ const STRATEGIES_DATA = {
   noheroes: {
     id: "noheroes",
     name: "Sans Héros (Héros en Amélioration)",
-    icon: "🛠️",
+    iconKey: "noheroes",
     difficulty: "Accessible",
     armyUnits: "18x Bébés Dragons, 12x Ballons, 8x Gargouilles",
     spells: "9x Sort de Foudre, 1x Sort de Rage",
@@ -78,19 +86,19 @@ export function renderStrategyView(container, analysis) {
     <!-- Sélecteur d'onglets de stratégie -->
     <div class="segmented-control" id="strategy-segmented-control">
       <button class="segmented-item ${currentTab === 'farm' ? 'active' : ''}" data-strat="farm">
-        <span>🌾</span>
+        ${SVG_ICONS.farm}
         <span>Farm & Pillage</span>
       </button>
       <button class="segmented-item ${currentTab === 'gdc' ? 'active' : ''}" data-strat="gdc">
-        <span>⚔️</span>
+        ${SVG_ICONS.gdc}
         <span>GDC (3 Étoiles)</span>
       </button>
       <button class="segmented-item ${currentTab === 'rush' ? 'active' : ''}" data-strat="rush">
-        <span>🏆</span>
+        ${SVG_ICONS.rush}
         <span>Classé / Rush</span>
       </button>
       <button class="segmented-item ${currentTab === 'noheroes' ? 'active' : ''}" data-strat="noheroes">
-        <span>🛠️</span>
+        ${SVG_ICONS.noheroes}
         <span>Sans Héros</span>
       </button>
     </div>
@@ -105,7 +113,6 @@ export function renderStrategyView(container, analysis) {
   const detailsContainer = card.querySelector('#strategy-details-container');
   renderStrategyDetails(detailsContainer, currentTab);
 
-  // Gestion des onglets
   const tabBtns = card.querySelectorAll('.segmented-item');
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -116,7 +123,6 @@ export function renderStrategyView(container, analysis) {
     });
   });
 
-  // Bouton de copie
   const copyBtn = card.querySelector('#btn-copy-strategy');
   if (copyBtn) {
     copyBtn.addEventListener('click', () => {
@@ -139,7 +145,7 @@ function renderStrategyDetails(container, stratKey) {
     <div class="space-y-3">
       <div class="flex items-center justify-between pb-2 border-b border-subtle">
         <div class="flex items-center gap-2">
-          <span class="text-xl">${strat.icon}</span>
+          <div class="text-accent">${SVG_ICONS[strat.iconKey]}</div>
           <h4 class="text-sm font-semibold text-primary">${strat.name}</h4>
         </div>
         <span class="badge badge-accent">${strat.difficulty}</span>
