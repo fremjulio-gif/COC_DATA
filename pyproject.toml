@@ -1,0 +1,12 @@
+[project]
+name = "coc-freemium-optimizer"
+version = "1.0.0"
+description = "Tableau de bord d'optimisation freemium Clash of Clans (v18.600.5)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0.0",
+]
+
+[tool.uv]
+package = false

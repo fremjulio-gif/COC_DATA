@@ -1,0 +1,20 @@
+{
+  "name": "CoC Freemium Optimizer",
+  "short_name": "CoC Optimizer",
+  "description": "Tableau de bord et conseils personnalisés Clash of Clans v18.600.5",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#070709",
+  "theme_color": "#070709",
+  "categories": ["games", "utilities"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

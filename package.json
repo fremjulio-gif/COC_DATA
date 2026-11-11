@@ -1,10 +1,11 @@
 {
-  "name": "coc-data-optimizer",
+  "name": "coc-freemium-optimizer",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Tableau de bord d'optimisation Clash of Clans v18.600.5",
+  "description": "CoC Freemium Optimizer v18.600.5 — Web App Desktop & Mobile",
   "scripts": {
+    "test": "node --test tests/*.test.js",
     "start": "python3 app.py"
   }
 }

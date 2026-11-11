@@ -1,0 +1,45 @@
+{
+  "app": {
+    "title": "CoC Freemium Optimizer",
+    "subtitle": "Optimisation intelligente du village",
+    "version": "v18.600.5"
+  },
+  "nav": {
+    "home": "Accueil",
+    "advice": "Conseils",
+    "village": "Village",
+    "heroes": "Héros",
+    "army": "Armée",
+    "progress": "Projection",
+    "strategy": "Stratégies",
+    "settings": "Réglages"
+  },
+  "home": {
+    "summary_title": "État de votre village",
+    "priority_actions": "Prochaines actions recommandées",
+    "no_village_title": "Aucun village importé",
+    "no_village_desc": "Importez votre village_state.json ou collez vos données pour obtenir votre analyse personnalisée.",
+    "import_action": "Importer un village"
+  },
+  "urgency": {
+    "critique": "Critique",
+    "important": "Important",
+    "utile": "Utile",
+    "optionnel": "Optionnel"
+  },
+  "status": {
+    "maxed": "Maxé",
+    "ontrack": "Dans les temps",
+    "delayed": "En retard",
+    "critical": "Retard critique",
+    "locked": "Verrouillé"
+  },
+  "actions": {
+    "why": "Pourquoi ?",
+    "mark_done": "Marquer comme fait",
+    "hide": "Masquer",
+    "restore": "Rétablir",
+    "copy": "Copier",
+    "copied": "Copié !"
+  }
+}
