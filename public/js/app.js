@@ -13,6 +13,8 @@ import { renderAdviceView } from './ui/adviceView.js';
 import { renderVillageView } from './ui/villageView.js';
 import { renderHeroesView } from './ui/heroesView.js';
 import { renderArmyView } from './ui/armyView.js';
+import { renderProgressView } from './ui/progressView.js';
+import { renderStrategyView } from './ui/strategyView.js';
 
 let capsData = null;
 let costsData = null;
@@ -147,6 +149,14 @@ export function processAndRenderVillage(village) {
   // Rendu de la vue Armée
   const armyContainer = document.getElementById('army-container');
   if (armyContainer) renderArmyView(armyContainer, analysis, capsData);
+
+  // Rendu de la vue Progression & Projection
+  const progressContainer = document.getElementById('progress-container');
+  if (progressContainer) renderProgressView(progressContainer, analysis, capsData);
+
+  // Rendu de la vue Stratégies
+  const strategyContainer = document.getElementById('strategy-container');
+  if (strategyContainer) renderStrategyView(strategyContainer, analysis);
 }
 
 function updateHeaderUI(state, analysis) {
@@ -171,6 +181,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   router.init();
   registerServiceWorker();
+
+  // Re-rendre lors du changement de route si nécessaire (notamment redimensionnement des graphiques)
+  router.onRouteChange((route) => {
+    if (route === 'progress' && store.getState().analysis) {
+      const progressContainer = document.getElementById('progress-container');
+      if (progressContainer) renderProgressView(progressContainer, store.getState().analysis, capsData);
+    }
+  });
 
   store.subscribe((state) => {
     updateHeaderUI(state, state.analysis);
