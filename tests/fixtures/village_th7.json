@@ -1,0 +1,28 @@
+{
+  "tag": "#TH7SAMPLE",
+  "timestamp": 1789850000,
+  "buildings": [
+    { "data": 1000001, "lvl": 7, "cnt": 1 },
+    { "data": 1000014, "lvl": 1, "cnt": 1 },
+    { "data": 1000015, "lvl": 1, "cnt": 3 },
+    { "data": 1000000, "lvl": 6, "cnt": 4 },
+    { "data": 1000006, "lvl": 3, "cnt": 1 },
+    { "data": 1000007, "lvl": 5, "cnt": 1 },
+    { "data": 1000008, "lvl": 8, "cnt": 5 },
+    { "data": 1000010, "lvl": 7, "cnt": 175 }
+  ],
+  "heroes": [
+    { "data": 28000000, "lvl": 5 }
+  ],
+  "units": [
+    { "data": 4000000, "lvl": 4 },
+    { "data": 4000001, "lvl": 4 },
+    { "data": 4000008, "lvl": 2 }
+  ],
+  "spells": [
+    { "data": 26000000, "lvl": 4 }
+  ],
+  "equipment": [
+    { "data": 90000000, "lvl": 4 }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "tag": "#TH17MAXED",
+  "timestamp": 1789850000,
+  "buildings": [
+    { "data": 1000001, "lvl": 17, "cnt": 1 },
+    { "data": 1000014, "lvl": 1, "cnt": 1 },
+    { "data": 1000015, "lvl": 1, "cnt": 4 },
+    { "data": 1000071, "lvl": 5, "cnt": 1 },
+    { "data": 1000010, "lvl": 18, "cnt": 325 }
+  ],
+  "heroes": [
+    { "data": 28000000, "lvl": 100 },
+    { "data": 28000001, "lvl": 100 },
+    { "data": 28000002, "lvl": 75 },
+    { "data": 28000004, "lvl": 50 },
+    { "data": 28000006, "lvl": 90 }
+  ],
+  "units": [],
+  "spells": [],
+  "equipment": []
+}

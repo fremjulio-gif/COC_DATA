@@ -1,0 +1,47 @@
+{
+  "version": "18.600.5",
+  "walls": {
+    "11": { "cost": 1000000, "resource": "gold_or_elixir", "timeSeconds": 0, "verified": true },
+    "12": { "cost": 2000000, "resource": "gold_or_elixir", "timeSeconds": 0, "verified": true },
+    "13": { "cost": 3000000, "resource": "gold_or_elixir", "timeSeconds": 0, "verified": true },
+    "14": { "cost": 4000000, "resource": "gold_or_elixir", "timeSeconds": 0, "verified": true },
+    "15": { "cost": 5000000, "resource": "gold_or_elixir", "timeSeconds": 0, "verified": true },
+    "16": { "cost": 6500000, "resource": "gold_or_elixir", "timeSeconds": 0, "verified": true },
+    "17": { "cost": 8000000, "resource": "gold_or_elixir", "timeSeconds": 0, "verified": true },
+    "18": { "cost": 9000000, "resource": "gold_or_elixir", "timeSeconds": 0, "verified": false }
+  },
+  "heroes": {
+    "28000000": {
+      "name": "Roi des Barbares",
+      "resource": "dark_elixir",
+      "avgCostPerLevel": 108000,
+      "avgDaysPerLevel": 4.5,
+      "verified": true
+    },
+    "28000001": {
+      "name": "Reine des Archères",
+      "resource": "dark_elixir",
+      "avgCostPerLevel": 115000,
+      "avgDaysPerLevel": 4.5,
+      "verified": true
+    },
+    "28000002": {
+      "name": "Grand Gardien",
+      "resource": "elixir",
+      "avgCostPerLevel": 6500000,
+      "avgDaysPerLevel": 4.0,
+      "verified": true
+    },
+    "28000006": {
+      "name": "Prince Gargouille",
+      "resource": "dark_elixir",
+      "avgCostPerLevel": 120000,
+      "avgDaysPerLevel": 4.0,
+      "verified": true
+    }
+  },
+  "helpers": {
+    "93000000": { "name": "Apprenti Ouvrier", "hoursPerLevel": 1, "verified": true },
+    "93000001": { "name": "Assistant Labo", "hoursPerLevel": 1, "verified": true }
+  }
+}

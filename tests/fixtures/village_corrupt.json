@@ -1,0 +1,10 @@
+{
+  "tag": "#CORRUPTED",
+  "broken": true,
+  "buildings": "not_an_array",
+  "heroes": [
+    { "data": 28000000, "lvl": "not_a_number" },
+    { "bad_key": true }
+  ],
+  "equipment": null
+}
