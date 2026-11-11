@@ -6,6 +6,14 @@
 import { store } from './store.js';
 import { router } from './router.js';
 import { i18n } from './i18n.js';
+import { analyzeVillage } from './analysis.js';
+import { renderHomeView } from './ui/homeView.js';
+import { renderVillageView } from './ui/villageView.js';
+import { renderHeroesView } from './ui/heroesView.js';
+import { renderArmyView } from './ui/armyView.js';
+
+let capsData = null;
+let costsData = null;
 
 export function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
@@ -60,19 +68,31 @@ async function registerServiceWorker() {
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
     try {
       const reg = await navigator.serviceWorker.register('/sw.js');
-      console.log('[PWA] Service Worker enregistré avec succès :', reg.scope);
+      console.log('[PWA] Service Worker enregistré :', reg.scope);
     } catch (err) {
       console.warn('[PWA] Échec enregistrement Service Worker :', err);
     }
   }
 }
 
+async function loadStaticData() {
+  try {
+    const [capsRes, costsRes] = await Promise.all([
+      fetch('/data/townhall_caps.json'),
+      fetch('/data/upgrade_costs.json')
+    ]);
+
+    if (capsRes.ok) capsData = await capsRes.json();
+    if (costsRes.ok) costsData = await costsRes.json();
+  } catch (err) {
+    console.warn('[App] Erreur lors du chargement des données de référence :', err);
+  }
+}
+
 async function loadInitialVillageData() {
-  // 1. Charge depuis localStorage
   store.loadFromStorage();
   let village = store.getActiveVillageData();
 
-  // 2. Si aucun village n'est en mémoire, interroge l'endpoint local /api/village
   if (!village) {
     try {
       const res = await fetch('/api/village');
@@ -82,19 +102,41 @@ async function loadInitialVillageData() {
         console.log('[App] Village initial chargé via API locale :', village.tag);
       }
     } catch (err) {
-      console.warn('[App] Aucune API locale disponible, en attente d\'un import manuel :', err);
+      console.warn('[App] Aucune API locale disponible, attente d\'un import manuel :', err);
     }
   }
 
-  updateHeaderUI(store.getState());
+  processAndRenderVillage(village);
 }
 
-function updateHeaderUI(state) {
+export function processAndRenderVillage(village) {
+  if (!village) return;
+
+  const analysis = analyzeVillage(village, capsData, costsData);
+  analysis.rawData = village;
+  store.setAnalysis(analysis);
+
+  updateHeaderUI(store.getState(), analysis);
+
+  // Rendu des vues de l'application
+  renderHomeView(analysis, capsData);
+
+  const villageContainer = document.getElementById('village-inventory-container');
+  if (villageContainer) renderVillageView(villageContainer, analysis, capsData);
+
+  const heroesContainer = document.getElementById('heroes-container');
+  if (heroesContainer) renderHeroesView(heroesContainer, analysis, capsData);
+
+  const armyContainer = document.getElementById('army-container');
+  if (armyContainer) renderArmyView(armyContainer, analysis, capsData);
+}
+
+function updateHeaderUI(state, analysis) {
   const tagBadge = document.getElementById('header-tag-badge');
   const statusText = document.getElementById('header-status-text');
 
   if (tagBadge) {
-    tagBadge.textContent = state.activeTag || 'Aucun village';
+    tagBadge.textContent = state.activeTag || (analysis?.tag) || 'Aucun village';
   }
   if (statusText) {
     const count = Object.keys(state.accounts).length;
@@ -104,15 +146,16 @@ function updateHeaderUI(state) {
   }
 }
 
-// Initialisation globale au chargement du DOM
+// Initialisation globale
 document.addEventListener('DOMContentLoaded', async () => {
   await i18n.init();
+  await loadStaticData();
   initTheme();
   router.init();
   registerServiceWorker();
 
   store.subscribe((state) => {
-    updateHeaderUI(state);
+    updateHeaderUI(state, state.analysis);
   });
 
   await loadInitialVillageData();
