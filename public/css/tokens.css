@@ -1,16 +1,16 @@
 /**
- * CoC Freemium Optimizer — Design Tokens (Apple Minimaliste)
- * Conforme aux directives d'interface humaine Apple (iOS / macOS / visionOS)
+ * CoC Freemium Optimizer — Design Tokens (Visual Interactive Apple × Clash System)
+ * Conforme WebKit/iOS Safari, Chromium, Gecko — Thèmes Sombre & Clair
  */
 
 :root {
-  /* Safe-areas iOS & écrans à encoche */
+  /* Safe-areas iOS / Dynamic Island / Home Indicator */
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
   --sal: env(safe-area-inset-left, 0px);
   --sar: env(safe-area-inset-right, 0px);
 
-  /* Grille spatiale (base 4px / 8px) */
+  /* Grille spatiale 4px/8px */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -19,20 +19,8 @@
   --space-6: 24px;
   --space-8: 32px;
   --space-10: 40px;
-  --space-12: 48px;
 
-  /* Rayons de courbure Apple */
-  --radius-xs: 6px;
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
-  --radius-full: 9999px;
-
-  /* Échelle typographique calibrée */
-  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Inter, system-ui, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
-
+  /* Échelle typographique */
   --text-2xs: 11px;
   --text-xs: 12px;
   --text-sm: 14px;
@@ -42,156 +30,229 @@
   --text-2xl: 28px;
   --text-3xl: 36px;
 
-  /* Transitions & Ressorts subtils Apple */
-  --transition-fast: 150ms cubic-bezier(0.2, 0, 0, 1);
-  --transition-normal: 240ms cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-smooth: 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* Rayons de courbure */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
 
-  /* Thème Sombre par Défaut (Base Deep Obsidian Apple) */
-  --bg-primary: #070709;
-  --bg-secondary: #111116;
-  --bg-tertiary: #191922;
+  /* Typographie Système */
+  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Inter, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
 
-  --surface-card: #13131a;
-  --surface-card-hover: #181822;
-  --surface-elevated: #1d1d28;
-  --surface-sunken: #0c0c10;
+  /* Transitions & Ressorts 60/120fps (Composite-only transform/opacity) */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 150ms var(--ease-spring);
+  --transition-normal: 250ms var(--ease-spring);
+  --transition-smooth: 420ms var(--ease-spring);
 
-  /* Verre réservé à la navigation et aux modales */
-  --surface-glass-nav: rgba(11, 11, 16, 0.82);
-  --surface-glass-modal: rgba(15, 15, 22, 0.88);
+  /* Palette Thème Sombre (Deep Obsidian Apple + Accents Clash) */
+  --bg-primary: #07080d;
+  --bg-secondary: #0f1119;
+  --bg-tertiary: #171b26;
 
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-default: rgba(255, 255, 255, 0.12);
-  --border-strong: rgba(255, 255, 255, 0.22);
+  --surface-card: #121520;
+  --surface-card-hover: #181c2b;
+  --surface-elevated: #1d2233;
+  --surface-sunken: #0b0d14;
+  --highlight-top: rgba(255, 255, 255, 0.06);
 
-  --text-primary: #f5f5f7;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --text-faint: #52525b;
+  --surface-glass-nav: rgba(11, 13, 21, 0.84);
+  --surface-glass-modal: rgba(16, 19, 30, 0.94);
 
-  /* Accentuation & Information (WCAG AA compliant) */
-  --accent: #0a84ff;              /* Bleu Apple action */
-  --accent-subtle: rgba(10, 132, 255, 0.12);
-  --accent-border: rgba(10, 132, 255, 0.32);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.13);
+  --border-strong: rgba(255, 255, 255, 0.24);
 
-  --color-success: #30d158;        /* Vert status OK */
-  --color-success-bg: rgba(48, 209, 88, 0.12);
-  --color-success-border: rgba(48, 209, 88, 0.30);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
 
-  --color-warning: #ff9f0a;        /* Orange / Ambre attention */
-  --color-warning-bg: rgba(255, 159, 10, 0.12);
-  --color-warning-border: rgba(255, 159, 10, 0.30);
+  /* Couleurs Sémantiques */
+  --accent: #0a84ff;
+  --accent-glow: rgba(10, 132, 255, 0.26);
+  --accent-subtle: rgba(10, 132, 255, 0.15);
+  --accent-border: rgba(10, 132, 255, 0.40);
 
-  --color-danger: #ff453a;         /* Rouge alerte / retard */
-  --color-danger-bg: rgba(255, 69, 58, 0.12);
-  --color-danger-border: rgba(255, 69, 58, 0.30);
+  --color-success: #30d158;
+  --color-success-bg: rgba(48, 209, 88, 0.14);
+  --color-success-border: rgba(48, 209, 88, 0.36);
 
-  --color-info: #64d2ff;           /* Cyan doux */
-  --color-info-bg: rgba(100, 210, 255, 0.12);
-  --color-info-border: rgba(100, 210, 255, 0.30);
+  --color-warning: #ff9f0a;
+  --color-warning-bg: rgba(255, 159, 10, 0.14);
+  --color-warning-border: rgba(255, 159, 10, 0.36);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
-  --shadow-sheet: 0 -8px 30px rgba(0, 0, 0, 0.65);
+  --color-danger: #ff453a;
+  --color-danger-bg: rgba(255, 69, 58, 0.14);
+  --color-danger-border: rgba(255, 69, 58, 0.36);
+
+  --color-purple: #bf5af2;
+  --color-purple-bg: rgba(191, 90, 242, 0.15);
+  --color-purple-border: rgba(191, 90, 242, 0.38);
+
+  --color-cyan: #64d2ff;
+  --color-cyan-bg: rgba(100, 210, 255, 0.14);
+  --color-cyan-border: rgba(100, 210, 255, 0.35);
+
+  /* Couleurs Identitaires Héros & Ressources CoC */
+  --hero-king: #f59e0b;
+  --hero-king-bg: rgba(245, 158, 11, 0.14);
+  --hero-queen: #ec4899;
+  --hero-queen-bg: rgba(236, 72, 153, 0.14);
+  --hero-warden: #38bdf8;
+  --hero-warden-bg: rgba(56, 189, 248, 0.14);
+  --hero-prince: #a855f7;
+  --hero-prince-bg: rgba(168, 85, 247, 0.14);
+  --hero-champion: #ef4444;
+  --hero-champion-bg: rgba(239, 68, 68, 0.14);
+
+  --gold-color: #fbbf24;
+  --elixir-color: #e879f9;
+  --dark-elixir-color: #a855f7;
+
+  /* Ombres */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.36);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.46);
+  --shadow-lg: 0 18px 42px rgba(0, 0, 0, 0.62);
+  --shadow-sheet: 0 -10px 40px rgba(0, 0, 0, 0.65);
+
+  /* Graphiques */
+  --chart-tick: #94a3b8;
+  --chart-grid: rgba(255, 255, 255, 0.06);
+  --chart-cap-bar: rgba(255, 255, 255, 0.09);
 }
 
-/* Thème Clair Apple (Palette iOS / macOS Clean) */
+/* Thème Clair Apple */
 [data-theme="light"] {
-  --bg-primary: #f5f5f7;
-  --bg-secondary: #e8e8ed;
-  --bg-tertiary: #dedee4;
+  --bg-primary: #f1f3f8;
+  --bg-secondary: #e5e8f0;
+  --bg-tertiary: #d8dce8;
 
   --surface-card: #ffffff;
-  --surface-card-hover: #fcfcfd;
+  --surface-card-hover: #f9fafe;
   --surface-elevated: #ffffff;
-  --surface-sunken: #ececee;
+  --surface-sunken: #f3f5fa;
+  --highlight-top: rgba(255, 255, 255, 0.9);
 
-  --surface-glass-nav: rgba(245, 245, 247, 0.85);
-  --surface-glass-modal: rgba(255, 255, 255, 0.92);
+  --surface-glass-nav: rgba(255, 255, 255, 0.86);
+  --surface-glass-modal: rgba(255, 255, 255, 0.96);
 
-  --border-subtle: rgba(0, 0, 0, 0.06);
-  --border-default: rgba(0, 0, 0, 0.10);
-  --border-strong: rgba(0, 0, 0, 0.20);
+  --border-subtle: rgba(15, 23, 42, 0.07);
+  --border-default: rgba(15, 23, 42, 0.12);
+  --border-strong: rgba(15, 23, 42, 0.22);
 
-  --text-primary: #1d1d1f;
-  --text-secondary: #515156;
-  --text-muted: #86868b;
-  --text-faint: #a1a1a6;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
 
   --accent: #0071e3;
-  --accent-subtle: rgba(0, 113, 227, 0.08);
-  --accent-border: rgba(0, 113, 227, 0.25);
+  --accent-glow: rgba(0, 113, 227, 0.20);
+  --accent-subtle: rgba(0, 113, 227, 0.10);
+  --accent-border: rgba(0, 113, 227, 0.30);
 
-  --color-success: #28cd41;
-  --color-success-bg: rgba(40, 205, 65, 0.10);
-  --color-success-border: rgba(40, 205, 65, 0.25);
+  --color-success: #16a34a;
+  --color-success-bg: rgba(22, 163, 74, 0.10);
+  --color-success-border: rgba(22, 163, 74, 0.28);
 
-  --color-warning: #f59500;
-  --color-warning-bg: rgba(245, 149, 0, 0.10);
-  --color-warning-border: rgba(245, 149, 0, 0.25);
+  --color-warning: #d97706;
+  --color-warning-bg: rgba(217, 119, 6, 0.10);
+  --color-warning-border: rgba(217, 119, 6, 0.28);
 
-  --color-danger: #ff3b30;
-  --color-danger-bg: rgba(255, 59, 48, 0.10);
-  --color-danger-border: rgba(255, 59, 48, 0.25);
+  --color-danger: #dc2626;
+  --color-danger-bg: rgba(220, 38, 38, 0.10);
+  --color-danger-border: rgba(220, 38, 38, 0.28);
 
-  --color-info: #0077b6;
-  --color-info-bg: rgba(0, 119, 182, 0.10);
-  --color-info-border: rgba(0, 119, 182, 0.25);
+  --color-purple: #9333ea;
+  --color-purple-bg: rgba(147, 51, 234, 0.10);
+  --color-purple-border: rgba(147, 51, 234, 0.28);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
-  --shadow-sheet: 0 -8px 30px rgba(0, 0, 0, 0.14);
+  --color-cyan: #0284c7;
+  --color-cyan-bg: rgba(2, 132, 199, 0.10);
+  --color-cyan-border: rgba(2, 132, 199, 0.28);
+
+  --hero-king: #d97706;
+  --hero-king-bg: rgba(217, 119, 6, 0.11);
+  --hero-queen: #db2777;
+  --hero-queen-bg: rgba(219, 39, 119, 0.11);
+  --hero-warden: #0284c7;
+  --hero-warden-bg: rgba(2, 132, 199, 0.11);
+  --hero-prince: #9333ea;
+  --hero-prince-bg: rgba(147, 51, 234, 0.11);
+  --hero-champion: #dc2626;
+  --hero-champion-bg: rgba(220, 38, 38, 0.11);
+
+  --gold-color: #d97706;
+  --elixir-color: #c026d3;
+  --dark-elixir-color: #7e22ce;
+
+  --shadow-sm: 0 2px 6px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 8px 20px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 18px 38px rgba(15, 23, 42, 0.13);
+  --shadow-sheet: 0 -10px 36px rgba(15, 23, 42, 0.18);
+
+  --chart-tick: #475569;
+  --chart-grid: rgba(15, 23, 42, 0.07);
+  --chart-cap-bar: rgba(15, 23, 42, 0.08);
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --bg-primary: #f5f5f7;
-    --bg-secondary: #e8e8ed;
-    --bg-tertiary: #dedee4;
-
+    --bg-primary: #f1f3f8;
+    --bg-secondary: #e5e8f0;
+    --bg-tertiary: #d8dce8;
     --surface-card: #ffffff;
-    --surface-card-hover: #fcfcfd;
+    --surface-card-hover: #f9fafe;
     --surface-elevated: #ffffff;
-    --surface-sunken: #ececee;
-
-    --surface-glass-nav: rgba(245, 245, 247, 0.85);
-    --surface-glass-modal: rgba(255, 255, 255, 0.92);
-
-    --border-subtle: rgba(0, 0, 0, 0.06);
-    --border-default: rgba(0, 0, 0, 0.10);
-    --border-strong: rgba(0, 0, 0, 0.20);
-
-    --text-primary: #1d1d1f;
-    --text-secondary: #515156;
-    --text-muted: #86868b;
-    --text-faint: #a1a1a6;
-
+    --surface-sunken: #f3f5fa;
+    --highlight-top: rgba(255, 255, 255, 0.9);
+    --surface-glass-nav: rgba(255, 255, 255, 0.86);
+    --surface-glass-modal: rgba(255, 255, 255, 0.96);
+    --border-subtle: rgba(15, 23, 42, 0.07);
+    --border-default: rgba(15, 23, 42, 0.12);
+    --border-strong: rgba(15, 23, 42, 0.22);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
     --accent: #0071e3;
-    --accent-subtle: rgba(0, 113, 227, 0.08);
-    --accent-border: rgba(0, 113, 227, 0.25);
-
-    --color-success: #28cd41;
-    --color-success-bg: rgba(40, 205, 65, 0.10);
-    --color-success-border: rgba(40, 205, 65, 0.25);
-
-    --color-warning: #f59500;
-    --color-warning-bg: rgba(245, 149, 0, 0.10);
-    --color-warning-border: rgba(245, 149, 0, 0.25);
-
-    --color-danger: #ff3b30;
-    --color-danger-bg: rgba(255, 59, 48, 0.10);
-    --color-danger-border: rgba(255, 59, 48, 0.25);
-
-    --color-info: #0077b6;
-    --color-info-bg: rgba(0, 119, 182, 0.10);
-    --color-info-border: rgba(0, 119, 182, 0.25);
-
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
-    --shadow-sheet: 0 -8px 30px rgba(0, 0, 0, 0.14);
+    --accent-glow: rgba(0, 113, 227, 0.20);
+    --accent-subtle: rgba(0, 113, 227, 0.10);
+    --accent-border: rgba(0, 113, 227, 0.30);
+    --color-success: #16a34a;
+    --color-success-bg: rgba(22, 163, 74, 0.10);
+    --color-success-border: rgba(22, 163, 74, 0.28);
+    --color-warning: #d97706;
+    --color-warning-bg: rgba(217, 119, 6, 0.10);
+    --color-warning-border: rgba(217, 119, 6, 0.28);
+    --color-danger: #dc2626;
+    --color-danger-bg: rgba(220, 38, 38, 0.10);
+    --color-danger-border: rgba(220, 38, 38, 0.28);
+    --color-purple: #9333ea;
+    --color-purple-bg: rgba(147, 51, 234, 0.10);
+    --color-purple-border: rgba(147, 51, 234, 0.28);
+    --color-cyan: #0284c7;
+    --color-cyan-bg: rgba(2, 132, 199, 0.10);
+    --color-cyan-border: rgba(2, 132, 199, 0.28);
+    --hero-king: #d97706;
+    --hero-king-bg: rgba(217, 119, 6, 0.11);
+    --hero-queen: #db2777;
+    --hero-queen-bg: rgba(219, 39, 119, 0.11);
+    --hero-warden: #0284c7;
+    --hero-warden-bg: rgba(2, 132, 199, 0.11);
+    --hero-prince: #9333ea;
+    --hero-prince-bg: rgba(147, 51, 234, 0.11);
+    --hero-champion: #dc2626;
+    --hero-champion-bg: rgba(220, 38, 38, 0.11);
+    --gold-color: #d97706;
+    --elixir-color: #c026d3;
+    --dark-elixir-color: #7e22ce;
+    --shadow-sm: 0 2px 6px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 8px 20px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 18px 38px rgba(15, 23, 42, 0.13);
+    --shadow-sheet: 0 -10px 36px rgba(15, 23, 42, 0.18);
+    --chart-tick: #475569;
+    --chart-grid: rgba(15, 23, 42, 0.07);
+    --chart-cap-bar: rgba(15, 23, 42, 0.08);
   }
 }

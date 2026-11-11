@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>CoC Freemium Optimizer — Tableau de Bord v18.600.5</title>
   <meta name="description" content="Tableau de bord d'optimisation freemium et conseils personnalisés pour Clash of Clans v18.600.5">
-  <meta name="theme-color" content="#070709">
+  <meta name="theme-color" content="#07080d">
 
   <!-- PWA Manifest & Icônes -->
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="/icon.svg">
   <link rel="apple-touch-icon" href="/icon.svg">
 
-  <!-- Styles Apple Minimalistes (Zéro CDN / 100% Natif) -->
+  <!-- Styles Natifs (Zéro CDN) -->
   <link rel="stylesheet" href="/css/tokens.css">
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/components.css">
@@ -27,12 +27,26 @@
   <!-- Barre de Notification Toast -->
   <div id="toast-container" class="toast-container" role="status" aria-live="polite"></div>
 
-  <!-- Barre de Navigation Supérieure (Effet Verre Apple) -->
+  <!-- Modale / Feuille Glissante Globale (Glossaire & Menu Mobile) -->
+  <div id="global-modal-backdrop" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="global-modal-title">
+    <div class="modal-sheet">
+      <div class="modal-grabber" aria-hidden="true"></div>
+      <div class="modal-header">
+        <h3 id="global-modal-title" class="text-base font-bold text-primary">Détails</h3>
+        <button id="global-modal-close" class="btn btn-ghost btn-icon" aria-label="Fermer la fenêtre">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div id="global-modal-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Barre de Navigation Supérieure -->
   <header class="app-header">
     <div class="header-inner">
-      <div class="header-brand">
+      <div class="header-brand" data-route="home" role="button" tabindex="0" aria-label="Retour à l'accueil">
         <div class="brand-icon" aria-hidden="true">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
         </div>
@@ -40,7 +54,7 @@
           <div class="brand-title-row">
             <span class="brand-title">CoC Optimizer</span>
             <span id="header-tag-badge" class="badge badge-neutral tabular-nums">#GUQLRP8LV</span>
-            <span class="badge badge-accent">v18.600.5</span>
+            <span class="badge badge-accent brand-version-badge">v18.600.5</span>
           </div>
           <span id="header-status-text" class="brand-subtitle">Prêt • Mode Local</span>
         </div>
@@ -55,17 +69,18 @@
         <button class="nav-tab-btn" data-route="advice" aria-selected="false">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
           <span>Conseils</span>
+          <span id="desktop-advice-badge" class="nav-alert-pill hidden">0</span>
         </button>
         <button class="nav-tab-btn" data-route="village" aria-selected="false">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
           <span>Village</span>
         </button>
         <button class="nav-tab-btn" data-route="heroes" aria-selected="false">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
           <span>Héros</span>
         </button>
         <button class="nav-tab-btn" data-route="army" aria-selected="false">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 12.5-8 8a2.119 2.119 0 1 1-3-3l8-8"></path><path d="m16 16 6-6"></path><path d="m8 8 6-6"></path><path d="m9 7 8 8"></path><path d="m21 11-8-8"></path></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 12.5-8 8a2.119 2.119 0 1 1-3-3l8-8"></path><path d="m16 16 6-6"></path><path d="m8 8 6-6"></path></svg>
           <span>Armée</span>
         </button>
         <button class="nav-tab-btn" data-route="progress" aria-selected="false">
@@ -82,8 +97,11 @@
         </button>
       </nav>
 
-      <!-- Boutons Actions Header -->
+      <!-- Actions Header -->
       <div class="header-actions">
+        <button class="btn btn-ghost btn-icon" data-route="settings" title="Import & Synchronisation" aria-label="Import et Synchronisation">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><path d="M14 14h3v3h-3z"></path><path d="M17 17h4v4h-4z"></path></svg>
+        </button>
         <button id="btn-theme-toggle" class="btn btn-ghost btn-icon" title="Changer de thème (Clair / Sombre)" aria-label="Changer de thème">
           <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         </button>
@@ -95,160 +113,118 @@
   <main class="app-main">
 
     <!-- Vue 1 : Accueil / Aujourd'hui -->
-    <section id="view-home" class="view-pane is-active" data-view="home" aria-labelledby="home-heading">
-      <div class="card card-hero">
-        <h2 id="home-heading">Aujourd'hui</h2>
-        <p id="home-summary-text" class="text-sm mt-1">Chargement de l'analyse du village...</p>
-      </div>
-
-      <!-- 4 KPIs Clés -->
-      <div class="grid-kpi">
-        <div class="card">
-          <span class="text-2xs text-secondary font-medium">HÔTEL DE VILLE</span>
-          <div id="kpi-th-val" class="text-2xl font-bold tabular-nums mt-1">-</div>
-          <p id="kpi-th-sub" class="text-xs text-muted mt-0.5">Détection dynamique</p>
-        </div>
-        <div class="card">
-          <span class="text-2xs text-secondary font-medium">OUVRIERS</span>
-          <div id="kpi-builders-val" class="text-2xl font-bold tabular-nums mt-1">-</div>
-          <p id="kpi-builders-sub" class="text-xs text-muted mt-0.5">Disponibilité</p>
-        </div>
-        <div class="card">
-          <span class="text-2xs text-secondary font-medium">FORCE HÉROS</span>
-          <div id="kpi-heroes-val" class="text-2xl font-bold tabular-nums mt-1">-</div>
-          <div class="progress-track mt-2">
-            <div id="kpi-heroes-bar" class="progress-fill" style="width: 0%"></div>
-          </div>
-        </div>
-        <div class="card">
-          <span class="text-2xs text-secondary font-medium">REMPARTS</span>
-          <div id="kpi-walls-val" class="text-2xl font-bold tabular-nums mt-1">-</div>
-          <div class="progress-track mt-2">
-            <div id="kpi-walls-bar" class="progress-fill progress-fill-success" style="width: 0%"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3 Prochaines Actions Recommandées -->
-      <div class="card">
-        <div class="flex items-center justify-between pb-3 border-b border-subtle">
-          <h3>Prochaines actions recommandées</h3>
-          <button class="btn btn-sm btn-ghost" data-route="advice">Voir tous les conseils</button>
-        </div>
-        <div id="home-priority-actions-list" class="grid-1col mt-3 gap-3">
-          <!-- Injecté dynamiquement par homeView -->
-          <p class="text-xs text-muted">Chargement des recommandations prioritaires...</p>
+    <section id="view-home" class="view-pane is-active" data-view="home" aria-label="Accueil">
+      <div id="home-container" class="space-y-4">
+        <div class="card card-hero p-5">
+          <h2>Chargement de votre village...</h2>
+          <p class="text-xs text-secondary mt-1">Analyse en cours...</p>
         </div>
       </div>
     </section>
 
     <!-- Vue 2 : Conseils -->
     <section id="view-advice" class="view-pane" data-view="advice" hidden aria-labelledby="advice-heading">
-      <div class="card">
-        <div class="flex items-center justify-between pb-3 border-b border-subtle">
-          <div>
-            <h2 id="advice-heading">Conseils Personnalisés</h2>
-            <p class="text-xs text-secondary mt-0.5">Conseils déduits de l'état exact de votre village</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button id="btn-toggle-beginner" class="btn btn-sm btn-secondary">Mode : Avancé</button>
-          </div>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
+        <div>
+          <h2 id="advice-heading">Conseils Personnalisés</h2>
+          <p class="text-xs text-secondary mt-0.5">Recommandations déduites directement de l'état réel de votre village</p>
         </div>
-        <div id="advice-container" class="mt-4">
-          <p class="text-xs text-muted">Initialisation du moteur de conseils...</p>
-        </div>
+      </div>
+      <div id="advice-container" class="space-y-4">
+        <p class="text-xs text-muted">Initialisation du moteur de conseils...</p>
       </div>
     </section>
 
     <!-- Vue 3 : Village -->
     <section id="view-village" class="view-pane" data-view="village" hidden aria-labelledby="village-heading">
-      <div class="card">
-        <h2 id="village-heading">Bâtiments, Défenses & Remparts</h2>
-        <p class="text-xs text-secondary mt-0.5">Progression détaillée de chaque élément vers le plafond HDV</p>
-        <div id="village-inventory-container" class="mt-4">
-          <p class="text-xs text-muted">Chargement du village...</p>
-        </div>
+      <div class="px-1">
+        <h2 id="village-heading">Village, Défenses & Remparts</h2>
+        <p class="text-xs text-secondary mt-0.5">Progression détaillée vers les plafonds de votre HDV et Station d'Artisanat</p>
+      </div>
+      <div id="village-inventory-container" class="space-y-4">
+        <p class="text-xs text-muted">Chargement du village...</p>
       </div>
     </section>
 
     <!-- Vue 4 : Héros & Équipements -->
     <section id="view-heroes" class="view-pane" data-view="heroes" hidden aria-labelledby="heroes-heading">
-      <div class="card">
+      <div class="px-1">
         <h2 id="heroes-heading">Héros & Équipements</h2>
-        <p class="text-xs text-secondary mt-0.5">Roi, Reine, Grand Gardien et Prince Gargouille (v18.600.5)</p>
-        <div id="heroes-container" class="mt-4">
-          <p class="text-xs text-muted">Chargement des héros...</p>
-        </div>
+        <p class="text-xs text-secondary mt-0.5">Niveaux actuels, retard cumulé et paliers d'équipements ×3 (v18.600.5)</p>
+      </div>
+      <div id="heroes-container" class="space-y-4">
+        <p class="text-xs text-muted">Chargement des héros...</p>
       </div>
     </section>
 
     <!-- Vue 5 : Troupes, Sorts & Laboratoire -->
     <section id="view-army" class="view-pane" data-view="army" hidden aria-labelledby="army-heading">
-      <div class="card">
+      <div class="px-1">
         <h2 id="army-heading">Laboratoire & Armée</h2>
-        <p class="text-xs text-secondary mt-0.5">Niveaux de recherche et priorités de laboratoire</p>
-        <div id="army-container" class="mt-4">
-          <p class="text-xs text-muted">Chargement du laboratoire...</p>
-        </div>
+        <p class="text-xs text-secondary mt-0.5">Recherches actives et avancement de vos troupes & sorts</p>
+      </div>
+      <div id="army-container" class="space-y-4">
+        <p class="text-xs text-muted">Chargement du laboratoire...</p>
       </div>
     </section>
 
     <!-- Vue 6 : Progression & Projection -->
     <section id="view-progress" class="view-pane" data-view="progress" hidden aria-labelledby="progress-heading">
-      <div class="card">
+      <div class="px-1">
         <h2 id="progress-heading">Progression & Projection</h2>
-        <p class="text-xs text-secondary mt-0.5">Modélisation temporelle vers l'HDV supérieur avec assistants</p>
-        <div id="progress-container" class="mt-4">
-          <p class="text-xs text-muted">Chargement des graphiques et modèles...</p>
-        </div>
+        <p class="text-xs text-secondary mt-0.5">Simulateur interactif de passage à l'HDV supérieur</p>
+      </div>
+      <div id="progress-container" class="space-y-4">
+        <p class="text-xs text-muted">Chargement des graphiques...</p>
       </div>
     </section>
 
     <!-- Vue 7 : Stratégies d'armée -->
     <section id="view-strategy" class="view-pane" data-view="strategy" hidden aria-labelledby="strategy-heading">
-      <div class="card">
+      <div class="px-1">
         <h2 id="strategy-heading">Stratégies & Compositions d'Armée</h2>
-        <p class="text-xs text-secondary mt-0.5">Farm, GDC 3 étoiles, Rush Trophées et Sans Héros</p>
-        <div id="strategy-container" class="mt-4">
-          <p class="text-xs text-muted">Chargement des compositions...</p>
-        </div>
+        <p class="text-xs text-secondary mt-0.5">Plans d'attaque détaillés et niveau réel de vos troupes</p>
+      </div>
+      <div id="strategy-container" class="space-y-4">
+        <p class="text-xs text-muted">Chargement des compositions...</p>
       </div>
     </section>
 
     <!-- Vue 8 : Réglages & Synchronisation -->
     <section id="view-settings" class="view-pane" data-view="settings" hidden aria-labelledby="settings-heading">
-      <div class="card">
+      <div class="px-1">
         <h2 id="settings-heading">Réglages, Import & Synchronisation</h2>
-        <p class="text-xs text-secondary mt-0.5">Gestion de vos données, synchronisation multi-appareils et comptes</p>
-        <div id="settings-container" class="mt-4">
-          <!-- Boutons Import / Export / Sync -->
-        </div>
+        <p class="text-xs text-secondary mt-0.5">Synchronisation multi-appareils QR/Gzip, thèmes, comptes et glossaire</p>
+      </div>
+      <div id="settings-container" class="space-y-4">
+        <p class="text-xs text-muted">Chargement des réglages...</p>
       </div>
     </section>
 
   </main>
 
-  <!-- Barre d'Onglets Mobile (Touch Bar Apple en bas d'écran) -->
+  <!-- Barre d'Onglets Mobile en bas d'écran (Toutes les vues accessibles via "Plus") -->
   <nav class="mobile-tab-bar" aria-label="Navigation mobile">
     <button class="mobile-tab-item is-active" data-route="home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
       <span>Accueil</span>
     </button>
     <button class="mobile-tab-item" data-route="advice">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
       <span>Conseils</span>
+      <span id="mobile-advice-badge" class="mobile-tab-badge hidden">0</span>
     </button>
     <button class="mobile-tab-item" data-route="village">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
       <span>Village</span>
     </button>
     <button class="mobile-tab-item" data-route="heroes">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
       <span>Héros</span>
     </button>
-    <button class="mobile-tab-item" data-route="settings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-      <span>Réglages</span>
+    <button id="mobile-more-trigger" class="mobile-tab-item" type="button" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>
+      <span>Explorer</span>
     </button>
   </nav>
 

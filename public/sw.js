@@ -4,8 +4,8 @@
  * Fonctionne 100% hors-ligne après le premier chargement.
  */
 
-const CACHE_NAME = 'coc-optimizer-shell-v1';
-const DATA_CACHE_NAME = 'coc-optimizer-data-v1';
+const CACHE_NAME = 'coc-optimizer-shell-v3';
+const DATA_CACHE_NAME = 'coc-optimizer-data-v3';
 
 const APP_SHELL_ASSETS = [
   '/',
@@ -20,11 +20,21 @@ const APP_SHELL_ASSETS = [
   '/js/router.js',
   '/js/store.js',
   '/js/i18n.js',
+  '/js/utils.js',
   '/js/coc_data.js',
   '/js/analysis.js',
   '/js/advice.js',
   '/js/sync.js',
   '/js/charts.js',
+  '/js/ui/icons.js',
+  '/js/ui/homeView.js',
+  '/js/ui/adviceView.js',
+  '/js/ui/villageView.js',
+  '/js/ui/heroesView.js',
+  '/js/ui/armyView.js',
+  '/js/ui/progressView.js',
+  '/js/ui/strategyView.js',
+  '/js/ui/settingsView.js',
   '/data/townhall_caps.json',
   '/data/upgrade_costs.json',
   '/data/advice_rules.json',
@@ -37,10 +47,9 @@ const APP_SHELL_ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Precache tout ce qui est déjà disponible, sans échouer si un fichier manque encore pendant le dev
       return Promise.allSettled(
         APP_SHELL_ASSETS.map((url) =>
-          fetch(url).then((res) => {
+          fetch(url, { cache: 'reload' }).then((res) => {
             if (res.ok) return cache.put(url, res);
           }).catch(() => {})
         )
@@ -99,7 +108,6 @@ self.addEventListener('fetch', (event) => {
         }
         return networkResponse;
       }).catch(() => {
-        // En cas de navigation hors-ligne complète, renvoie index.html
         if (request.mode === 'navigate') {
           return caches.match('/index.html');
         }
